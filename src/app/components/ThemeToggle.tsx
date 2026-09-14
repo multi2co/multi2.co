@@ -1,70 +1,53 @@
 "use client";
 
-import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { THEMES, useTheme } from "@/context/ThemeContext";
+import { useIconStyle } from "@/context/IconStyleContext";
 
-type Option = { id: string; label: string };
+/** The two glyph pairs a CheckButton can draw, keyed by the CMS's icon-style
+ *  toggle — kept here rather than imported so this stays a plain glyph
+ *  choice, not a dependency on CheckButton's internals. */
+const MARKS = {
+  square: { active: "■", inactive: "■" },
+  dot: { active: "●", inactive: "●" },
+} as const;
+
+const SWATCH_CLASS =
+  "-my-px flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center border p-0 font-visual text-xl leading-none";
 
 /**
- * The vertical sibling of {@link CheckToggle}: one row per option, the rows'
- * left cells joining into a single bordered column, and a filled block that
- * slides down it to the current option. `motion`'s shared-layout animation
- * (`layoutId`) carries the block between rows. Nothing here is rounded.
+ * The floating palette picker — one swatch per THEME, fixed to the viewport's
+ * right edge and vertically centred, each drawn in that palette's own primary
+ * colour so every option reads at a glance. A click selects that theme
+ * directly. Same control at every breakpoint — no separate mobile treatment.
  */
-export default function ThemeToggle({
-  options,
-  value,
-  onChange,
-  className,
-}: {
-  options: readonly Option[];
-  value: string;
-  onChange: (id: string) => void;
-  className?: string;
-}) {
+export default function ThemeToggle({ className }: { className?: string }) {
+  const { theme, selectTheme } = useTheme();
+  const iconStyle = useIconStyle();
+  const marks = MARKS[iconStyle];
+
   return (
     <div
       role="radiogroup"
+      aria-label="Colour theme"
       className={cn(
-        "inline-flex flex-col font-visual text-base lg:text-lg lowercase text-primary",
+        "fixed top-1/2 right-3 lg:right-0 z-[90] flex -translate-y-1/2 flex-col gap-y-0",
         className,
       )}
     >
-      {options.map((option, i) => {
-        const on = option.id === value;
+      {THEMES.map((t) => {
+        const active = t.id === theme;
         return (
           <button
-            key={option.id}
+            key={t.id}
             type="button"
             role="radio"
-            aria-checked={on}
-            aria-label={option.label}
-            onClick={() => onChange(option.id)}
-            className="flex items-stretch gap-x-3 h-[1.5em]  cursor-pointer"
+            aria-checked={active}
+            aria-label={t.label}
+            onClick={() => selectTheme(t.id)}
+            className={cn(SWATCH_CLASS, "border-transparent", t.swatch)}
           >
-            {/* Left cell — the borders stack into one continuous column. */}
-            <span
-              className={cn(
-                "relative flex w-[1.5em] shrink-0 border-x border-b border-current",
-                i === 0 && "border-t",
-              )}
-            >
-              {on && (
-                <motion.span
-                  layoutId="theme-toggle-fill"
-                  transition={{ type: "spring", stiffness: 500, damping: 34 }}
-                  className="absolute inset-[0.15em] bg-current"
-                />
-              )}
-            </span>
-            <span
-              className={cn(
-                "self-center lowercase text-sm",
-                !on && "opacity-40 lowercase text-sm",
-              )}
-            >
-              {option.label}
-            </span>
+            {active ? marks.active : marks.inactive}
           </button>
         );
       })}

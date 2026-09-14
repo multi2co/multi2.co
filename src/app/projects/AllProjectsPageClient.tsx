@@ -7,6 +7,7 @@ import { useUI } from "@/context/UIContext";
 import { useWork } from "@/context/WorkContext";
 import ProjectCard from "@/app/components/ProjectCard";
 import CategoryFilters from "@/app/components/CategoryFilters";
+import CheckButton from "@/app/components/CheckButton";
 import FilterOverlay from "@/app/components/FilterOverlay";
 import { getFilterDoneMs, getPostLoadFilterDoneMs } from "@/lib/navTiming";
 import { getCategoryLabel } from "@/lib/categories";
@@ -34,6 +35,21 @@ export default function AllProjectsPageClient() {
   useEffect(() => {
     setOpenedCard(null);
   }, [setOpenedCard]);
+
+  // The filters master switch — owned here (rather than inside
+  // CategoryFilters) so its mobile toggle can sit in this row, alongside the
+  // "projects" label, instead of down in CategoryFilters' own drawer. Starts
+  // closed — matching the mobile drawer's collapsed state — then opens itself
+  // once on desktop, where CategoryFilters is a static sidebar rather than a
+  // drawer someone has to pull out. The breakpoint can't be known at render
+  // time (SSR has no viewport), so this only runs after mount and only sets
+  // the initial default; it doesn't fight a later manual close.
+  const [showFilters, setShowFilters] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      setShowFilters(true);
+    }
+  }, []);
 
   // The list waits for the category column to finish typing itself in, so the
   // two don't animate over each other.
@@ -106,28 +122,45 @@ export default function AllProjectsPageClient() {
   return (
     <div
       id="projects"
-      className="relative   w-full px-0 lg:px-0 pt-28 lg:mt-0 lg:pt-0   "
+      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-[calc(25vh-6rem)] lg:pt-0   "
     >
       <LandningBlock
         label="projects"
-        className="h-screen    content-center lg:grid-rows-3 bg-transparent"
-        labelClassName="col-span-3 lg:col-start-1 lg:col-span-12 lg:row-start-2 w-full"
-        contentClassName="col-start-1 col-span-3 lg:col-start-4 lg:col-span-9 lg:row-start-2 lowercase w-full"
+        // z-40 — above CategoryFilters' z-30 drawer — so this row, and the
+        // mobile filters toggle riding in it, stay visible and clickable
+        // once the drawer opens and covers the rest of the screen.
+        className="h-auto    content-center relative z-40 "
+        labelClassName="col-span-2 lg:col-start-1 lg:col-span-12 lg:row-start-2 w-full"
+        contentClassName="col-start-3 col-span-1 lg:col-start-4 lg:col-span-9 lg:row-start-2 lowercase w-full"
       >
         <TypedHeading
           ready={!navLoading}
           text="welcome to the archive"
           className=" text-left hidden lg:flex  h2Text px-6 font-thin text-primary mb-3"
         />
+        {/* Mobile only — shares the "projects" label's row/baseline instead
+            of CategoryFilters' own bottom-right tab. Desktop keeps that
+            tab as-is. */}
+        <CheckButton
+          label={showFilters ? "close" : "filters"}
+          size="lg"
+          active
+          className="lg:hidden whitespace-nowrap"
+          onClick={() => setShowFilters((v) => !v)}
+        />
       </LandningBlock>
       <FilterOverlay />
 
       {/* Desktop: category sidebar left, projects right. */}
       <div className=" mt-12 mb-6 lg:mb-3 grid grid-cols-3 lg:grid-cols-12 ">
-        <CategoryFilters className="" />
+        <CategoryFilters
+          className=""
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+        />
 
         {listVisible && showList && (
-          <div className="col-start-1 col-span-8 hidden w-full lg:flex flex-col  justify-start items-start px-3  gap-6 mt-3 mb-12 ">
+          <div className="col-start-1 col-span-8 hidden w-full lg:flex flex-col  justify-start items-start px-6  gap-3 mt-0 mb-12 ">
             <AnimatePresence mode="popLayout">
               {clients.map((client, idx) => (
                 <motion.div
@@ -141,7 +174,7 @@ export default function AllProjectsPageClient() {
                 >
                   <Link
                     href={`/projects/${client.slug}`}
-                    className=" transition-all h2Text text-primary lowercase hover:text-secondary  leading-[0.9] hover:bg-transparent"
+                    className=" transition-all h2Text text-primary text-center lowercase w-full hover:text-secondary  leading-[0.9] hover:bg-transparent"
                   >
                     {client.label}
                   </Link>
@@ -153,7 +186,7 @@ export default function AllProjectsPageClient() {
 
         {listVisible && showGrid && (
           <div
-            className="col-start-1 col-span-4 lg:col-start-1 lg:col-span-12 hidden w-full mt-3  lg:grid gap-x-6 gap-y-6 px-3 lg:px-3"
+            className="col-start-1 col-span-4 lg:col-start-1 lg:col-span-12 hidden w-full mt-3  lg:grid gap-x-3 gap-y-6 px-3 lg:px-3"
             style={{
               gridTemplateColumns: `repeat(${numCols}, minmax(0, 1fr))`,
             }}

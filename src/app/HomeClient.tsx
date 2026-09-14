@@ -9,29 +9,26 @@ import Link from "next/link";
 import AboutSectionText from "./components/AboutSectionText";
 import BottomNav from "./components/BottomNav";
 import CheckButton from "./components/CheckButton";
-import ConnectSection from "./components/ConnectSection";
+import ConnectSection, { type ContactData } from "./components/ConnectSection";
 import FeaturedCard from "./components/FeaturedCard";
 import LandningBlock from "./components/LandningBlock";
 import { Reveal } from "./components/Reveal";
 import ShowReel from "./components/ShowReel";
-import TypedHeading from "./components/TypedHeading";
 
 import Footer from "./components/Footer";
 
 /** The standing mobile "sound on/off" toggle in the hero corner — off for now. */
 const SHOW_MOBILE_SOUND = false;
 
-/** The hero's own nav — every route except Home. Fills the 4-col row. */
-const HERO_NAV = [
-  { href: "/projects", label: "projects" },
-  { href: "/about", label: "about" },
-  { href: "/connect", label: "connect" },
-  { href: "/studio", label: "log in" },
-] as const;
-
-function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
+function HomeClientInner({
+  reelUrl,
+  contact,
+}: {
+  reelUrl?: string;
+  contact?: ContactData;
+}) {
   const { items } = useWork();
-  const { notifyContentDone, navLoading } = useUI();
+  const { notifyContentDone } = useUI();
   const { muted, toggleMute, consentSettled } = useSound();
 
   const [revealed, setRevealed] = useState(false);
@@ -115,31 +112,14 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               </>
             }
           >
-            {/* Held back until the bar has stopped saying "loading", so the
-                two aren't typing at each other. The hero has no label, so its
-                wordmark keeps the full twelve columns rather than starting at
-                four. */}
-            <TypedHeading
-              ready={!navLoading}
-              text="multisquared"
-              className="max-w-sm lg:max-w-full px-3  pb-0 text-left h1Text min-w-0 lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary"
-            />
+            {/* The hero has no label, so its wordmark keeps the full twelve
+                columns rather than starting at four. */}
+            <h2 className="max-w-sm lg:max-w-full px-3  pb-0 text-left h1Text min-w-0 lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
+              multisquared
+            </h2>
           </LandningBlock>
           {/* Hero nav — every route but Home, in a 4-col row pinned to the
               bottom-left of the showreel block. Static (no reveal). */}
-          <nav className="absolute bottom-0 left-0 z-10 hidden lg:grid w-full grid-cols-4 items-baseline px-0 pb-0">
-            {HERO_NAV.map((link) => (
-              <CheckButton
-                key={link.href}
-                href={link.href}
-                label={link.label}
-                size="lg"
-                active
-                marks={{ active: "●", inactive: "○" }}
-                className="font-visual text-primary px-0"
-              />
-            ))}
-          </nav>
 
           {/* Mobile sound toggle — hidden for now; flip SHOW_MOBILE_SOUND to
               bring it back. */}
@@ -154,15 +134,13 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
             </div>
           )}
         </div>
-        <Reveal className="col-span-3 lg:col-span-12 h-dvh ">
-          <LandningBlock
+        <Reveal className="col-span-3 lg:col-span-12 ">
+          <AboutSectionText
+            columns
             label="our story"
-            bg="   text-primary  "
-            className=" h-auto  "
-          >
-            {/* Reads the `about-short` Copy entry itself. */}
-            <AboutSectionText className="w-full justify-center lg:content-center pb-6 lg:pb-12" />
-          </LandningBlock>
+            className="pb-6 lg:pb-12  w-full
+              "
+          />
         </Reveal>
 
         {/* Selected projects. The section is taller than the viewport and its
@@ -171,6 +149,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
             without the reader touching the strip. Not wrapped in <Reveal> — a
             settling transform on the ancestor would fight the sticky
             positioning. */}
+
         <section
           ref={projectsSectionRef}
           className="relative bg-background"
@@ -180,24 +159,11 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               : undefined
           }
         >
-          <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-            <div className="grid grid-cols-3 bg-background lg:grid-cols-12">
-              <LandningBlock
-                label="selected projects"
-                href="/projects"
-                bg="bg-background text-primary"
-                className="h-auto col-start-1 col-span-3 lg:col-start-1 lg:col-span-12"
-              >
-                <TypedHeading
-                  text="experience our work"
-                  className="hidden h2Text lg:flex px-6 mb-6 lg:mb-0 font-thin text-primary"
-                />
-              </LandningBlock>
-            </div>
-
+          <div className="sticky top-8 flex h-screen flex-col justify-center overflow-hidden">
+            <CheckButton label="selected projects" href="/projects" size="lg" />
             {/* The row is transform-driven, so its own overflow stays visible —
                 the sticky wrapper above does the clipping. */}
-            <div className="relative mt-12 lg:mt-3 w-full overflow-visible">
+            <div className="relative mt-12 lg:mt-0 w-full overflow-visible">
               <motion.div
                 ref={projectsStripRef}
                 style={trackScroll ? { x: stripX } : undefined}
@@ -208,14 +174,14 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
                     key={project.key}
                     project={project}
                     captionBelow
-                    className="shrink-0 w-[80vw] sm:w-[46vw] lg:w-[calc((100vw-3.75rem)/3)]"
+                    className="shrink-0 w-[80vw] sm:w-[46vw] lg:w-[calc((100vw-15rem)/2)]"
                   />
                 ))}
 
                 {/* The fifth slot — same footprint as a card: square + caption. */}
                 <Link
                   href="/projects"
-                  className="group shrink-0 w-[80vw] sm:w-[46vw] lg:w-[calc((100vw-3.75rem)/4)] flex flex-col gap-3 lg:gap-6 mb-3 lg:mb-6 pl-3"
+                  className="group shrink-0 w-[80vw] sm:w-[46vw] lg:w-[calc((100vw-16rem)/2)] flex flex-col gap-3 lg:gap-0 mb-3 lg:mb-6 pl-3"
                 >
                   <div className="relative flex aspect-square w-full items-center justify-center transition-opacity pixelCorners bg-primary text-primary-foreground group-hover:opacity-90">
                     <span className="text-7xl lg:text-6xl font-thin font-visual leading-none">
@@ -233,7 +199,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
             </div>
           </div>
         </section>
-        <ConnectSection className="mt-3" />
+        <ConnectSection className="mt-3" contact={contact} />
 
         <Reveal className="w-full mb-6">
           <BottomNav />
@@ -247,6 +213,12 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   );
 }
 
-export default function HomeClient({ reelUrl }: { reelUrl?: string }) {
-  return <HomeClientInner reelUrl={reelUrl} />;
+export default function HomeClient({
+  reelUrl,
+  contact,
+}: {
+  reelUrl?: string;
+  contact?: ContactData;
+}) {
+  return <HomeClientInner reelUrl={reelUrl} contact={contact} />;
 }

@@ -87,33 +87,33 @@ export const showreelQuery = groq`
   }
 `;
 
-// Sticky notes ordered manually
-export const stickyNotesQuery = groq`
-  *[_type == "stickyNote"] | order(order asc) {
+// About copy — one entry; short block for the home page, long for /about
+export const aboutQuery = groq`
+  *[_type == "about"][0] {
     _id,
-    text
+    aboutShort,
+    aboutLong
   }
 `;
 
-// All copy entries (for CopyContext)
-export const allCopyQuery = groq`
-  *[_type == "copy"] {
+// Contact info — one entry
+export const contactQuery = groq`
+  *[_type == "contact"][0] {
     _id,
-    "key": key.current,
-    title,
-    body,
-    plainText
+    phone,
+    email,
+    people[] {
+      name,
+      phone,
+      email
+    }
   }
 `;
 
-// Copy by key
-export const copyByKeyQuery = groq`
-  *[_type == "copy" && key.current == $key][0] {
+// Site settings — one entry
+export const siteSettingsQuery = groq`
+  *[_type == "siteSettings"][0] {
     _id,
-    key,
-    title,
-    body,
-    plainText,
-    image { asset-> }
+    iconStyle
   }
 `;

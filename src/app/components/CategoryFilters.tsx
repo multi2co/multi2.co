@@ -7,7 +7,7 @@ import { useWork } from "@/context/WorkContext";
 import CheckButton from "./CheckButton";
 import SearchCheck from "./SearchCheck";
 import { zoomInCols, zoomOutCols } from "@/lib/gridZoom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const DRAWER_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -34,8 +34,16 @@ const getFilterLabel = (cat: string) =>
 
 export default function CategoryFilters({
   className = "",
+  showFilters,
+  setShowFilters,
 }: {
   className?: string;
+  /** The master switch for the whole control area — owned by
+   *  AllProjectsPageClient so the mobile toggle button can sit in the
+   *  "projects" LandningBlock row instead of down here; the desktop toggle
+   *  below still flips the same state. */
+  showFilters: boolean;
+  setShowFilters: (v: boolean | ((prev: boolean) => boolean)) => void;
 }) {
   const {
     activeFilter,
@@ -56,19 +64,7 @@ export default function CategoryFilters({
   } = useUI();
   const { categories } = useWork();
 
-  // `showFilters` is the master switch for the whole control area; `showCat`
-  // toggles just the category list within it. Starts closed — matching the
-  // mobile drawer's collapsed tab — then opens itself once on desktop, where
-  // this is a static sidebar rather than a drawer someone has to pull out.
-  // The breakpoint can't be known at render time (SSR has no viewport), so
-  // this only runs after mount and only sets the initial default; it doesn't
-  // fight a later manual close.
-  const [showFilters, setShowFilters] = useState(false);
-  useEffect(() => {
-    if (window.matchMedia("(min-width: 1024px)").matches) {
-      setShowFilters(true);
-    }
-  }, []);
+  // `showCat` toggles just the category list within the panel.
   const [showCat, setShowCat] = useState(true);
 
   function showThumbnails() {
@@ -235,11 +231,11 @@ export default function CategoryFilters({
         )}
       </AnimatePresence>
 
-      {/* Mobile: the toggle sits at the drawer's bottom edge so it holds its
-          position whether the panel is open or closed. Desktop: it drops into
-          the panel grid's empty left columns, bottom-aligned (lg:self-end) with
-          matching lg:p-3 so its baseline lands on the last sub-menu row. */}
-      <div className="px-6 py-4 lg:px-3 lg:py-0 lg:col-start-1 lg:col-span-2 lg:row-start-1 lg:self-end lg:z-10">
+      {/* Desktop only now — it drops into the panel grid's empty left columns,
+          bottom-aligned (lg:self-end) with matching lg:p-3 so its baseline
+          lands on the last sub-menu row. Mobile has its own toggle sharing
+          the "projects" LandningBlock label's row instead. */}
+      <div className="hidden lg:block lg:col-start-1 lg:col-span-2 lg:row-start-1 lg:self-end lg:z-10 lg:px-3 lg:py-0">
         <CheckButton
           label={showFilters ? "close" : "filters"}
           size="lg"

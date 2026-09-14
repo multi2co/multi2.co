@@ -3,7 +3,8 @@ import localFont from "next/font/local";
 import React from "react";
 import "./globals.css";
 import { WorkContextServer } from "@/context/WorkContextServer";
-import { CopyContextServer } from "@/context/CopyContextServer";
+import { AboutContextServer } from "@/context/AboutContextServer";
+import { IconStyleContextServer } from "@/context/IconStyleContextServer";
 import { UIProvider } from "@/context/UIContext";
 import { ReelProvider } from "@/context/ReelContext";
 import { SoundProvider } from "@/context/SoundContext";
@@ -13,6 +14,7 @@ import M2Nav from "@/app/components/M2Nav";
 import CookieAndSound from "@/app/components/CookieAndSound";
 import SmoothScroll from "@/app/components/SmoothScroll";
 import UnderConstruction from "./components/UnderConstruction";
+import ThemeToggle from "./components/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "multi2",
@@ -75,26 +77,29 @@ export default function RootLayout({
         className={`${visualFont.variable} ${multiDotsFont.variable} antialiased`}
       >
         <WorkContextServer>
-          <CopyContextServer>
-            <UIProvider>
-              {/* Wraps the whole tree: the consent box and the nav read reel
-                  state too, not just the page below them. */}
-              <SoundProvider>
-                <ReelProvider>
-                  {/* CursorProvider stays for the busy-state signal the nav
-                      publishes; the custom cursor itself is off. */}
-                  <CursorProvider>
-                    <ThemeProvider>
-                      <M2Nav />
-                      <CookieAndSound />
+          <IconStyleContextServer>
+            <AboutContextServer>
+              <UIProvider>
+                {/* Wraps the whole tree: the consent box and the nav read reel
+                    state too, not just the page below them. */}
+                <SoundProvider>
+                  <ReelProvider>
+                    {/* CursorProvider stays for the busy-state signal the nav
+                        publishes; the custom cursor itself is off. */}
+                    <CursorProvider>
+                      <ThemeProvider>
+                        <ThemeToggle />
+                        <M2Nav />
+                        <CookieAndSound />
 
-                      <SmoothScroll>{children}</SmoothScroll>
-                    </ThemeProvider>
-                  </CursorProvider>
-                </ReelProvider>
-              </SoundProvider>
-            </UIProvider>
-          </CopyContextServer>
+                        <SmoothScroll>{children}</SmoothScroll>
+                      </ThemeProvider>
+                    </CursorProvider>
+                  </ReelProvider>
+                </SoundProvider>
+              </UIProvider>
+            </AboutContextServer>
+          </IconStyleContextServer>
         </WorkContextServer>
       </body>
     </html>

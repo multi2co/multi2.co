@@ -53,10 +53,10 @@ export default function FeaturedCard({
       {...reveal}
       href={`/projects/${project.slug}`}
       className={cn(
-        "col-span-1 group relative w-full mb-3 lg:mb-6",
+        "col-span-1 group  relative w-full mb-3 lg:mb-0",
         captionBelow
-          ? "flex flex-col gap-3 lg:gap-6"
-          : "grid grid-cols-3 lg:flex lg:flex-row lg:items-stretch gap-3 lg:gap-3",
+          ? "flex flex-col gap-3 lg:gap-0"
+          : "grid grid-cols-3 lg:flex lg:flex-row lg:items-stretch gap-3 lg:gap-0",
         className,
       )}
     >
@@ -108,7 +108,7 @@ export default function FeaturedCard({
 
       {captionBelow && (
         /* The caption sits under the image: client above, title below. */
-        <div className="w-full flex flex-col gap-1 lg:gap-2">
+        <div className="w-full flex flex-col gap-1 lg:gap-0">
           <CheckButton
             size="lg"
             label={project.client}

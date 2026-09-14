@@ -1,6 +1,7 @@
 import { work } from "./work";
-import { copy } from "./copy";
-import { stickyNote } from "./stickyNote";
+import { about } from "./about";
+import { contact } from "./contact";
 import { showreel } from "./showreel";
+import { siteSettings } from "./siteSettings";
 
-export const schemaTypes = [work, copy, showreel, stickyNote];
+export const schemaTypes = [work, about, contact, showreel, siteSettings];

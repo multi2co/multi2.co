@@ -15,9 +15,9 @@ export default function AboutPage() {
         className="h-[25dvh]   content-center  w-full bg-transparent"
         labelClassName="col-start-1 col-span-3 lg:col-start-1 lg:col-span-3"
       >
-        {/* The full story — reads the `about-long` Copy entry. */}
+        {/* The full story — reads the About doc's `aboutLong` field. */}
         <AboutSectionText
-          copyKey="about-long"
+          variant="long"
           className="w-full justify-center lg:content-center pb-6 lg:pb-12"
         />
       </LandningBlock>

@@ -5,43 +5,52 @@ import { Button } from "@/components/ui/button";
 import CheckButton from "./CheckButton";
 import LandningBlock from "./LandningBlock";
 import { Reveal } from "./Reveal";
-import TypedHeading from "./TypedHeading";
 
-const HEADING = "lets start talking today";
+export type ContactData = {
+  phone?: string;
+  email?: string;
+  people?: { name: string; phone?: string; email?: string }[];
+};
 
-const LINKS = [
-  { label: "email", href: "mailto:info@multi2.co" },
-  { label: "Instagram", href: "#" },
-  { label: "Linkedin", href: "#" },
-] as const;
-
-/** The same people as the footer — shown from `lg` up, Adam at col 4, Daniel
- *  at col 7. */
-const CONTACTS = [
-  {
-    name: "Adam Odelfelt",
-    phone: "+46704952184",
-    email: "adam@multi2.co",
-    col: "lg:col-start-4 lg:col-span-2",
-  },
-  {
-    name: "Daniel von Malmborg",
-    phone: "+46704952184",
-    email: "daniel@multi2.co",
-    col: "lg:col-start-7 lg:col-span-2",
-  },
-] as const;
+/** Falls back to this when the CMS's Contact doc has no email published yet. */
+const DEFAULT_EMAIL = "info@multi2.co";
 
 const LINK_BTN =
   "flex items-center h-auto py-0 gap-x-1.5 font-thin justify-start whitespace-nowrap w-min";
+
+/** The named contacts sit at cols 4 / 7 — only the first two people show,
+ *  matching the grid's two reserved slots. */
+const PERSON_COLS = ["lg:col-start-4 lg:col-span-2", "lg:col-start-7 lg:col-span-2"] as const;
 
 /**
  * The "connect with us" block — one full-width 12-col grid, `items-baseline` so
  * the label and the typed heading share a baseline on the first row, then the
  * general links (col 1) and the per-person contacts (cols 4 / 7, `lg`+) on the
- * next. Used on the home page and the connect page.
+ * next. Used on the home page and the connect page. `contact` is the Sanity
+ * Contact doc — `phone`/`email` for the general links (falling back to the
+ * house email when unpublished), `people` for the named contacts.
  */
-export default function ConnectSection({ className }: { className?: string }) {
+export default function ConnectSection({
+  className,
+  contact,
+}: {
+  className?: string;
+  contact?: ContactData;
+}) {
+  const links = [
+    { label: "email", href: `mailto:${contact?.email ?? DEFAULT_EMAIL}` },
+    ...(contact?.phone
+      ? [
+          {
+            label: contact.phone,
+            href: `tel:${contact.phone.replace(/\s/g, "")}`,
+          },
+        ]
+      : []),
+    { label: "Instagram", href: "#" },
+    { label: "Linkedin", href: "#" },
+  ] as const;
+
   return (
     <Reveal className="grid grid-cols-3 lg:grid-cols-12 gap-x-3 h-dvh">
       <LandningBlock
@@ -59,14 +68,10 @@ export default function ConnectSection({ className }: { className?: string }) {
           active
           className="col-span-3 lg:col-start-1 lg:col-span-3"
         />
-        <TypedHeading
-          text={HEADING}
-          className="hidden lg:flex col-span-3 lg:col-start-4 lg:col-span-9 h2Text font-thin px-6 text-primary"
-        />
 
         {/* Col 1 — the general links, one column. */}
-        <div className="col-span-3 lg:col-start-1 lg:col-span-3 flex flex-col items-start gap-y-1 pl-6 lg:pl-3">
-          {LINKS.map((link) => (
+        <div className="col-span-3 lg:col-start-4 lg:col-span-3 flex flex-col items-start gap-y-1 pl-6 lg:pl-3">
+          {links.map((link) => (
             <Button
               key={link.label}
               variant="link"
@@ -87,25 +92,29 @@ export default function ConnectSection({ className }: { className?: string }) {
         </div>
 
         {/* Cols 4 / 7 — name, phone and email per person. Desktop only. */}
-        {CONTACTS.map((contact) => (
+        {contact?.people?.slice(0, 2).map((person, i) => (
           <div
-            key={contact.name}
+            key={person.name}
             className={cn(
               "hidden lg:flex flex-col items-start gap-y-1 pl-3",
-              contact.col,
+              PERSON_COLS[i],
             )}
           >
             <Button variant="link" size="lgLink" className={LINK_BTN}>
-              {contact.name}
+              {person.name}
             </Button>
-            <Button variant="link" size="lgLink" className={LINK_BTN} asChild>
-              <a href={`tel:${contact.phone.replace(/\s/g, "")}`}>
-                {contact.phone}
-              </a>
-            </Button>
-            <Button variant="link" size="lgLink" className={LINK_BTN} asChild>
-              <a href={`mailto:${contact.email}`}>{contact.email}</a>
-            </Button>
+            {person.phone && (
+              <Button variant="link" size="lgLink" className={LINK_BTN} asChild>
+                <a href={`tel:${person.phone.replace(/\s/g, "")}`}>
+                  {person.phone}
+                </a>
+              </Button>
+            )}
+            {person.email && (
+              <Button variant="link" size="lgLink" className={LINK_BTN} asChild>
+                <a href={`mailto:${person.email}`}>{person.email}</a>
+              </Button>
+            )}
           </div>
         ))}
       </LandningBlock>

@@ -8,6 +8,7 @@ import { useSound } from "@/context/SoundContext";
 import { useUI } from "@/context/UIContext";
 import { useBusyCursor } from "@/context/CursorContext";
 import { THEMES, useTheme } from "@/context/ThemeContext";
+import { useIconStyle } from "@/context/IconStyleContext";
 import CheckButton from "./CheckButton";
 import CheckToggle from "./CheckToggle";
 import ColorButton from "./ColorButton";
@@ -99,6 +100,8 @@ function NavField({ active, rotate }: { active: boolean; rotate: number }) {
   // thirds; everywhere else it's 4-col with one row at the midpoint.
   const projects = usePathname() === "/projects";
   const rows: readonly string[] = projects ? FIELD_ROWS_PROJECTS : FIELD_ROWS;
+  const iconStyle = useIconStyle();
+  const mark = iconStyle === "dot" ? "●" : "■";
 
   return (
     <motion.div
@@ -115,7 +118,7 @@ function NavField({ active, rotate }: { active: boolean; rotate: number }) {
           custom={rotate}
           variants={ROW_STAGGER}
           className={cn(
-            "absolute inset-x-0 grid grid-cols-3 px-6 lg:p-3  gap-x-3 lg:gap-x-3",
+            "absolute inset-x-0 grid grid-cols-3 px-6 lg:p-3  gap-x-12 lg:gap-x-3",
             pos,
             projects ? "lg:grid-cols-6" : "lg:grid-cols-4",
           )}
@@ -135,7 +138,7 @@ function NavField({ active, rotate }: { active: boolean; rotate: number }) {
                   (projects || i === 3 ? "hidden lg:inline-block" : "hidden"),
               )}
             >
-              ■
+              {mark}
             </motion.span>
           ))}
         </motion.div>
@@ -219,7 +222,7 @@ function NavBar({
 
       <motion.div
         variants={BAR_ITEM}
-        className="col-start-3 flex justify-start lg:hidden"
+        className="col-start-3 flex justify-start  lg:hidden"
       >
         <CheckButton
           className="font-visual justify-start"
@@ -261,7 +264,7 @@ function NavBar({
 
       <motion.div
         variants={BAR_ITEM}
-        className="hidden lg:block lg:col-start-7 lg:col-span-2"
+        className="hidden lg:block lg:col-start-4 lg:col-span-2"
       >
         <CheckButton
           className="font-visual w-full"
@@ -273,11 +276,11 @@ function NavBar({
       </motion.div>
       <motion.div
         variants={BAR_ITEM}
-        className="hidden lg:block lg:col-start-10 lg:col-span-2"
+        className="hidden lg:block lg:col-start-7 lg:col-span-2"
       >
         <CheckButton
           className="font-visual w-full"
-          size="lg"
+          size="label"
           label={muted ? "sound off" : "sound on"}
           active
           onClick={onToggleMute}
@@ -287,10 +290,22 @@ function NavBar({
       {/* Desktop col 7: the sound toggle. */}
 
       {/* Desktop col 10: the dark toggle and the palette swatch, far right. */}
+
+      {/* Light/dark toggle — fixed to the viewport's top-right corner rather
+          than riding a grid column, so it stays put whatever the rest of the
+          bar does. */}
       <motion.div
         variants={BAR_ITEM}
-        className="hidden  lg:col-start-10 lg:col-span-3 items-baseline justify-start gap-x-3 relative"
-      ></motion.div>
+        className="hidden lg:block lg:col-start-10 lg:col-span-2"
+      >
+        <CheckButton
+          className="font-visual"
+          size="lg"
+          label={dark ? "dark" : "light"}
+          active
+          onClick={onToggleDark}
+        />
+      </motion.div>
     </motion.div>
   );
 }
@@ -338,21 +353,6 @@ function NavVertical({
             onClick={() => onNavigate(item.href)}
           />
         ))}
-        <ColorButton
-          shape="circle"
-          active
-          label={themeLabel}
-          labelSide="right"
-          onClick={onCycleTheme}
-          className=" text-primary pb-0 font-visual     w-full"
-        />
-        <CheckButton
-          className="justify-start   text-primary pb-0 font-visual     w-full"
-          size="lg"
-          label={dark ? "dark" : "light"}
-          active
-          onClick={onToggleDark}
-        />
       </nav>
       <nav className="flex lg:hidden  w-full flex-col gap-y-0 px-0  ">
         {NAV_ITEMS.map((item) => (
