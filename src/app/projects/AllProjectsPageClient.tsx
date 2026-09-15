@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { useUI } from "@/context/UIContext";
 import { useWork } from "@/context/WorkContext";
 import ProjectCard from "@/app/components/ProjectCard";
@@ -49,6 +50,22 @@ export default function AllProjectsPageClient() {
     if (window.matchMedia("(min-width: 1024px)").matches) {
       setShowFilters(true);
     }
+  }, []);
+
+  // Mobile filters toggle — pinned to the viewport once mounted, so it stays
+  // reachable while the page scrolls, but at the exact spot it already
+  // renders at in the "projects" label row. Measured once on mount (its
+  // natural in-flow position) rather than hard-coded, since that position
+  // depends on the surrounding layout.
+  const filtersButtonRef = useRef<HTMLDivElement>(null);
+  const [filtersButtonPos, setFiltersButtonPos] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    const rect = filtersButtonRef.current?.getBoundingClientRect();
+    if (rect) setFiltersButtonPos({ top: rect.top, left: rect.left });
   }, []);
 
   // The list waits for the category column to finish typing itself in, so the
@@ -140,14 +157,21 @@ export default function AllProjectsPageClient() {
         />
         {/* Mobile only — shares the "projects" label's row/baseline instead
             of CategoryFilters' own bottom-right tab. Desktop keeps that
-            tab as-is. */}
-        <CheckButton
-          label={showFilters ? "close" : "filters"}
-          size="lg"
-          active
-          className="lg:hidden whitespace-nowrap"
-          onClick={() => setShowFilters((v) => !v)}
-        />
+            tab as-is. Fixed to the viewport (at the same spot it renders in)
+            once mounted, so it stays reachable while the page scrolls. */}
+        <div
+          ref={filtersButtonRef}
+          style={filtersButtonPos ?? undefined}
+          className={cn("lg:hidden", filtersButtonPos && "fixed z-40")}
+        >
+          <CheckButton
+            label={showFilters ? "close" : "filters"}
+            size="lg"
+            active
+            className="whitespace-nowrap"
+            onClick={() => setShowFilters((v) => !v)}
+          />
+        </div>
       </LandningBlock>
       <FilterOverlay />
 

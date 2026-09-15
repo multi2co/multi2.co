@@ -128,15 +128,15 @@ function ProjectPageInner({
             <CheckButton size="lg" label={client} active />
           </div>
         )}
-        <h2 className="h2Text col-start-2 lg:col-start-4 col-span-3 lg:col-span-8 text-primary lowercase lg:px-3 ">
+        <h2 className="h2Text col-start-2 lg:col-start-4 col-span-3 lg:col-span-8 text-primary lowercase tracking-tight lg:px-3 ">
           {title}
         </h2>
       </div>
 
       {/* Hero: a single still filling the block, which spans all 12 columns. */}
-      <div className="relative px-0 w-full">
+      <div className="relative px-6 lg:px-3 w-full">
         <LandningBlock
-          className="h-dvh  items-start w-full  lg:px-3 "
+          className="h-dvh pixelCorners items-start w-full  lg:px-3 "
           labelClassName="col-start-1  col-span-3 px-3 lg:col-start-1 lg:col-span-3 "
           background={
             hero ? (
@@ -161,7 +161,7 @@ function ProjectPageInner({
 
       {/* Description + credits — reached by scrolling past the hero. */}
       <motion.div
-        className=" w-full relative pb-4 mt-6"
+        className=" w-full relative pb-4 mt-6 px-3"
         initial={{ opacity: 0 }}
         animate={{ opacity: revealed ? 1 : 0 }}
         transition={{ duration: 0.4 }}
@@ -183,51 +183,47 @@ function ProjectPageInner({
           </div>
 
           <dl className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 grid grid-cols-[auto_1fr] lg:grid-cols-8 gap-x-6 gap-y-2 px-3 lg:px-0 h4BtnText lowercase text-primary">
-            <dt className="text-primary/50 lg:col-span-2">project</dt>
-            <dd className="m-0 lg:col-span-6">{title}</dd>
+            <dt className="font-normal lowercase lg:col-span-2">project</dt>
+            <dd className="m-0 lg:col-span-6 uppercase font-normal">{title}</dd>
             {client && (
               <>
-                <dt className="text-primary/50 lg:col-span-2">client</dt>
-                <dd className="m-0 lg:col-span-6">{client}</dd>
+                <dt className="font-normal lowercase lg:col-span-2">client</dt>
+                <dd className="m-0 lg:col-span-6   uppercase">{client}</dd>
               </>
             )}
             {year && (
               <>
-                <dt className="text-primary/50 lg:col-span-2">year</dt>
-                <dd className="m-0 lg:col-span-6">{year}</dd>
+                <dt className="font-normal lg:col-span-2">year</dt>
+                <dd className="m-0 lg:col-span-6 font-normal">{year}</dd>
               </>
             )}
             {categories.length > 0 && (
               <>
-                <dt className="text-primary/50 lg:col-span-2">categories</dt>
-                <dd className="m-0 lg:col-span-6 flex flex-col">
+                <dt className="font-normal lg:col-span-2">categories</dt>
+                <dd className="m-0 lg:col-span-6 flex flex-col font-normal uppercase">
                   {categories.map((c) => (
                     <span key={c}>{CATEGORY_LABELS[c] ?? c}</span>
                   ))}
                 </dd>
               </>
             )}
-            {credits && (
-              <>
-                <dt className="text-primary/50 lg:col-span-2">credits</dt>
-                <dd className="m-0 lg:col-span-6 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-                  {credits
-                    .split("\n")
-                    .filter(Boolean)
-                    .map((line, i) => {
-                      const { role, name } = parseCredit(line);
-                      return (
-                        <Fragment key={i}>
-                          <span className="text-primary/50 col-span-2">
-                            {role}
-                          </span>
-                          <span>{name}</span>
-                        </Fragment>
-                      );
-                    })}
-                </dd>
-              </>
-            )}
+            {credits &&
+              credits
+                .split("\n")
+                .filter(Boolean)
+                .map((line, i) => {
+                  const { role, name } = parseCredit(line);
+                  return (
+                    <Fragment key={i}>
+                      <dt className="font-normal lowercase lg:col-span-2">
+                        {role}
+                      </dt>
+                      <dd className="m-0 lg:col-span-6 uppercase font-normal">
+                        {name}
+                      </dd>
+                    </Fragment>
+                  );
+                })}
           </dl>
         </div>
       </motion.div>
@@ -236,8 +232,8 @@ function ProjectPageInner({
           directly below it. */}
 
       {slides.length > 0 && (
-        <div className="w-full px-3 grid grid-cols-3 lg:grid-cols-12">
-          <div className="col-start-1 col-span-3 lg:col-span-8 relative h-[70dvh] lg:h-[80dvh] w-full">
+        <div className="w-full  grid grid-cols-3 lg:grid-cols-12">
+          <div className="col-start-1 col-span-3 lg:col-span-8 relative h-[70dvh] lg:h-[80dvh] w-full px-6 lg:px-3">
             <HeroCarousel
               media={slides}
               selected={activeSlide}
@@ -246,7 +242,7 @@ function ProjectPageInner({
             />
           </div>
 
-          <div className="mt-6 lg:mt-0col-start-1 lg:col-start-9 col-span-3 ">
+          <div className="mt-6 lg:mt-0 col-start-1 lg:col-start-9 col-span-3 ">
             <h4 className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary">
               <span className="col-span-1 pl-6">fig.{activeSlide + 1}</span>
               <span className="col-span-2 pr-6">

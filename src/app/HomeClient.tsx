@@ -163,7 +163,7 @@ function HomeClientInner({
             <CheckButton label="selected projects" href="/projects" size="lg" />
             {/* The row is transform-driven, so its own overflow stays visible —
                 the sticky wrapper above does the clipping. */}
-            <div className="relative mt-12 lg:mt-0 w-full overflow-visible">
+            <div className="relative mt-0 lg:mt-0 w-full overflow-visible">
               <motion.div
                 ref={projectsStripRef}
                 style={trackScroll ? { x: stripX } : undefined}
@@ -174,17 +174,17 @@ function HomeClientInner({
                     key={project.key}
                     project={project}
                     captionBelow
-                    className="shrink-0 w-[80vw] sm:w-[46vw] lg:w-[calc((100vw-15rem)/2)]"
+                    className="shrink-0 w-[90vw] sm:w-[46vw] lg:w-[calc((100vw-15rem)/2)]"
                   />
                 ))}
 
                 {/* The fifth slot — same footprint as a card: square + caption. */}
                 <Link
                   href="/projects"
-                  className="group shrink-0 w-[80vw] sm:w-[46vw] lg:w-[calc((100vw-16rem)/2)] flex flex-col gap-3 lg:gap-0 mb-3 lg:mb-6 pl-3"
+                  className="group shrink-0 w-[90vw] sm:w-[46vw] lg:w-[calc((100vw-16rem)/2)] flex flex-col gap-0 lg:gap-0 mb-3 lg:mb-6 pl-3"
                 >
                   <div className="relative flex aspect-square w-full items-center justify-center transition-opacity pixelCorners bg-primary text-primary-foreground group-hover:opacity-90">
-                    <span className="text-7xl lg:text-6xl font-thin font-visual leading-none">
+                    <span className="text-9xl lg:text-6xl font-thin font-visual leading-none">
                       ↗
                     </span>
                   </div>
@@ -192,7 +192,7 @@ function HomeClientInner({
                     size="lg"
                     label="see all projects"
                     active
-                    className="h4BtnText"
+                    className="h4BtnText "
                   />
                 </Link>
               </motion.div>

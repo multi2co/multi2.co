@@ -75,7 +75,7 @@ export default function AboutSectionText({
     // into, all as siblings sharing one baseline instead of two components
     // each reporting their own up through a separate grid item.
     return (
-      <div className="w-full col-span-12 grid grid-cols-12 items-baseline gap-y-0 justify-start text-primary">
+      <div className="w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-0 justify-start text-primary">
         {label && (
           <div className="col-span-2 lg:col-start-1 lg:col-span-3 gap-y-0 space-y-0 flex items-baseline justify-start">
             <CheckButton label={label} href={href} size="lg" active />
@@ -84,7 +84,7 @@ export default function AboutSectionText({
         {firstParagraph && (
           <p
             className={cn(
-              "col-span-3 lg:col-start-4 lg:col-span-6 pText  px-3 whitespace-pre-line",
+              "col-span-3 lg:col-start-4 lg:col-span-6 pText px-6  lg:px-3 whitespace-pre-line",
               className,
             )}
           >
@@ -94,7 +94,7 @@ export default function AboutSectionText({
         {secondParagraph && (
           <p
             className={cn(
-              "col-span-3 lg:col-start-7 lg:col-span-6 pText  px-3 whitespace-pre-line",
+              "col-span-3 lg:col-start-4 lg:col-span-6 pText  px-6 lg:px-3 whitespace-pre-line",
               className,
             )}
           >
