@@ -15,7 +15,7 @@ export type GridItem = {
   description?: string;
   categories: string[];
   aspectRatio: number;
-  /** The work's own coverImage — a different asset from the media
+  /** The work's own square cover — a different asset from the media
    *  images, so `url` is not a stand-in for it. */
   coverUrl?: string;
   /** "Featured on homepage" toggle in the CMS — drives the selected-projects

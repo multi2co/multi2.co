@@ -139,7 +139,7 @@ export default function AllProjectsPageClient() {
   return (
     <div
       id="projects"
-      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-[calc(25vh-6rem)] lg:pt-0   "
+      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-[calc(25vh-1rem)] lg:pt-0   "
     >
       <LandningBlock
         label="projects"

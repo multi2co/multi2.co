@@ -241,6 +241,7 @@ function NavBar({
         <CheckButton
           className="font-visual w-full"
           size="lg"
+          href="/"
           label="multisquared"
           active
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -494,7 +495,8 @@ export default function M2Nav() {
     if (href !== pathname) setNavigating(true);
   }
 
-  // The nav is hidden on /studio.
+  // The nav is hidden on /studio — a focused, full-viewport tool with its own
+  // chrome.
   if (pathname?.startsWith("/studio")) return null;
 
   return (

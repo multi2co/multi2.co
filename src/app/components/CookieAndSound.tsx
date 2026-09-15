@@ -40,7 +40,7 @@ const consentStore = {
 /** Dev override: keep the box on screen no matter what — no delay, stored
  *  consent ignored, and answering loops back to the first question instead of
  *  dismissing it. Set to false to restore the real flow. */
-const ALWAYS_SHOW = true;
+const ALWAYS_SHOW = false;
 
 type Step = "idle" | "cookie" | "sound" | "volume";
 
@@ -64,11 +64,17 @@ export default function CookieAndSound({
   const pathname = usePathname();
   const hasOwnSoundToggle =
     (pathname?.startsWith("/projects") ?? false) || pathname === "/";
-  // Sanity Studio has its own chrome (the Publish button sits exactly here);
-  // the standing consent / sound box stays out of the way there.
-  const inStudio = pathname?.startsWith("/studio") ?? false;
+  // The prompt only ever asks on the home page — a visitor landing straight
+  // on a project, the about page, or Sanity Studio shouldn't be greeted with
+  // it.
+  const isHome = pathname === "/";
 
   useEffect(() => {
+    if (!isHome) {
+      setStep("idle");
+      return;
+    }
+
     // Still report in, so whatever waits on consent (the Connect box, the
     // player) settles as usual while the box stays up.
     if (ALWAYS_SHOW) {
@@ -97,7 +103,7 @@ export default function CookieAndSound({
       PROMPT_DELAY_MS,
     );
     return () => clearTimeout(t);
-  }, [onDone, markConsentSettled]);
+  }, [onDone, markConsentSettled, isHome]);
 
   function acceptCookies() {
     consentStore.set("cookie-consent", "accepted");
@@ -122,8 +128,8 @@ export default function CookieAndSound({
 
   return (
     <AnimatePresence mode="wait">
-      {step !== "idle" &&
-        !inStudio &&
+      {isHome &&
+        step !== "idle" &&
         !(step === "volume" && hasOwnSoundToggle) && (
           <motion.div
             key={step}

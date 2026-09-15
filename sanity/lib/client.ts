@@ -14,12 +14,20 @@ export const client = createClient({
 export async function sanityFetch<T>(
   query: string,
   params: QueryParams = {},
-  { retries = 2, delayMs = 300 }: { retries?: number; delayMs?: number } = {},
+  {
+    retries = 2,
+    delayMs = 300,
+    tags,
+  }: { retries?: number; delayMs?: number; tags?: string[] } = {},
 ): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      return await client.fetch<T>(query, params);
+      return await client.fetch<T>(
+        query,
+        params,
+        tags ? { next: { tags } } : undefined,
+      );
     } catch (error) {
       lastError = error;
       if (attempt < retries) {

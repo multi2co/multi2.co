@@ -232,10 +232,15 @@ export default function CategoryFilters({
       </AnimatePresence>
 
       {/* Desktop only now — it drops into the panel grid's empty left columns,
-          bottom-aligned (lg:self-end) with matching lg:p-3 so its baseline
-          lands on the last sub-menu row. Mobile has its own toggle sharing
-          the "projects" LandningBlock label's row instead. */}
-      <div className="hidden lg:block lg:col-start-1 lg:col-span-2 lg:row-start-1 lg:self-end lg:z-10 lg:px-3 lg:py-0">
+          bottom-aligned (lg:self-end) with matching lg:p-3 so it sits flush
+          with the last sub-menu row. Its own box is `lg` size (h-12) against
+          the category chips' `label` size (h-3) — both centre their text in
+          that box, so bottom-aligning the boxes alone would still leave the
+          text baselines 18px apart (half the 36px height difference). The
+          translate nudges just the text back down onto that shared baseline.
+          Mobile has its own toggle sharing the "projects" LandningBlock
+          label's row instead. */}
+      <div className="hidden lg:block lg:col-start-1 lg:col-span-2 lg:row-start-1 lg:self-end lg:translate-y-[18px] lg:z-10 lg:px-3 lg:py-0">
         <CheckButton
           label={showFilters ? "close" : "filters"}
           size="lg"

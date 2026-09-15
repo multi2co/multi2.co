@@ -37,7 +37,7 @@ type WorkData = {
   categories?: string[];
   featured?: boolean;
   slug: string;
-  coverImage?: { asset: { _ref: string }; aspectRatio?: number };
+  coverSquare?: { asset: { _ref: string } };
   media?: MediaItem[];
 };
 
@@ -48,7 +48,11 @@ export async function WorkContextServer({
 }) {
   let works: WorkData[] = [];
   try {
-    works = await sanityFetch<WorkData[]>(workCardsQuery);
+    works = await sanityFetch<WorkData[]>(
+      workCardsQuery,
+      {},
+      { tags: ["work"] },
+    );
   } catch (error) {
     // Sanity unreachable — fall through to the mock data below rather than
     // crashing every page that renders inside this provider.
@@ -64,9 +68,10 @@ export async function WorkContextServer({
     }
 
     // Hoisted: works with media still have a cover, and callers that want the
-    // cover specifically can't get it from the media-derived `url`.
-    const coverUrl = work.coverImage?.asset
-      ? urlFor(work.coverImage).width(1200).quality(80).url()
+    // cover specifically can't get it from the media-derived `url`. Forced to
+    // a 1:1 crop since this is the dedicated archive-cover field.
+    const coverUrl = work.coverSquare?.asset
+      ? urlFor(work.coverSquare).width(1200).height(1200).quality(80).url()
       : undefined;
 
     const allImages = (work.media ?? []).filter(
@@ -115,7 +120,7 @@ export async function WorkContextServer({
         credits: work.credits,
         description: work.description,
         categories: work.categories ?? [],
-        aspectRatio: work.coverImage?.aspectRatio ?? 1,
+        aspectRatio: 1,
         coverUrl,
         featured: work.featured ?? false,
         isPrimary: true,
@@ -123,7 +128,7 @@ export async function WorkContextServer({
           {
             key: work._id,
             url: coverUrl,
-            aspectRatio: work.coverImage?.aspectRatio ?? 1,
+            aspectRatio: 1,
           },
         ],
       });

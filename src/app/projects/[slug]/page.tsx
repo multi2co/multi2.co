@@ -89,7 +89,10 @@ type WorkData = {
   categories?: string[];
   year?: number;
   slug: { current: string };
-  coverImage?: { asset?: unknown };
+  heroCoverStyle?: "responsive" | "square";
+  coverSquare?: { asset?: unknown };
+  coverLandscape?: { asset?: unknown };
+  coverPortrait?: { asset?: unknown };
   media?: MediaItem[];
 };
 
@@ -99,18 +102,40 @@ export default async function WorkPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const work = await sanityFetch<WorkData | null>(workBySlugQuery, { slug });
+  const work = await sanityFetch<WorkData | null>(
+    workBySlugQuery,
+    { slug },
+    { tags: ["work", `work:${slug}`] },
+  );
   if (!work) notFound();
 
   const media = (work.media ?? [])
     .map(toProjectMedia)
     .filter((m): m is ProjectMedia => m !== null);
 
-  // The work's own cover asset, if it has one — the page falls back to the
-  // first media image otherwise.
-  const coverUrl = work.coverImage?.asset
-    ? urlFor(work.coverImage).width(1600).quality(85).url()
+  // The work's own cover assets, one per orientation — the page falls back to
+  // the first media item otherwise. Forced to their intended crop since these
+  // are dedicated fixed-ratio fields. An editor can opt a project into the
+  // square cover on both breakpoints instead of the responsive pair.
+  const coverUrlSquare = work.coverSquare?.asset
+    ? urlFor(work.coverSquare).width(1600).height(1600).quality(85).url()
     : undefined;
+  const coverUrlDesktop =
+    work.heroCoverStyle === "square"
+      ? coverUrlSquare
+      : (work.coverLandscape?.asset
+          ? urlFor(work.coverLandscape).width(1920).height(1080).quality(85).url()
+          : undefined);
+  const coverUrlMobile =
+    work.heroCoverStyle === "square"
+      ? coverUrlSquare
+      : (work.coverPortrait?.asset
+          ? urlFor(work.coverPortrait).width(1080).height(1920).quality(85).url()
+          : undefined);
+  // Matches whichever cover the client falls back to when a work has no
+  // media of its own — desktop's, if it has one, else mobile's.
+  const coverAspectRatio =
+    work.heroCoverStyle === "square" ? 1 : coverUrlDesktop ? 16 / 9 : 9 / 16;
 
   return (
     <WorkPageClient
@@ -122,7 +147,9 @@ export default async function WorkPage({
       categories={work.categories ?? []}
       year={work.year}
       media={media}
-      coverUrl={coverUrl}
+      coverUrlDesktop={coverUrlDesktop}
+      coverUrlMobile={coverUrlMobile}
+      coverAspectRatio={coverAspectRatio}
     />
   );
 }

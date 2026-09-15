@@ -12,7 +12,11 @@ export async function IconStyleContextServer({
 }) {
   let settings: SiteSettingsDoc | null = null;
   try {
-    settings = await sanityFetch<SiteSettingsDoc | null>(siteSettingsQuery);
+    settings = await sanityFetch<SiteSettingsDoc | null>(
+      siteSettingsQuery,
+      {},
+      { tags: ["siteSettings"] },
+    );
   } catch (error) {
     // Sanity unreachable — fall back to the default square mark.
     console.error("IconStyleContextServer: Sanity fetch failed", error);

@@ -41,10 +41,42 @@ export const work = defineType({
       rows: 4,
     }),
     defineField({
-      name: "coverImage",
-      title: "Cover Image",
+      name: "coverSquare",
+      title: "Cover — Square (1:1)",
+      description: "Used as the cover on the projects archive.",
       type: "image",
       options: { hotspot: true },
+    }),
+    defineField({
+      name: "coverLandscape",
+      title: "Cover — Landscape (16:9)",
+      description:
+        "Used as the project page hero on desktop, unless Hero Cover Style below is set to Square only.",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: "coverPortrait",
+      title: "Cover — Portrait (9:16)",
+      description:
+        "Used as the project page hero on mobile, unless Hero Cover Style below is set to Square only.",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: "heroCoverStyle",
+      title: "Hero Cover Style",
+      description:
+        "How this project's hero picks a cover. Responsive uses the landscape/portrait covers per device; Square only uses the 1:1 cover on both.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Responsive (16:9 desktop / 9:16 mobile)", value: "responsive" },
+          { title: "Square only (1:1)", value: "square" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "responsive",
     }),
     defineField({
       name: "media",
@@ -182,7 +214,7 @@ export const work = defineType({
       title: "title",
       client: "client",
       year: "year",
-      media: "coverImage",
+      media: "coverSquare",
     },
     prepare({ title, client, year, media }) {
       return {

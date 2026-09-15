@@ -11,7 +11,9 @@ export const allWorkQuery = groq`
     categories,
     description,
     featured,
-    coverImage { asset->, hotspot, crop }
+    coverSquare { asset->, hotspot, crop },
+    coverLandscape { asset->, hotspot, crop },
+    coverPortrait { asset->, hotspot, crop }
   }
 `;
 
@@ -27,7 +29,10 @@ export const workBySlugQuery = groq`
     description,
     imagesPerPage,
     credits,
-    coverImage { asset->, hotspot, crop },
+    heroCoverStyle,
+    coverSquare { asset->, hotspot, crop },
+    coverLandscape { asset->, hotspot, crop },
+    coverPortrait { asset->, hotspot, crop },
     media[] {
       _type,
       _key,
@@ -66,7 +71,7 @@ export const workCardsQuery = groq`
     categories,
     featured,
     "slug": slug.current,
-    coverImage { asset, "aspectRatio": asset->metadata.dimensions.aspectRatio },
+    coverSquare { asset },
     media[] {
       _type,
       _key,

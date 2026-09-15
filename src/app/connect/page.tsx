@@ -8,7 +8,11 @@ import { contactQuery } from "../../../sanity/lib/queries";
 export default async function ConnectPage() {
   let contact: ContactData | null = null;
   try {
-    contact = await sanityFetch<ContactData | null>(contactQuery);
+    contact = await sanityFetch<ContactData | null>(
+      contactQuery,
+      {},
+      { tags: ["contact"] },
+    );
   } catch (error) {
     // Sanity unreachable — ConnectSection falls back to the house email.
     console.error("ConnectPage: contact fetch failed", error);

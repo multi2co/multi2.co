@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { THEMES, useTheme } from "@/context/ThemeContext";
 import { useIconStyle } from "@/context/IconStyleContext";
@@ -13,7 +14,7 @@ const MARKS = {
 } as const;
 
 const SWATCH_CLASS =
-  "-my-px flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center border p-0 font-visual text-xl leading-none";
+  "-my-px flex h-3 w-3  shrink-0 cursor-pointer items-center justify-center border p-0 font-visual text-xl  leading-none";
 
 /**
  * The floating palette picker — one swatch per THEME, fixed to the viewport's
@@ -25,13 +26,18 @@ export default function ThemeToggle({ className }: { className?: string }) {
   const { theme, selectTheme } = useTheme();
   const iconStyle = useIconStyle();
   const marks = MARKS[iconStyle];
+  const pathname = usePathname();
+
+  // /create has its own scoped palette switcher for the artwork itself —
+  // the site-wide picker would be a second, conflicting colour control there.
+  if (pathname?.startsWith("/create")) return null;
 
   return (
     <div
       role="radiogroup"
       aria-label="Colour theme"
       className={cn(
-        "fixed top-1/2 right-3 lg:right-0 z-[90] flex -translate-y-1/2 flex-col gap-y-0",
+        "fixed top-1/2 right-3 lg:right-0 z-[90] flex -translate-y-1/2 flex-col gap-y-1",
         className,
       )}
     >
@@ -45,7 +51,11 @@ export default function ThemeToggle({ className }: { className?: string }) {
             aria-checked={active}
             aria-label={t.label}
             onClick={() => selectTheme(t.id)}
-            className={cn(SWATCH_CLASS, "border-transparent", t.swatch)}
+            className={cn(
+              SWATCH_CLASS,
+              "border-transparent bg-red-500",
+              t.swatch,
+            )}
           >
             {active ? marks.active : marks.inactive}
           </button>

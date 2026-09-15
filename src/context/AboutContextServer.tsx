@@ -17,7 +17,11 @@ export async function AboutContextServer({
 }) {
   let about: AboutDoc | null = null;
   try {
-    about = await sanityFetch<AboutDoc | null>(aboutQuery);
+    about = await sanityFetch<AboutDoc | null>(
+      aboutQuery,
+      {},
+      { tags: ["about"] },
+    );
   } catch (error) {
     // Sanity unreachable — render with no copy rather than crashing.
     console.error("AboutContextServer: Sanity fetch failed", error);

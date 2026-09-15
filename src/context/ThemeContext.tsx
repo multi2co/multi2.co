@@ -14,19 +14,28 @@ import {
  *  than text-primary — a token-based one would restyle itself on every theme
  *  change, so the red mark would look blue in the blue theme. Written out in
  *  full because Tailwind only emits classes it can find as complete strings in
- *  the source. */
+ *  the source.
+ *
+ *  `ink` / `bg` are the same palette's light-mode `--primary` /tool that draws
+ *  outside the cascade — a `<canvas>` fillStyle or an exported SVG can't read
+ *  `html.multi2_*`'s CSS variables, so /create's drawing tool takes its colour
+ *  straight from these literals instead of duplicating a second colour list. */
 export const THEMES = [
   {
     id: "red",
     label: "Red",
     className: "multi2_red",
     swatch: "text-[oklch(0.628_0.2577_29.2339)]",
+    ink: "oklch(0.628 0.2577 29.2339)",
+    bg: "oklch(0.943 0.0286 29.23)",
   },
   {
     id: "blue",
     label: "Blue",
     className: "multi2_blue",
     swatch: "text-[oklch(0.452_0.3132_264.05)]",
+    ink: "oklch(0.452 0.3132 264.05)",
+    bg: "oklch(0.943 0.0286 264.05)",
   },
   {
     id: "green",
@@ -36,24 +45,32 @@ export const THEMES = [
     // one — taking the bright green here would paint the mark in this theme's
     // own background colour.
     swatch: "text-[oklch(0.285_0.097_142.5)]",
+    ink: "oklch(0.285 0.097 142.5)",
+    bg: "oklch(0.8664 0.2948 142.5)",
   },
   {
     id: "pink",
     label: "Pink",
     className: "multi2_pink",
     swatch: "text-[oklch(0.7017_0.3225_328.36)]",
+    ink: "oklch(0.7017 0.3225 328.36)",
+    bg: "oklch(0.943 0.0286 328.36)",
   },
   {
     id: "teal",
     label: "Teal",
     className: "multi2_teal",
     swatch: "text-[oklch(0.5431_0.0927_194.77)]",
+    ink: "oklch(0.5431 0.0927 194.77)",
+    bg: "oklch(0.965 0.0516 196.33)",
   },
   {
     id: "bw",
     label: "B/W",
     className: "multi2_bw",
     swatch: "text-[oklch(0_0_0)]",
+    ink: "oklch(0 0 0)",
+    bg: "oklch(1 0 0)",
   },
 ] as const;
 
@@ -66,11 +83,11 @@ const THEME_STORAGE_KEY = "multi2-theme";
 
 /** Dark mode rides alongside the palette: `multi2_dark` is added next to the
  *  `multi2_*` class, and globals.css has a two-class block per palette that
- *  inverts it. Dark is the site default for now — the class is on unless the
- *  visitor has explicitly switched it off (stored value `"0"`). */
+ *  inverts it. Light is the site default — the class is off unless the
+ *  visitor has explicitly switched it on (stored value `"1"`). */
 const DARK_STORAGE_KEY = "multi2-dark";
 const DARK_CLASS = "multi2_dark";
-const DARK_DEFAULT = true;
+const DARK_DEFAULT = false;
 
 type ThemeContextType = {
   theme: ThemeId;
@@ -111,8 +128,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     try {
       storedDark = localStorage.getItem(DARK_STORAGE_KEY);
     } catch {}
-    // Default-on: dark unless the visitor explicitly turned it off.
-    const isDark = storedDark === "0" ? false : DARK_DEFAULT;
+    // Default-off: light unless the visitor explicitly turned dark on.
+    const isDark = storedDark === "1" ? true : DARK_DEFAULT;
     document.documentElement.classList.toggle(DARK_CLASS, isDark);
     setDark(isDark);
   }, []);

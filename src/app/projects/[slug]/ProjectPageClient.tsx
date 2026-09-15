@@ -56,7 +56,9 @@ function ProjectPageInner({
   credits,
   categories,
   media,
-  coverUrl,
+  coverUrlDesktop,
+  coverUrlMobile,
+  coverAspectRatio = 16 / 9,
 }: {
   client?: string;
   title: string;
@@ -65,7 +67,9 @@ function ProjectPageInner({
   credits?: string;
   categories: string[];
   media: ProjectMedia[];
-  coverUrl?: string;
+  coverUrlDesktop?: string;
+  coverUrlMobile?: string;
+  coverAspectRatio?: number;
 }) {
   const clientLen = client?.length ?? 0;
   const titleLen = title.length;
@@ -103,22 +107,37 @@ function ProjectPageInner({
     };
   }, [lightbox]);
 
-  // The hero is a single still (or the first video): the cover image, falling
-  // back to the first media item.
-  const hero: ProjectMedia | undefined =
-    media.find((m) => m.type === "video") ??
-    (coverUrl
-      ? { type: "image", key: "cover", url: coverUrl, aspectRatio: 1 }
-      : media[0]);
+  // The hero is a single still (or the first video). A still prefers the
+  // work's own desktop/mobile covers, rendered responsively below, falling
+  // back to the first media item when neither cover is set.
+  const heroVideo = media.find((m) => m.type === "video");
+  const hasCover = Boolean(coverUrlDesktop || coverUrlMobile);
+  const heroFallback: ProjectMedia | undefined = media[0];
 
   // The gallery carousel further down runs the whole media list; the cover is
   // the fallback when a work has no media of its own yet.
   const slides: ProjectMedia[] =
     media.length > 0
       ? media
-      : coverUrl
-        ? [{ type: "image", key: "cover", url: coverUrl, aspectRatio: 1 }]
-        : [];
+      : coverUrlDesktop
+        ? [
+            {
+              type: "image",
+              key: "cover",
+              url: coverUrlDesktop,
+              aspectRatio: coverAspectRatio,
+            },
+          ]
+        : coverUrlMobile
+          ? [
+              {
+                type: "image",
+                key: "cover",
+                url: coverUrlMobile,
+                aspectRatio: coverAspectRatio,
+              },
+            ]
+          : [];
 
   return (
     <div className=" relative w-full px-0 mt-24 ">
@@ -136,23 +155,44 @@ function ProjectPageInner({
       {/* Hero: a single still filling the block, which spans all 12 columns. */}
       <div className="relative px-6 lg:px-3 w-full">
         <LandningBlock
-          className="h-dvh pixelCorners items-start w-full  lg:px-3 "
+          className="h-[calc(100dvh-3.5rem)] pixelCorners items-start w-full  lg:px-3 "
           labelClassName="col-start-1  col-span-3 px-3 lg:col-start-1 lg:col-span-3 "
           background={
-            hero ? (
+            heroVideo ? (
               <div className=" relative h-full w-full">
-                {hero.type === "video" ? (
-                  <VideoPlayer src={hero.url} className="h-full w-full" />
-                ) : (
+                <VideoPlayer src={heroVideo.url} className="h-full w-full" />
+              </div>
+            ) : hasCover ? (
+              <div className=" relative h-full w-full">
+                {coverUrlDesktop && (
                   <Image
-                    src={hero.url}
+                    src={coverUrlDesktop}
                     alt=""
                     fill
                     priority
-                    className="object-cover"
+                    className="hidden object-cover lg:block"
                     sizes="100vw"
                   />
                 )}
+                <Image
+                  src={coverUrlMobile ?? coverUrlDesktop!}
+                  alt=""
+                  fill
+                  priority
+                  className="object-cover lg:hidden"
+                  sizes="100vw"
+                />
+              </div>
+            ) : heroFallback ? (
+              <div className=" relative h-full w-full">
+                <Image
+                  src={heroFallback.url}
+                  alt=""
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="100vw"
+                />
               </div>
             ) : undefined
           }
@@ -161,13 +201,13 @@ function ProjectPageInner({
 
       {/* Description + credits — reached by scrolling past the hero. */}
       <motion.div
-        className=" w-full relative pb-4 mt-6 px-3"
+        className=" w-full relative pb-4 mt-6 px-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: revealed ? 1 : 0 }}
         transition={{ duration: 0.4 }}
       >
         <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-12 mb-12 lg:mb-6 items-start text-primary">
-          <div className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 flex flex-col gap-y-6 px-3 lg:px-0 lowercase">
+          <div className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 flex flex-col gap-y-6 px-0 lg:px-0 lowercase">
             {description ? (
               <p className="pText">{description}</p>
             ) : (
@@ -243,12 +283,14 @@ function ProjectPageInner({
           </div>
 
           <div className="mt-6 lg:mt-0 col-start-1 lg:col-start-9 col-span-3 ">
-            <h4 className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary">
-              <span className="col-span-1 pl-6">fig.{activeSlide + 1}</span>
-              <span className="col-span-2 pr-6">
-                {slides[activeSlide]?.description ?? `moa larsson for ${title}`}
-              </span>
-            </h4>
+            {slides[activeSlide]?.description && (
+              <h4 className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary">
+                <span className="col-span-1 pl-6">fig.{activeSlide + 1}</span>
+                <span className="col-span-2 pr-6">
+                  {slides[activeSlide]?.description}
+                </span>
+              </h4>
+            )}
           </div>
         </div>
       )}
@@ -300,7 +342,9 @@ export default function ProjectPageClient(props: {
   categories: string[];
   year?: number;
   media: ProjectMedia[];
-  coverUrl?: string;
+  coverUrlDesktop?: string;
+  coverUrlMobile?: string;
+  coverAspectRatio?: number;
 }) {
   return <ProjectPageInner {...props} />;
 }
