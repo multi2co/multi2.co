@@ -69,11 +69,10 @@ export default function AboutSectionText({
   }, [isPresent, safeToRemove, resolvedText]);
 
   if (columns) {
-    const [firstParagraph, secondParagraph] = resolvedText?.split("\n\n") ?? [];
     // No wrapping div here: the parent (LandningBlock's content slot) is the
-    // grid these paragraphs — and the label, when given one — place directly
-    // into, all as siblings sharing one baseline instead of two components
-    // each reporting their own up through a separate grid item.
+    // grid this paragraph — and the label, when given one — place directly
+    // into, as siblings sharing one baseline instead of two components each
+    // reporting their own up through a separate grid item.
     return (
       <div className="w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-0 justify-start text-primary">
         {label && (
@@ -81,24 +80,14 @@ export default function AboutSectionText({
             <CheckButton label={label} href={href} size="lg" active />
           </div>
         )}
-        {firstParagraph && (
+        {resolvedText && (
           <p
             className={cn(
               "col-span-3 lg:col-start-4 lg:col-span-6 pText px-6  lg:px-3 whitespace-pre-line",
               className,
             )}
           >
-            {firstParagraph}
-          </p>
-        )}
-        {secondParagraph && (
-          <p
-            className={cn(
-              "col-span-3 lg:col-start-4 lg:col-span-6 pText  px-6 lg:px-3 whitespace-pre-line",
-              className,
-            )}
-          >
-            {secondParagraph}
+            {resolvedText}
           </p>
         )}
       </div>

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { useUI } from "@/context/UIContext";
 import { useWork } from "@/context/WorkContext";
 import ProjectCard from "@/app/components/ProjectCard";
@@ -29,7 +28,26 @@ export default function AllProjectsPageClient() {
     setOpenedCard,
     numCols,
     navLoading,
+    sortMode,
   } = useUI();
+
+  // Which clients (with more than one project) currently have their other
+  // projects revealed in the grid — toggled by clicking that client's name on
+  // its primary card. Page-local: nothing outside /projects needs to know.
+  const [expandedClients, setExpandedClients] = useState<Set<string>>(
+    new Set(),
+  );
+  function toggleClient(client: string) {
+    setExpandedClients((prev) => {
+      const next = new Set(prev);
+      if (next.has(client)) {
+        next.delete(client);
+      } else {
+        next.add(client);
+      }
+      return next;
+    });
+  }
 
   // Coming back from a project: drop the opened card so its tile isn't still
   // showing the centred hand-off label.
@@ -50,22 +68,6 @@ export default function AllProjectsPageClient() {
     if (window.matchMedia("(min-width: 1024px)").matches) {
       setShowFilters(true);
     }
-  }, []);
-
-  // Mobile filters toggle — pinned to the viewport once mounted, so it stays
-  // reachable while the page scrolls, but at the exact spot it already
-  // renders at in the "projects" label row. Measured once on mount (its
-  // natural in-flow position) rather than hard-coded, since that position
-  // depends on the surrounding layout.
-  const filtersButtonRef = useRef<HTMLDivElement>(null);
-  const [filtersButtonPos, setFiltersButtonPos] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
-  useEffect(() => {
-    if (window.matchMedia("(min-width: 1024px)").matches) return;
-    const rect = filtersButtonRef.current?.getBoundingClientRect();
-    if (rect) setFiltersButtonPos({ top: rect.top, left: rect.left });
   }, []);
 
   // The list waits for the category column to finish typing itself in, so the
@@ -107,6 +109,12 @@ export default function AllProjectsPageClient() {
       );
     })
     .sort((a, b) => {
+      if (sortMode === "year") {
+        const yearDiff = (b.year ?? 0) - (a.year ?? 0);
+        if (yearDiff !== 0) return yearDiff;
+        // Same year — latest added first.
+        return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
+      }
       const labelA = (a.client ?? a.title).toLowerCase();
       const labelB = (b.client ?? b.title).toLowerCase();
       return labelA.localeCompare(labelB, "sv");
@@ -136,55 +144,69 @@ export default function AllProjectsPageClient() {
     });
   }
 
+  // Grid view: a client with several projects shows just its first one, with
+  // the rest tucked away until that card's client name is clicked. Revealed
+  // siblings are spliced in right after the primary card, captioned with both
+  // client and title (ProjectCard's "captionBelow") instead of client only.
+  type GridEntry = {
+    item: (typeof displayed)[number];
+    captionBelow: boolean;
+    onClientClick?: () => void;
+  };
+  const clientCounts = new Map<string, number>();
+  for (const item of displayed) {
+    if (!item.client) continue;
+    clientCounts.set(item.client, (clientCounts.get(item.client) ?? 0) + 1);
+  }
+  const gridClientsSeen = new Set<string>();
+  const gridEntries: GridEntry[] = [];
+  for (const item of displayed) {
+    const count = item.client ? (clientCounts.get(item.client) ?? 1) : 1;
+    if (!item.client || count <= 1) {
+      gridEntries.push({ item, captionBelow: false });
+      continue;
+    }
+    if (gridClientsSeen.has(item.client)) continue;
+    gridClientsSeen.add(item.client);
+    const client = item.client;
+    gridEntries.push({
+      item,
+      captionBelow: false,
+      onClientClick: () => toggleClient(client),
+    });
+    if (expandedClients.has(client)) {
+      for (const sibling of displayed) {
+        if (sibling === item || sibling.client !== client) continue;
+        gridEntries.push({ item: sibling, captionBelow: true });
+      }
+    }
+  }
+
   return (
     <div
       id="projects"
-      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-[calc(25vh-1rem)] lg:pt-0   "
+      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-48 lg:pt-0   "
     >
-      <LandningBlock
-        label="projects"
-        // z-40 — above CategoryFilters' z-30 drawer — so this row, and the
-        // mobile filters toggle riding in it, stay visible and clickable
-        // once the drawer opens and covers the rest of the screen.
-        className="h-auto    content-center relative z-40 "
-        labelClassName="col-span-2 lg:col-start-1 lg:col-span-12 lg:row-start-2 w-full"
-        contentClassName="col-start-3 col-span-1 lg:col-start-4 lg:col-span-9 lg:row-start-2 lowercase w-full"
-      >
-        <TypedHeading
-          ready={!navLoading}
-          text="welcome to the archive"
-          className=" text-left hidden lg:flex  h2Text px-6 font-thin text-primary mb-3"
-        />
-        {/* Mobile only — shares the "projects" label's row/baseline instead
-            of CategoryFilters' own bottom-right tab. Desktop keeps that
-            tab as-is. Fixed to the viewport (at the same spot it renders in)
-            once mounted, so it stays reachable while the page scrolls. */}
-        <div
-          ref={filtersButtonRef}
-          style={filtersButtonPos ?? undefined}
-          className={cn("lg:hidden", filtersButtonPos && "fixed z-40")}
-        >
-          <CheckButton
-            label={showFilters ? "close" : "filters"}
-            size="lg"
-            active
-            className="whitespace-nowrap"
-            onClick={() => setShowFilters((v) => !v)}
+      {/* Grid/list, moved above the heading. On desktop, CategoryFilters
+          rides alongside as a sticky column at col 9-12 instead of its own
+          full-width section, so the two are grid siblings here. */}
+      <div className=" mb-6 lg:mb-3 grid grid-cols-3 lg:grid-cols-12 ">
+        {/* This wrapper is the actual grid item, left to stretch (the grid
+            default) to the row's full height — that's the tall "containing
+            block" position:sticky needs room to travel within. CategoryFilters
+            itself is what's sticky, nested one level in: if the sticky
+            element and the stretched grid cell were the same node, its own
+            box would already fill the whole row and there'd be nothing left
+            to stick within. */}
+        <div className="lg:col-start-1 lg:col-span-4">
+          <CategoryFilters
+            className="lg:sticky lg:top-10"
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
           />
         </div>
-      </LandningBlock>
-      <FilterOverlay />
-
-      {/* Desktop: category sidebar left, projects right. */}
-      <div className=" mt-12 mb-6 lg:mb-3 grid grid-cols-3 lg:grid-cols-12 ">
-        <CategoryFilters
-          className=""
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-        />
-
         {listVisible && showList && (
-          <div className="col-start-1 col-span-8 hidden w-full lg:flex flex-col  justify-start items-start px-6  gap-3 mt-0 mb-12 ">
+          <Reveal className="col-start-4 col-span-8 hidden w-full lg:flex flex-col  justify-start items-start px-6  gap-3 mt-0 mb-12 ">
             <AnimatePresence mode="popLayout">
               {clients.map((client, idx) => (
                 <motion.div
@@ -205,60 +227,79 @@ export default function AllProjectsPageClient() {
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
+          </Reveal>
         )}
 
         {listVisible && showGrid && (
-          <div
-            className="col-start-1 col-span-4 lg:col-start-1 lg:col-span-12 hidden w-full mt-3  lg:grid gap-x-3 gap-y-6 px-3 lg:px-3"
-            style={{
-              gridTemplateColumns: `repeat(${numCols}, minmax(0, 1fr))`,
-            }}
-          >
+          <Reveal className="col-start-1 col-span-4 lg:col-start-5 lg:col-span-8 hidden w-full lg:block">
+            <div
+              className="mt-3 grid gap-x-3 gap-y-6 px-3 lg:px-3"
+              style={{
+                gridTemplateColumns: `repeat(${numCols}, minmax(0, 1fr))`,
+              }}
+            >
+              <AnimatePresence mode="popLayout" initial={false}>
+                {gridEntries.map(({ item, captionBelow, onClientClick }, idx) => (
+                  <motion.div
+                    key={item.key}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.35,
+                      delay: Math.min(idx * 0.07, 0.7),
+                      ease: "easeOut",
+                    }}
+                    // Separators only, no outer frame: a rule above every row
+                    // after the first, and left of every column after the first.
+                  >
+                    <ProjectCard
+                      item={item}
+                      sizes={`${Math.round(75 / numCols)}vw`}
+                      className="lg:mb-0"
+                      captionBelow={captionBelow}
+                      onClientClick={onClientClick}
+                      clientExpanded={
+                        onClientClick && item.client
+                          ? expandedClients.has(item.client)
+                          : undefined
+                      }
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </Reveal>
+        )}
+      </div>
+
+      {/* Mobile: the grid or the client list. */}
+      <div className="flex w-full flex-col px-6 lg:hidden">
+        {listVisible && showGrid && (
+          <Reveal className="grid grid-cols-2 gap-x-3 w-full">
             <AnimatePresence mode="popLayout" initial={false}>
-              {displayed.map((item, idx) => (
-                <motion.div
-                  key={item.key}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    duration: 0.35,
-                    delay: Math.min(idx * 0.07, 0.7),
-                    ease: "easeOut",
-                  }}
-                  // Separators only, no outer frame: a rule above every row
-                  // after the first, and left of every column after the first.
-                >
+              {gridEntries.map(({ item, captionBelow, onClientClick }) => (
+                <motion.div key={item.key} layout exit={{ opacity: 0 }}>
                   <ProjectCard
                     item={item}
-                    sizes={`${Math.round(75 / numCols)}vw`}
-                    className="lg:mb-0"
+                    sizes="50vw"
+                    captionBelow={captionBelow}
+                    onClientClick={onClientClick}
+                    clientExpanded={
+                      onClientClick && item.client
+                        ? expandedClients.has(item.client)
+                        : undefined
+                    }
                   />
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
-        )}
-      </div>
-
-      {/* Mobile: the grid or the client list. The category button that heads
-          this section lives in the grid above so it can sit in column two. */}
-      <div className="flex w-full flex-col px-6 lg:hidden">
-        {listVisible && showGrid && (
-          <div className="flex flex-col w-full">
-            <AnimatePresence mode="popLayout" initial={false}>
-              {displayed.map((item) => (
-                <motion.div key={item.key} layout exit={{ opacity: 0 }}>
-                  <ProjectCard item={item} sizes="100vw" />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+          </Reveal>
         )}
 
         {listVisible && showList && (
-          <div className="grid grid-cols-3 lg:grid-cols-12 w-full">
+          <Reveal className="grid grid-cols-3 lg:grid-cols-12 w-full">
             <AnimatePresence mode="popLayout">
               {clients.map((client, idx) => (
                 <motion.div
@@ -279,9 +320,44 @@ export default function AllProjectsPageClient() {
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
+          </Reveal>
         )}
       </div>
+
+      {/* Below the grid/list row, so it reveals slightly after it — part of
+          the same top-to-bottom cascade. */}
+      <Reveal delay={0.15}>
+        <LandningBlock
+          label="projects"
+          // z-40 — above CategoryFilters' z-30 drawer — so this row stays
+          // visible and clickable once the drawer opens and covers the rest
+          // of the screen.
+          className="hidden h-auto    content-center relative z-40 "
+          labelClassName="col-span-2 lg:col-start-1 lg:col-span-12 lg:row-start-2 w-full"
+          contentClassName="col-start-3 col-span-1 lg:col-start-4 lg:col-span-9 lg:row-start-2 lowercase w-full"
+        >
+          <TypedHeading
+            ready={!navLoading}
+            text="welcome to the archive"
+            className=" text-left hidden lg:flex  h2Text px-6 font-thin text-primary mb-3"
+          />
+        </LandningBlock>
+      </Reveal>
+      {/* Mobile only — bottom-left corner, mirroring CategoryFilters' own
+          drawer tab at bottom-right. Desktop keeps its own tab. A sibling of
+          LandningBlock rather than nested in it, so it stays reachable
+          regardless of that block's own visibility. */}
+      <div className="fixed bottom-3 left-3 z-40 lg:hidden">
+        <CheckButton
+          label={showFilters ? "close" : "filters"}
+          size="lg"
+          active
+          className="whitespace-nowrap"
+          onClick={() => setShowFilters((v) => !v)}
+        />
+      </div>
+      <FilterOverlay />
+
       <Reveal className="w-full mb-12">
         <BottomNav />
       </Reveal>

@@ -5,6 +5,9 @@ import { createContext, useContext, type ReactNode } from "react";
 export type GridItem = {
   key: string;
   url: string;
+  /** What `url` (and `coverUrl`, when present) actually is. Omitted means
+   *  "image" — every item predating video support in the grid stays that. */
+  mediaType?: "image" | "video";
   alt: string;
   slug: string;
   title: string;

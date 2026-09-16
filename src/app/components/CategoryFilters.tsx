@@ -13,6 +13,7 @@ import {
   getVisibleFilterCats,
 } from "@/lib/categories";
 import { useState } from "react";
+import { Reveal } from "./Reveal";
 
 const DRAWER_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -45,6 +46,8 @@ export default function CategoryFilters({
     setShowList,
     numCols,
     setNumCols,
+    sortMode,
+    setSortMode,
   } = useUI();
   const { categories } = useWork();
 
@@ -85,142 +88,171 @@ export default function CategoryFilters({
         // paired with the sound toggle at the opposite corner); once open it
         // fills in with bg-primary and the text flips to primary-foreground
         // to stay legible over it — same treatment the topbar gives its own
-        // drawer. Desktop drops all of that and becomes a static sidebar
-        // column of the /projects grid.
+        // drawer. Desktop drops all of that and becomes a sticky sidebar
+        // column instead — same vertical stack of controls the drawer uses,
+        // just riding alongside the grid/list rather than covering it.
         // left-3 always insets the tab from the screen edge; open, right-3
         // pairs with it so the panel spans between the two insets rather than
         // a full 100vw that would overflow past them.
         "fixed bottom-3 right-3 z-30 ",
         "transition-[width] duration-300 ease-out",
         showFilters
-          ? "left-3 right-3 top-3 bg-primary max-lg:[&_*]:!text-primary-foreground lg:grid lg:grid-cols-12 pb-3"
+          ? "left-3 right-3 top-3 bg-primary max-lg:[&_*]:!text-primary-foreground pb-3"
           : "w-1/3 bg-transparent max-lg:[&_*]:!text-primary",
-        "lg:static lg:inset-auto lg:z-auto lg:w-auto lg:bg-transparent lg:pb-0 lg:[mask-border:none] lg:[-webkit-mask-box-image:none] lg:col-start-1 lg:col-span-12",
+        "lg:static lg:inset-auto lg:z-auto lg:w-auto lg:bg-transparent lg:pb-0 lg:[mask-border:none] lg:[-webkit-mask-box-image:none]",
         className,
       )}
     >
-      <AnimatePresence initial={false}>
-        {showFilters && (
-          <motion.div
-            key="panel"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: DRAWER_EASE }}
-            className="overflow-hidden lg:col-start-1 lg:col-span-12 lg:row-start-1"
-          >
+      {/* Reveal wraps the content, not this sticky root — a transform on the
+          sticky element's own ancestor would break its stickiness (though a
+          transform on the sticky element itself, or on its descendants like
+          this, is fine). Same top-to-bottom cascade the grid/list uses. */}
+      <Reveal>
+        <AnimatePresence initial={false}>
+          {showFilters && (
             <motion.div
-              initial={{ y: 32 }}
-              animate={{ y: 0 }}
-              exit={{ y: 32 }}
+              key="panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.4, ease: DRAWER_EASE }}
-              className="grid grid-cols-3 lg:grid-cols-12 gap-x-0 gap-y-12 items-baseline w-full px-6 pt-6 pb-6 lg:p-3"
+              className="overflow-hidden  "
             >
-              <CheckButton
-                label="categories"
-                size="label"
-                active={showCat}
-                className="col-start-1 row-start-2 lg:col-start-3 lg:row-start-1"
-                onClick={() => setShowCat((v) => !v)}
-              />
-              <div className="relative col-start-3 row-start-2 lg:col-start-9 col-span-1 lg:row-start-1">
+              <motion.div
+                initial={{ y: 32 }}
+                animate={{ y: 0 }}
+                exit={{ y: 32 }}
+                transition={{ duration: 0.4, ease: DRAWER_EASE }}
+                className="grid grid-cols-2 lg:flex lg:flex-col  gap-x-0 gap-y-12 lg:gap-y-12 items-baseline w-full px-6 pt-6 pb-6 lg:p-3"
+              >
+                {/* Desktop only — shares this row's grid (and its
+                  items-baseline alignment) with categories/settings/search
+                  instead of the separate outer-grid row + manual translate
+                  the "filters" trigger below used, which put it a fixed 18px
+                  off their baseline instead of on it. Mobile keeps its own
+                  toggle riding the "projects" LandningBlock row. */}
                 <CheckButton
-                  label="settings"
+                  label="close"
                   size="label"
-                  active={showSettings}
-                  onClick={() => setShowSettings(!showSettings)}
+                  active
+                  className="hidden lg:col-start-1 lg:col-span-1 lg:row-start-1"
+                  onClick={() => setShowFilters(false)}
                 />
-              </div>
-              <SearchCheck
-                // Mobile: row 4 drops it below whichever sub-menu is open (both
-                // sit on row 3); -mt-6 trims the grid's 12 row gap back to 6 so
-                // it keeps the sub-menu's own 6 rhythm.
-                className="col-start-3 row-start-4 max-lg:-mt-6 lg:col-start-11 lg:col-span-2 lg:row-start-1"
-                open={searchOpen}
-                onToggle={() => setSearchOpen((v) => !v)}
-                value={search}
-                onChange={setSearch}
-              />
-              {showCat && (
-                <div className="col-start-1 row-start-3 lg:col-start-3 col-span-3 lg:col-span-6 lg:row-start-2 grid grid-cols-3 lg:grid-cols-6 px-0 gap-y-6">
-                  {allCats.map((cat, i) => (
-                    <motion.span
-                      key={cat}
-                      // Reveal the categories one by one; the project list waits
-                      // for this whole sequence (getFilterDoneMs shares the
-                      // filterDelays math) before it fades in.
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        duration: 0.3,
-                        ease: DRAWER_EASE,
-                        delay: filterDelays[i] / 1000,
-                      }}
-                      className="inline-flex items-baseline whitespace-nowrap w-min col-span-2"
-                    >
-                      <CheckButton
-                        label={getFilterChipLabel(cat)}
-                        size="label"
-                        onClick={() => handleFilterChange(cat)}
-                        active={activeFilter === cat}
-                      />
-                    </motion.span>
-                  ))}
-                </div>
-              )}
-              {showSettings && (
-                <div className="col-start-3 row-start-3 lg:col-start-9 col-span-2 lg:row-start-2 flex flex-col px-0 gap-6">
+                <SearchCheck
+                  // Mobile: row 4 drops it below whichever sub-menu is open (both
+                  // sit on row 3); -mt-6 trims the grid's 12 row gap back to 6 so
+                  // it keeps the sub-menu's own 6 rhythm.
+                  className="col-start-3 row-start-4 max-lg:-mt-6 lg:col-start-11 lg:col-span-2 lg:row-start-1"
+                  open={searchOpen}
+                  onToggle={() => setSearchOpen((v) => !v)}
+                  value={search}
+                  onChange={setSearch}
+                />
+                <CheckButton
+                  label="categories"
+                  size="label"
+                  active={showCat}
+                  className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1"
+                  onClick={() => setShowCat((v) => !v)}
+                />
+                {showCat && (
+                  <div className="grid grid-cols-3 lg:grid-cols-2 px-0 gap-y-6 w-full">
+                    {allCats.map((cat, i) => (
+                      <motion.span
+                        key={cat}
+                        // Reveal the categories one by one; the project list waits
+                        // for this whole sequence (getFilterDoneMs shares the
+                        // filterDelays math) before it fades in.
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                          duration: 0.3,
+                          ease: DRAWER_EASE,
+                          delay: filterDelays[i] / 1000,
+                        }}
+                        className="inline-flex items-baseline whitespace-nowrap col-span-1 "
+                      >
+                        <CheckButton
+                          label={getFilterChipLabel(cat)}
+                          size="label"
+                          onClick={() => handleFilterChange(cat)}
+                          active={activeFilter === cat}
+                        />
+                      </motion.span>
+                    ))}
+                  </div>
+                )}
+                <div className="relative col-start-3 row-start-2 lg:col-start-9 col-span-1 lg:row-start-1">
                   <CheckButton
-                    label="list"
+                    label="settings"
                     size="label"
-                    active={showList}
-                    onClick={showListView}
+                    active={showSettings}
+                    onClick={() => setShowSettings(!showSettings)}
                   />
-                  <CheckButton
-                    label="thumbnails"
-                    size="label"
-                    active={showGrid}
-                    onClick={showThumbnails}
-                  />
-                  {showGrid && (
-                    <div className="flex flex-col gap-6">
-                      <CheckButton
-                        label="Zoom In"
-                        size="label"
-                        onClick={() => setNumCols(zoomInCols(numCols))}
-                      />
-                      <CheckButton
-                        label="Zoom Out"
-                        size="label"
-                        onClick={() => setNumCols(zoomOutCols(numCols))}
-                      />
-                    </div>
-                  )}
                 </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Desktop only now — it drops into the panel grid's empty left columns,
-          bottom-aligned (lg:self-end) with matching lg:p-3 so it sits flush
-          with the last sub-menu row. Its own box is `lg` size (h-12) against
-          the category chips' `label` size (h-3) — both centre their text in
-          that box, so bottom-aligning the boxes alone would still leave the
-          text baselines 18px apart (half the 36px height difference). The
-          translate nudges just the text back down onto that shared baseline.
-          Mobile has its own toggle sharing the "projects" LandningBlock
-          label's row instead. */}
-      <div className="hidden lg:block lg:col-start-1 lg:col-span-2 lg:row-start-1 lg:self-end lg:translate-y-[18px] lg:z-10 lg:px-3 lg:py-0">
-        <CheckButton
-          label={showFilters ? "close" : "filters"}
-          size="lg"
-          active
-          className="whitespace-nowrap"
-          onClick={() => setShowFilters((v) => !v)}
-        />
-      </div>
+                {showSettings && (
+                  <div className="grid grid-cols-3 lg:grid-cols-2 px-0 gap-y-6 w-full">
+                    <CheckButton
+                      label="list"
+                      size="label"
+                      active={showList}
+                      onClick={showListView}
+                    />
+                    <CheckButton
+                      label="thumbnails"
+                      size="label"
+                      active={showGrid}
+                      onClick={showThumbnails}
+                    />
+
+                    {showGrid && (
+                      <div className="col-span-3 lg:col-span-2 grid grid-cols-3 lg:grid-cols-2 w-full ">
+                        <CheckButton
+                          label="Zoom In"
+                          size="label"
+                          onClick={() => setNumCols(zoomInCols(numCols))}
+                        />
+                        <CheckButton
+                          label="Zoom Out"
+                          size="label"
+                          onClick={() => setNumCols(zoomOutCols(numCols))}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                <CheckButton
+                  label={`sort by ${sortMode}`}
+                  size="label"
+                  active
+                  onClick={() =>
+                    setSortMode((m) => (m === "year" ? "title" : "year"))
+                  }
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Desktop only, and only while collapsed — the sole "open filters"
+          entry point when the panel isn't rendered at all. Once open, the
+          "close" trigger above takes over from inside the panel's own grid,
+          sharing categories/settings/search's row and baseline instead of
+          this standalone block. Mobile has its own toggle sharing the
+          "projects" LandningBlock label's row instead. */}
+        {!showFilters && (
+          <div className="hidden lg:block lg:px-3 lg:py-0">
+            <CheckButton
+              label="filters"
+              size="lg"
+              active
+              className="whitespace-nowrap"
+              onClick={() => setShowFilters(true)}
+            />
+          </div>
+        )}
+      </Reveal>
     </div>
   );
 }

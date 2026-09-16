@@ -4,6 +4,7 @@ import Image, { type ImageProps } from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { usePixelCorners } from "@/app/hooks/usePixelCorners";
 import { cn } from "@/lib/utils";
+import VideoPlayer from "./VideoPlayer";
 
 type Props = ImageProps & {
   /** Sizing for the frame: aspect ratio, width, margins — whatever the layout
@@ -16,6 +17,9 @@ type Props = ImageProps & {
   revealOnView?: boolean;
   /** Seconds to delay that reveal — for staggering a row of frames. */
   revealDelay?: number;
+  /** "video" plays `src` with VideoPlayer instead of rendering it as an
+   *  <Image> — same frame, same corner clipping. */
+  mediaType?: "image" | "video";
 };
 
 /**
@@ -31,19 +35,26 @@ export default function PixelFrame({
   alt,
   revealOnView = false,
   revealDelay = 0,
+  mediaType = "image",
   ...image
 }: Props) {
   const ref = usePixelCorners<HTMLDivElement>();
   const reduce = useReducedMotion();
 
-  const img = (
-    <Image
-      alt={alt}
-      fill
-      className={cn("object-cover", imageClassName)}
-      {...image}
-    />
-  );
+  const img =
+    mediaType === "video" ? (
+      <VideoPlayer
+        src={image.src as string}
+        className={cn("object-cover", imageClassName)}
+      />
+    ) : (
+      <Image
+        alt={alt}
+        fill
+        className={cn("object-cover", imageClassName)}
+        {...image}
+      />
+    );
 
   return (
     <div

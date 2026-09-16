@@ -123,18 +123,8 @@ function HomeClientInner({
 
           {/* Mobile sound toggle — hidden for now; flip SHOW_MOBILE_SOUND to
               bring it back. */}
-          {SHOW_MOBILE_SOUND && consentSettled && (
-            <div className="absolute bottom-0 right-0 z-20 px-0 pb-0 hidden">
-              <CheckButton
-                size="lg"
-                label={muted ? "sound off" : "sound on"}
-                active={!muted}
-                onClick={toggleMute}
-              />
-            </div>
-          )}
         </div>
-        <Reveal className="col-span-3 lg:col-span-12 ">
+        <Reveal className="col-span-3 lg:col-span-12 mt-48 ">
           <AboutSectionText
             columns
             label="our story"

@@ -211,7 +211,11 @@ function NavBar({
             delay={0}
             loading={menuLoading}
             loadingText="loading"
-            phrases={cycleMenuLabel ? ["loading", "multi2.co"] : []}
+            phrases={
+              cycleMenuLabel
+                ? ["loading", "multi2.co", "multisquared", "multi²"]
+                : []
+            }
             loop={cycleMenuLabel}
             trigger={cycleMenuLabel ? "scrolled" : "idle"}
           />
@@ -254,7 +258,7 @@ function NavBar({
             delay={0}
             // Once the reader has scrolled, the button keeps cycling between
             // "loading" and the wordmark so the bar still says who it is.
-            phrases={cycleMenuLabel ? ["loading", "multi2.co"] : []}
+            phrases={cycleMenuLabel ? ["loading", "multi2.co", "multi²"] : []}
             loop={cycleMenuLabel}
             trigger={cycleMenuLabel ? "scrolled" : "idle"}
           />

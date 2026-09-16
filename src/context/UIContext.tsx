@@ -35,6 +35,8 @@ type UIContextType = {
   setSearch: (v: string) => void;
   numCols: number;
   setNumCols: (n: number) => void;
+  sortMode: "year" | "title";
+  setSortMode: (v: "year" | "title" | ((prev: "year" | "title") => "year" | "title")) => void;
 };
 
 const UIContext = createContext<UIContextType | null>(null);
@@ -46,11 +48,12 @@ export function UIProvider({ children }: { children: ReactNode }) {
   // mobile only: desktop always shows the category column (CategoryFilters),
   // below lg the same list is a full-screen overlay that starts closed
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(true);
   const [openedCard, setOpenedCard] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(true);
   const [search, setSearch] = useState("");
   const [numCols, setNumCols] = useState(DEFAULT_COLS);
+  const [sortMode, setSortMode] = useState<"year" | "title">("year");
   const [contentDoneKey, setContentDoneKey] = useState(0);
   const [navLoading, setNavLoading] = useState(true);
   const notifyContentDone = useCallback(
@@ -85,6 +88,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setSearch,
         numCols,
         setNumCols,
+        sortMode,
+        setSortMode,
         contentDoneKey,
         notifyContentDone,
         navLoading,

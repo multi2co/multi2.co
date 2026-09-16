@@ -140,7 +140,7 @@ function ProjectPageInner({
           : [];
 
   return (
-    <div className=" relative w-full px-0 mt-24 ">
+    <div className=" relative w-full px-0 mt-48 ">
       <div className="grid grid-cols-3 lg:grid-cols-12 mb-3 lg:mb-0 items-baseline">
         {client && (
           <div className="hidden lg:flex col-start-1 col-span-1 lg:col-start-1 lg:col-span-3  px-0">

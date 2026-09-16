@@ -38,6 +38,11 @@ export default function FeaturedCard({
 }) {
   const reduce = useReducedMotion();
 
+  // The cover field is always a still image; it only wins over the work's own
+  // media (which may be a video) when it's actually set.
+  const usingCover = Boolean(project.coverUrl);
+  const mediaType = usingCover ? "image" : (project.mediaType ?? "image");
+
   const reveal =
     revealOnView && !reduce
       ? {
@@ -68,6 +73,7 @@ export default function FeaturedCard({
       >
         <PixelFrame
           src={project.coverUrl ?? project.url}
+          mediaType={mediaType}
           alt={project.alt}
           sizes={
             captionBelow
