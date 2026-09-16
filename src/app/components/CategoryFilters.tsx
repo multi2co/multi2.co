@@ -7,30 +7,14 @@ import { useWork } from "@/context/WorkContext";
 import CheckButton from "./CheckButton";
 import SearchCheck from "./SearchCheck";
 import { zoomInCols, zoomOutCols } from "@/lib/gridZoom";
+import {
+  getFilterChipDelays,
+  getFilterChipLabel,
+  getVisibleFilterCats,
+} from "@/lib/categories";
 import { useState } from "react";
 
 const DRAWER_EASE = [0.22, 1, 0.36, 1] as const;
-
-const CATEGORY_LABELS: Record<string, string> = {
-  photo: "Photo",
-  video: "Video",
-  production: "Production",
-  "art-direction": "Art Direction",
-  concept: "Concept",
-  "sound-design": "Sound Design",
-  vax: "Vax",
-  dop: "DOP",
-  "post-processing": "Post-Processing",
-  "post-production": "Post Production",
-  music: "Music Production",
-  "music-production": "Music Production",
-};
-
-const TYPING_MS_PER_CHAR = 22;
-
-// Same label + delay math as lib/navTiming, which times the project list reveal.
-const getFilterLabel = (cat: string) =>
-  cat === "all" ? "All Projects" : (CATEGORY_LABELS[cat] ?? cat);
 
 export default function CategoryFilters({
   className = "",
@@ -77,20 +61,8 @@ export default function CategoryFilters({
     setShowGrid(false);
   }
 
-  // the CMS can hold two slugs that render the same label (art-direction /
-  // Art Direction), so dedupe on what the visitor actually sees
-  const seenLabels = new Set<string>();
-  const allCats = ["all", ...categories].filter((cat) => {
-    const key = getFilterLabel(cat).trim().toLowerCase();
-    if (seenLabels.has(key)) return false;
-    seenLabels.add(key);
-    return true;
-  });
-  const filterDelays = allCats.reduce<number[]>((acc, _cat, i) => {
-    if (i === 0) return [0];
-    const prevLabel = getFilterLabel(allCats[i - 1]);
-    return [...acc, acc[i - 1] + (prevLabel.length + 2) * TYPING_MS_PER_CHAR];
-  }, []);
+  const allCats = getVisibleFilterCats(categories);
+  const filterDelays = getFilterChipDelays(categories);
 
   function handleFilterChange(cat: string) {
     setActiveFilter(cat);
@@ -187,7 +159,7 @@ export default function CategoryFilters({
                       className="inline-flex items-baseline whitespace-nowrap w-min col-span-2"
                     >
                       <CheckButton
-                        label={getFilterLabel(cat)}
+                        label={getFilterChipLabel(cat)}
                         size="label"
                         onClick={() => handleFilterChange(cat)}
                         active={activeFilter === cat}

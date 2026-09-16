@@ -28,16 +28,18 @@ export default function TextTool({ color, className, onAdd }: Props) {
   };
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-3", className)}>
+    <div
+      className={cn("flex flex-wrap items-center gap-x-4 gap-y-3", className)}
+    >
       <Input
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="type something"
-        className="w-56 lowercase"
+        className="w-56 lowercase bg-white"
         style={{ color }}
       />
-      <label className="flex items-center gap-x-3 text-sm font-visual lowercase text-primary">
+      <label className="flex items-center gap-x-3 text-sm  font-visual lowercase text-primary">
         size
         <Slider
           className="w-24"
@@ -48,7 +50,12 @@ export default function TextTool({ color, className, onAdd }: Props) {
           onValueChange={([v]) => setFontSize(v)}
         />
       </label>
-      <Button variant="default" size="sm" onClick={submit} disabled={!text.trim()}>
+      <Button
+        variant="default"
+        size="sm"
+        onClick={submit}
+        disabled={!text.trim()}
+      >
         add to artboard
       </Button>
     </div>

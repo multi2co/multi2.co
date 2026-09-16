@@ -37,6 +37,10 @@ export default function PaletteSwitcher({
             aria-checked={active}
             aria-label={t.label}
             onClick={() => onChange(t.id)}
+            // Background is the palette's primary-foreground, so the swatch
+            // renders both of the theme's colours together — the ink glyph
+            // on the surface it'll actually sit on in the artwork.
+            style={{ backgroundColor: t.bg }}
             className={cn(
               SWATCH_CLASS,
               t.swatch,

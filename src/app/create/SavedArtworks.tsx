@@ -8,11 +8,19 @@ type Props = {
   className?: string;
   onLoad: (artwork: SavedArtwork) => void;
   onRemove: (id: string) => void;
+  onExportSVG: (artwork: SavedArtwork) => void;
 };
 
 /** A horizontal strip of saved artboards — load one back for further
- *  editing, or drop it. Everything here lives in localStorage only. */
-export default function SavedArtworks({ artworks, className, onLoad, onRemove }: Props) {
+ *  editing, drop it, or pull its SVG straight out without loading it first.
+ *  Everything here lives in localStorage only. */
+export default function SavedArtworks({
+  artworks,
+  className,
+  onLoad,
+  onRemove,
+  onExportSVG,
+}: Props) {
   if (artworks.length === 0) return null;
 
   return (
@@ -38,6 +46,13 @@ export default function SavedArtworks({ artworks, className, onLoad, onRemove }:
             className="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center border border-primary bg-background text-xs leading-none text-primary group-hover:flex"
           >
             ×
+          </button>
+          <button
+            type="button"
+            onClick={() => onExportSVG(artwork)}
+            className="absolute inset-x-0 bottom-0 hidden h-5 items-center justify-center bg-background text-[10px] leading-none text-primary group-hover:flex"
+          >
+            svg
           </button>
         </div>
       ))}
