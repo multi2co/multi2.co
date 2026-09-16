@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import CheckButton from "./CheckButton";
@@ -20,7 +21,10 @@ const LINK_BTN =
 
 /** The named contacts sit at cols 4 / 7 — only the first two people show,
  *  matching the grid's two reserved slots. */
-const PERSON_COLS = ["lg:col-start-4 lg:col-span-2", "lg:col-start-7 lg:col-span-2"] as const;
+const PERSON_COLS = [
+  "lg:col-start-4 lg:col-span-2",
+  "lg:col-start-7 lg:col-span-2",
+] as const;
 
 /**
  * The "connect with us" block — one full-width 12-col grid, `items-baseline` so
@@ -28,14 +32,19 @@ const PERSON_COLS = ["lg:col-start-4 lg:col-span-2", "lg:col-start-7 lg:col-span
  * general links (col 1) and the per-person contacts (cols 4 / 7, `lg`+) on the
  * next. Used on the home page and the connect page. `contact` is the Sanity
  * Contact doc — `phone`/`email` for the general links (falling back to the
- * house email when unpublished), `people` for the named contacts.
+ * house email when unpublished), `people` for the named contacts. `pattern`
+ * is the page's own decorative background (e.g. ConnectHomePattern,
+ * ConnectPagePattern) — this section doesn't own one itself since home and
+ * /connect each want a different one.
  */
 export default function ConnectSection({
   className,
   contact,
+  pattern,
 }: {
   className?: string;
   contact?: ContactData;
+  pattern?: ReactNode;
 }) {
   const links = [
     { label: "email", href: `mailto:${contact?.email ?? DEFAULT_EMAIL}` },
@@ -52,7 +61,7 @@ export default function ConnectSection({
   ] as const;
 
   return (
-    <Reveal className="grid grid-cols-3 lg:grid-cols-12 gap-x-3 h-dvh">
+    <Reveal className="relative isolate grid grid-cols-3 lg:grid-cols-12 gap-x-3 h-dvh">
       <LandningBlock
         bg=" text-primary"
         className={cn(
@@ -118,6 +127,10 @@ export default function ConnectSection({
           </div>
         ))}
       </LandningBlock>
+      {/* Page-specific decorative background — home and /connect each supply
+          their own pattern (see ConnectHomePattern / ConnectPagePattern),
+          rather than this shared section carrying both inline. */}
+      {pattern}
     </Reveal>
   );
 }

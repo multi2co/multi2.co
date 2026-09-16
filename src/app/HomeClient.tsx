@@ -10,6 +10,7 @@ import AboutSectionText from "./components/AboutSectionText";
 import BottomNav from "./components/BottomNav";
 import CheckButton from "./components/CheckButton";
 import ConnectSection, { type ContactData } from "./components/ConnectSection";
+import ConnectHomePattern from "./components/ConnectHomePattern";
 import FeaturedCard from "./components/FeaturedCard";
 import LandningBlock from "./components/LandningBlock";
 import { Reveal } from "./components/Reveal";
@@ -124,11 +125,12 @@ function HomeClientInner({
           {/* Mobile sound toggle — hidden for now; flip SHOW_MOBILE_SOUND to
               bring it back. */}
         </div>
-        <Reveal className="col-span-3 lg:col-span-12 mt-48 ">
+
+        <Reveal className="col-span-3 lg:col-span-12 mt-48  ">
           <AboutSectionText
             columns
             label="our story"
-            className="pb-6 lg:pb-12  w-full
+            className="pb-6 lg:pb-48  w-full
               "
           />
         </Reveal>
@@ -189,7 +191,11 @@ function HomeClientInner({
             </div>
           </div>
         </section>
-        <ConnectSection className="mt-3" contact={contact} />
+        <ConnectSection
+          className="mt-48"
+          contact={contact}
+          pattern={<ConnectHomePattern />}
+        />
 
         <Reveal className="w-full mb-6">
           <BottomNav />

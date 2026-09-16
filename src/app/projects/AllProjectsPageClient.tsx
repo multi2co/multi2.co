@@ -277,13 +277,13 @@ export default function AllProjectsPageClient() {
       {/* Mobile: the grid or the client list. */}
       <div className="flex w-full flex-col px-6 lg:hidden">
         {listVisible && showGrid && (
-          <Reveal className="grid grid-cols-2 gap-x-3 w-full">
+          <Reveal className="flex flex-col w-full">
             <AnimatePresence mode="popLayout" initial={false}>
               {gridEntries.map(({ item, captionBelow, onClientClick }) => (
                 <motion.div key={item.key} layout exit={{ opacity: 0 }}>
                   <ProjectCard
                     item={item}
-                    sizes="50vw"
+                    sizes="100vw"
                     captionBelow={captionBelow}
                     onClientClick={onClientClick}
                     clientExpanded={

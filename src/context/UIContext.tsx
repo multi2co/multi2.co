@@ -48,7 +48,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   // mobile only: desktop always shows the category column (CategoryFilters),
   // below lg the same list is a full-screen overlay that starts closed
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [openedCard, setOpenedCard] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(true);
   const [search, setSearch] = useState("");

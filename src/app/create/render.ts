@@ -124,7 +124,9 @@ export function renderArtworkSVG({
     )
     .join("");
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="100%" height="100%" fill="${theme.bg}"/>${backdropImage}${inkMarks}${textMarks}</svg>`;
+  // No background rect — exported/copied SVGs stay transparent instead of
+  // carrying the editor's theme colour as an opaque backing fill.
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${backdropImage}${inkMarks}${textMarks}</svg>`;
 }
 
 export function downloadDataUrl(dataUrl: string, filename: string) {

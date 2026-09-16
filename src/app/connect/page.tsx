@@ -2,6 +2,7 @@ import BottomNav from "@/app/components/BottomNav";
 import ConnectSection, {
   type ContactData,
 } from "@/app/components/ConnectSection";
+import ConnectPagePattern from "@/app/components/ConnectPagePattern";
 import { sanityFetch } from "../../../sanity/lib/client";
 import { contactQuery } from "../../../sanity/lib/queries";
 
@@ -21,7 +22,10 @@ export default async function ConnectPage() {
   return (
     <div className="flex min-h-screen flex-col pt-28 lg:pt-36">
       <div className="flex-1">
-        <ConnectSection contact={contact ?? undefined} />
+        <ConnectSection
+          contact={contact ?? undefined}
+          pattern={<ConnectPagePattern />}
+        />
       </div>
     </div>
   );

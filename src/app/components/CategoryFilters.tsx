@@ -94,7 +94,7 @@ export default function CategoryFilters({
         // left-3 always insets the tab from the screen edge; open, right-3
         // pairs with it so the panel spans between the two insets rather than
         // a full 100vw that would overflow past them.
-        "fixed bottom-3 right-3 z-30 ",
+        "fixed bottom-3 right-3 z-30 pixelCorners",
         "transition-[width] duration-300 ease-out",
         showFilters
           ? "left-3 right-3 top-3 bg-primary max-lg:[&_*]:!text-primary-foreground pb-3"
@@ -138,25 +138,30 @@ export default function CategoryFilters({
                   className="hidden lg:col-start-1 lg:col-span-1 lg:row-start-1"
                   onClick={() => setShowFilters(false)}
                 />
+                <CheckButton
+                  label="categories"
+                  size="label"
+                  active={showCat}
+                  className="col-start-1 row-start-1 lg:row-start-1"
+                  onClick={() => setShowCat((v) => !v)}
+                />
+                <div className="relative col-start-2 row-start-1 lg:row-start-1">
+                  <CheckButton
+                    label="settings"
+                    size="label"
+                    active={showSettings}
+                    onClick={() => setShowSettings(!showSettings)}
+                  />
+                </div>
                 <SearchCheck
-                  // Mobile: row 4 drops it below whichever sub-menu is open (both
-                  // sit on row 3); -mt-6 trims the grid's 12 row gap back to 6 so
-                  // it keeps the sub-menu's own 6 rhythm.
-                  className="col-start-3 row-start-4 max-lg:-mt-6 lg:col-start-11 lg:col-span-2 lg:row-start-1"
+                  className="col-start-1 col-span-2 row-start-2 lg:col-start-11 lg:col-span-2 lg:row-start-1"
                   open={searchOpen}
                   onToggle={() => setSearchOpen((v) => !v)}
                   value={search}
                   onChange={setSearch}
                 />
-                <CheckButton
-                  label="categories"
-                  size="label"
-                  active={showCat}
-                  className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1"
-                  onClick={() => setShowCat((v) => !v)}
-                />
                 {showCat && (
-                  <div className="grid grid-cols-3 lg:grid-cols-2 px-0 gap-y-6 w-full">
+                  <div className="col-start-1 col-span-2 row-start-3 grid grid-cols-2 lg:grid-cols-2 px-0 gap-y-6 w-full">
                     {allCats.map((cat, i) => (
                       <motion.span
                         key={cat}
@@ -182,17 +187,8 @@ export default function CategoryFilters({
                     ))}
                   </div>
                 )}
-                <div className="relative col-start-3 row-start-2 lg:col-start-9 col-span-1 lg:row-start-1">
-                  <CheckButton
-                    label="settings"
-                    size="label"
-                    active={showSettings}
-                    onClick={() => setShowSettings(!showSettings)}
-                  />
-                </div>
-
                 {showSettings && (
-                  <div className="grid grid-cols-3 lg:grid-cols-2 px-0 gap-y-6 w-full">
+                  <div className="col-start-1 col-span-2 row-start-4 grid grid-cols-2 lg:grid-cols-2 px-0 gap-y-6 w-full">
                     <CheckButton
                       label="list"
                       size="label"
@@ -207,7 +203,7 @@ export default function CategoryFilters({
                     />
 
                     {showGrid && (
-                      <div className="col-span-3 lg:col-span-2 grid grid-cols-3 lg:grid-cols-2 w-full ">
+                      <div className="col-span-2 lg:col-span-2 grid grid-cols-2 lg:grid-cols-2 w-full ">
                         <CheckButton
                           label="Zoom In"
                           size="label"
@@ -226,6 +222,7 @@ export default function CategoryFilters({
                   label={`sort by ${sortMode}`}
                   size="label"
                   active
+                  className="col-start-1 col-span-2 row-start-5"
                   onClick={() =>
                     setSortMode((m) => (m === "year" ? "title" : "year"))
                   }
