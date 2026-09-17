@@ -109,6 +109,7 @@ export const contactQuery = groq`
     email,
     people[] {
       name,
+      title,
       phone,
       email
     }

@@ -40,6 +40,12 @@ export const contact = defineType({
               validation: (r) => r.required(),
             }),
             defineField({
+              name: "title",
+              title: "Title",
+              description: "Role shown under their name, e.g. \"Creative Director\".",
+              type: "string",
+            }),
+            defineField({
               name: "phone",
               title: "Phone",
               type: "string",
@@ -52,7 +58,7 @@ export const contact = defineType({
             }),
           ],
           preview: {
-            select: { title: "name", subtitle: "email" },
+            select: { title: "name", subtitle: "title" },
           },
         },
       ],

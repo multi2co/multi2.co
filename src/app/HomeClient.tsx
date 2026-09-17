@@ -10,7 +10,6 @@ import AboutSectionText from "./components/AboutSectionText";
 import BottomNav from "./components/BottomNav";
 import CheckButton from "./components/CheckButton";
 import ConnectSection, { type ContactData } from "./components/ConnectSection";
-import ConnectHomePattern from "./components/ConnectHomePattern";
 import FeaturedCard from "./components/FeaturedCard";
 import LandningBlock from "./components/LandningBlock";
 import { Reveal } from "./components/Reveal";

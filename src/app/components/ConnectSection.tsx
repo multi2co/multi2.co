@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import CheckButton from "./CheckButton";
@@ -10,7 +9,12 @@ import { Reveal } from "./Reveal";
 export type ContactData = {
   phone?: string;
   email?: string;
-  people?: { name: string; phone?: string; email?: string }[];
+  people?: {
+    name: string;
+    title?: string;
+    phone?: string;
+    email?: string;
+  }[];
 };
 
 /** Falls back to this when the CMS's Contact doc has no email published yet. */
@@ -31,31 +35,19 @@ const PERSON_COLS = [
  * the label and the typed heading share a baseline on the first row, then the
  * general links (col 1) and the per-person contacts (cols 4 / 7, `lg`+) on the
  * next. Used on the home page and the connect page. `contact` is the Sanity
- * Contact doc — `phone`/`email` for the general links (falling back to the
- * house email when unpublished), `people` for the named contacts. `pattern`
- * is the page's own decorative background (e.g. ConnectHomePattern,
- * ConnectPagePattern) — this section doesn't own one itself since home and
- * /connect each want a different one.
+ * Contact doc — `email` for the general link (falling back to the house email
+ * when unpublished), `people` for the named contacts. No phone numbers here —
+ * those are the connect page's own, full contact-card layout.
  */
 export default function ConnectSection({
   className,
   contact,
-  pattern,
 }: {
   className?: string;
   contact?: ContactData;
-  pattern?: ReactNode;
 }) {
   const links = [
     { label: "email", href: `mailto:${contact?.email ?? DEFAULT_EMAIL}` },
-    ...(contact?.phone
-      ? [
-          {
-            label: contact.phone,
-            href: `tel:${contact.phone.replace(/\s/g, "")}`,
-          },
-        ]
-      : []),
     { label: "Instagram", href: "#" },
     { label: "Linkedin", href: "#" },
   ] as const;
@@ -100,7 +92,7 @@ export default function ConnectSection({
           ))}
         </div>
 
-        {/* Cols 4 / 7 — name, phone and email per person. Desktop only. */}
+        {/* Cols 4 / 7 — name and email per person, no phone. Desktop only. */}
         {contact?.people?.slice(0, 2).map((person, i) => (
           <div
             key={person.name}
@@ -112,13 +104,6 @@ export default function ConnectSection({
             <Button variant="link" size="lgLink" className={LINK_BTN}>
               {person.name}
             </Button>
-            {person.phone && (
-              <Button variant="link" size="lgLink" className={LINK_BTN} asChild>
-                <a href={`tel:${person.phone.replace(/\s/g, "")}`}>
-                  {person.phone}
-                </a>
-              </Button>
-            )}
             {person.email && (
               <Button variant="link" size="lgLink" className={LINK_BTN} asChild>
                 <a href={`mailto:${person.email}`}>{person.email}</a>
@@ -127,7 +112,6 @@ export default function ConnectSection({
           </div>
         ))}
       </LandningBlock>
-   
     </Reveal>
   );
 }
