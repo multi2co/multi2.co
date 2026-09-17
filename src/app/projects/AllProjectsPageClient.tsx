@@ -233,41 +233,43 @@ export default function AllProjectsPageClient() {
         {listVisible && showGrid && (
           <Reveal className="col-start-1 col-span-4 lg:col-start-5 lg:col-span-8 hidden w-full lg:block">
             <div
-              className="mt-3 grid gap-x-3 gap-y-6 px-3 lg:px-3"
+              className="mt-3 grid gap-x-3 gap-y-3 px-3 lg:px-3"
               style={{
                 gridTemplateColumns: `repeat(${numCols}, minmax(0, 1fr))`,
               }}
             >
               <AnimatePresence mode="popLayout" initial={false}>
-                {gridEntries.map(({ item, captionBelow, onClientClick }, idx) => (
-                  <motion.div
-                    key={item.key}
-                    layout
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{
-                      duration: 0.35,
-                      delay: Math.min(idx * 0.07, 0.7),
-                      ease: "easeOut",
-                    }}
-                    // Separators only, no outer frame: a rule above every row
-                    // after the first, and left of every column after the first.
-                  >
-                    <ProjectCard
-                      item={item}
-                      sizes={`${Math.round(75 / numCols)}vw`}
-                      className="lg:mb-0"
-                      captionBelow={captionBelow}
-                      onClientClick={onClientClick}
-                      clientExpanded={
-                        onClientClick && item.client
-                          ? expandedClients.has(item.client)
-                          : undefined
-                      }
-                    />
-                  </motion.div>
-                ))}
+                {gridEntries.map(
+                  ({ item, captionBelow, onClientClick }, idx) => (
+                    <motion.div
+                      key={item.key}
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.35,
+                        delay: Math.min(idx * 0.07, 0.7),
+                        ease: "easeOut",
+                      }}
+                      // Separators only, no outer frame: a rule above every row
+                      // after the first, and left of every column after the first.
+                    >
+                      <ProjectCard
+                        item={item}
+                        sizes={`${Math.round(75 / numCols)}vw`}
+                        className="lg:mb-0"
+                        captionBelow={captionBelow}
+                        onClientClick={onClientClick}
+                        clientExpanded={
+                          onClientClick && item.client
+                            ? expandedClients.has(item.client)
+                            : undefined
+                        }
+                      />
+                    </motion.div>
+                  ),
+                )}
               </AnimatePresence>
             </div>
           </Reveal>
@@ -343,18 +345,22 @@ export default function AllProjectsPageClient() {
           />
         </LandningBlock>
       </Reveal>
-      {/* Mobile only — bottom-left corner, mirroring CategoryFilters' own
-          drawer tab at bottom-right. Desktop keeps its own tab. A sibling of
-          LandningBlock rather than nested in it, so it stays reachable
-          regardless of that block's own visibility. */}
-      <div className="fixed bottom-3 left-3 z-40 lg:hidden">
-        <CheckButton
-          label={showFilters ? "close" : "filters"}
-          size="lg"
-          active
-          className="whitespace-nowrap"
-          onClick={() => setShowFilters((v) => !v)}
-        />
+      {/* Mobile only — fixed to the bottom of the viewport, in the same
+          3-column grid M2Nav's top bar uses, so this sits in col 3 directly
+          below that bar's mobile sound toggle. One button does both jobs
+          (open and close) via its label/state, rather than a separate close
+          control. A sibling of LandningBlock rather than nested in it, so it
+          stays reachable regardless of that block's own visibility. */}
+      <div className="fixed bottom-3 left-0 z-40 grid w-full grid-cols-3 gap-x-0 px-0 lg:hidden">
+        <div className="col-start-3 flex justify-start">
+          <CheckButton
+            label={showFilters ? "close" : "filters"}
+            size="lg"
+            active
+            className="whitespace-nowrap"
+            onClick={() => setShowFilters((v) => !v)}
+          />
+        </div>
       </div>
       <FilterOverlay />
 

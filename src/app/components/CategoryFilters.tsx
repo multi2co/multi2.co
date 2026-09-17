@@ -94,12 +94,12 @@ export default function CategoryFilters({
         // left-3 always insets the tab from the screen edge; open, right-3
         // pairs with it so the panel spans between the two insets rather than
         // a full 100vw that would overflow past them.
-        "fixed bottom-3 right-3 z-30 pixelCorners",
+        "fixed top-12 right-3 z-30 pixelCorners",
         "transition-[width] duration-300 ease-out",
         showFilters
-          ? "left-3 right-3 top-3 bg-primary max-lg:[&_*]:!text-primary-foreground pb-3"
-          : "w-1/3 bg-transparent max-lg:[&_*]:!text-primary",
-        "lg:static lg:inset-auto lg:z-auto lg:w-auto lg:bg-transparent lg:pb-0 lg:[mask-border:none] lg:[-webkit-mask-box-image:none]",
+          ? "right-0 left-0 top-0 bg-background p-3 h-auto max-h-dvh overflow-y-auto"
+          : "w-1/3 bg-transparent ",
+        "lg:static lg:inset-auto lg:z-auto lg:w-auto lg:bg-transparent lg:pb-0 lg:max-h-none lg:overflow-visible lg:[mask-border:none] lg:[-webkit-mask-box-image:none]",
         className,
       )}
     >
@@ -116,21 +116,15 @@ export default function CategoryFilters({
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.4, ease: DRAWER_EASE }}
-              className="overflow-hidden  "
+              className="overflow-hidden pt-6"
             >
               <motion.div
                 initial={{ y: 32 }}
                 animate={{ y: 0 }}
                 exit={{ y: 32 }}
                 transition={{ duration: 0.4, ease: DRAWER_EASE }}
-                className="grid grid-cols-2 lg:flex lg:flex-col  gap-x-0 gap-y-12 lg:gap-y-12 items-baseline w-full px-6 pt-6 pb-6 lg:p-3"
+                className="grid grid-cols-3 lg:flex lg:flex-col  gap-x-0 gap-y-12 lg:gap-y-12 items-baseline w-full px-3 pt-48 pb-6 lg:p-3"
               >
-                {/* Desktop only — shares this row's grid (and its
-                  items-baseline alignment) with categories/settings/search
-                  instead of the separate outer-grid row + manual translate
-                  the "filters" trigger below used, which put it a fixed 18px
-                  off their baseline instead of on it. Mobile keeps its own
-                  toggle riding the "projects" LandningBlock row. */}
                 <CheckButton
                   label="close"
                   size="label"
@@ -145,23 +139,8 @@ export default function CategoryFilters({
                   className="col-start-1 row-start-1 lg:row-start-1"
                   onClick={() => setShowCat((v) => !v)}
                 />
-                <div className="relative col-start-2 row-start-1 lg:row-start-1">
-                  <CheckButton
-                    label="settings"
-                    size="label"
-                    active={showSettings}
-                    onClick={() => setShowSettings(!showSettings)}
-                  />
-                </div>
-                <SearchCheck
-                  className="col-start-1 col-span-2 row-start-2 lg:col-start-11 lg:col-span-2 lg:row-start-1"
-                  open={searchOpen}
-                  onToggle={() => setSearchOpen((v) => !v)}
-                  value={search}
-                  onChange={setSearch}
-                />
                 {showCat && (
-                  <div className="col-start-1 col-span-2 row-start-3 grid grid-cols-2 lg:grid-cols-2 px-0 gap-y-6 w-full">
+                  <div className="col-start-1 col-span-2 row-start-2 flex flex-col lg:grid  lg:grid-cols-2 px-0 gap-y-6 w-full">
                     {allCats.map((cat, i) => (
                       <motion.span
                         key={cat}
@@ -187,6 +166,14 @@ export default function CategoryFilters({
                     ))}
                   </div>
                 )}
+                <div className="relative col-start-1 row-start-3 lg:row-start-1">
+                  <CheckButton
+                    label="settings"
+                    size="label"
+                    active={showSettings}
+                    onClick={() => setShowSettings(!showSettings)}
+                  />
+                </div>
                 {showSettings && (
                   <div className="col-start-1 col-span-2 row-start-4 grid grid-cols-2 lg:grid-cols-2 px-0 gap-y-6 w-full">
                     <CheckButton
@@ -218,6 +205,14 @@ export default function CategoryFilters({
                     )}
                   </div>
                 )}
+                <SearchCheck
+                  className="col-start-2 col-span-2 row-start-5 lg:col-start-11 lg:col-span-2 lg:row-start-1"
+                  open={searchOpen}
+                  onToggle={() => setSearchOpen((v) => !v)}
+                  value={search}
+                  onChange={setSearch}
+                />
+
                 <CheckButton
                   label={`sort by ${sortMode}`}
                   size="label"

@@ -127,10 +127,7 @@ export default function ConnectSection({
           </div>
         ))}
       </LandningBlock>
-      {/* Page-specific decorative background — home and /connect each supply
-          their own pattern (see ConnectHomePattern / ConnectPagePattern),
-          rather than this shared section carrying both inline. */}
-      {pattern}
+   
     </Reveal>
   );
 }

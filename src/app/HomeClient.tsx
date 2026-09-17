@@ -126,11 +126,11 @@ function HomeClientInner({
               bring it back. */}
         </div>
 
-        <Reveal className="col-span-3 lg:col-span-12 mt-48  ">
+        <Reveal className="col-span-3 lg:col-span-12  ">
           <AboutSectionText
             columns
             label="our story"
-            className="pb-6 lg:pb-48  w-full
+            className="pb-6   w-full
               "
           />
         </Reveal>
@@ -191,11 +191,7 @@ function HomeClientInner({
             </div>
           </div>
         </section>
-        <ConnectSection
-          className="mt-48"
-          contact={contact}
-          pattern={<ConnectHomePattern />}
-        />
+        <ConnectSection className="mt-48" contact={contact} />
 
         <Reveal className="w-full mb-6">
           <BottomNav />
