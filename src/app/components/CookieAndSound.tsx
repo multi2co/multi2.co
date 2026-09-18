@@ -203,6 +203,7 @@ export default function CookieAndSound({
                   size="lg"
                   label={muted ? "sound off" : "sound on"}
                   active={!muted}
+                  color="text-secondary"
                   onClick={toggleMute}
                 />
               </div>

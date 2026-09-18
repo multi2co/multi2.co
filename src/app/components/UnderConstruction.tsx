@@ -39,6 +39,7 @@ export default function UnderConstruction() {
         label="close"
         active
         size="label"
+        color="text-secondary"
         onClick={dismiss}
         className="absolute top-6 left-6"
       />

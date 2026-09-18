@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useUI } from "@/context/UIContext";
 import { useWork } from "@/context/WorkContext";
 import { useSound } from "@/context/SoundContext";
@@ -11,9 +11,9 @@ import BottomNav from "./components/BottomNav";
 import CheckButton from "./components/CheckButton";
 import ConnectSection, { type ContactData } from "./components/ConnectSection";
 import FeaturedCard from "./components/FeaturedCard";
-import LandningBlock from "./components/LandningBlock";
 import { Reveal } from "./components/Reveal";
 import ShowReel from "./components/ShowReel";
+import Image from "next/image";
 
 import Footer from "./components/Footer";
 
@@ -61,145 +61,134 @@ function HomeClientInner({
     return [...picked, ...filler].slice(0, 4);
   }, [items]);
 
-  // The selected-projects strip pins on every width: the section is `scrollRange`
-  // taller than the viewport, its inner wrapper is `sticky`, and the card row
-  // translates left in step with the page scroll — a 1:1 mapping, so nothing is
-  // left pinned once the row bottoms out. `scrollRange` is the row's own
-  // horizontal overflow, measured from the strip.
-  const projectsSectionRef = useRef<HTMLElement>(null);
-  const projectsStripRef = useRef<HTMLDivElement>(null);
-  const [scrollRange, setScrollRange] = useState(0);
-
-  useEffect(() => {
-    const el = projectsStripRef.current;
-    if (!el) return;
-    const measure = () =>
-      setScrollRange(Math.max(0, el.scrollWidth - el.clientWidth));
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [featuredProjects.length]);
-
-  const { scrollYProgress } = useScroll({
-    target: projectsSectionRef,
-    offset: ["start start", "end end"],
-  });
-  const stripX = useTransform(scrollYProgress, [0, 1], [0, -scrollRange]);
-  const trackScroll = scrollRange > 0;
+  // One row per client, alphabetised — each links to that client's first
+  // project. Mirrors the dedupe in AllProjectsPageClient's list view.
+  const clients = useMemo(() => {
+    type ClientEntry = { key: string; label: string; slug: string };
+    const seen = new Set<string>();
+    const list: ClientEntry[] = [];
+    for (const item of items) {
+      if (!item.isPrimary) continue;
+      const key = item.client ?? item.slug;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      list.push({ key, label: item.client ?? item.title, slug: item.slug });
+    }
+    return list.sort((a, b) => a.label.localeCompare(b.label, "sv"));
+  }, [items]);
 
   return (
-    <div className="w-full bg-background  px-0 ">
+    <div className="w-full bg-background  px-6 mt-16 ">
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
-      <div className="relative flex  flex-col gap-y-0 w-full px-0 ">
-        {/* Relative wrapper so the mobile sound toggle can anchor to the hero's
-            bottom corner and scroll away with it, rather than sitting fixed
-            over the whole page. Desktop keeps the nav's own Sound On control. */}
-        <div className="relative h-screen">
-          <LandningBlock
-            className="h-screen content-center lg:grid-rows-3  "
-            // Second row of the two-row hero grid; `self-end` pins the typed
-            // heading to that row's bottom edge — the bottom of the viewport.
-            contentClassName="col-span-3 lg:col-start-1 lg:col-span-12 lg:row-start-2 lg:justify-center w-full"
-            // The showreel bleeds to the hero's edges. Same reel on every width
-            // — ShowReel/ReelContext keep one player.
-            background={
-              <>
-                <ShowReel className=" h-full" src={reelUrl} />
-                {/* Light scrim so the thin heading stays legible over the
-                    footage. */}
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-xl" />
-              </>
-            }
-          >
-            {/* The hero has no label, so its wordmark keeps the full twelve
+
+      <Reveal
+        pixelCorners
+        sticky
+        className="w-full aspect-[9/16] lg:aspect-video bg-secondary relative"
+      >
+        <ShowReel
+          className="absolute inset-0 h-full w-full aspect-[9/16] lg:aspect-video p-0"
+          src={reelUrl}
+        />
+        {/* Light scrim so the thin heading stays legible over the footage. */}
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-xl " />
+        {/* The hero has no label, so its wordmark keeps the full twelve
                 columns rather than starting at four. */}
-            <h2 className="max-w-sm lg:max-w-full px-3  pb-0 text-left h1Text min-w-0 lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
-              multisquared
-            </h2>
-          </LandningBlock>
-          {/* Hero nav — every route but Home, in a 4-col row pinned to the
-              bottom-left of the showreel block. Static (no reveal). */}
+        <h2 className="absolute inset-0 z-10 flex items-center  justify-start px-3 lg:px-12 text-center text-9xl font-visual font-thin max-w-sm lg:max-w-full lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
+          multisquared
+        </h2>
+      </Reveal>
 
-          {/* Mobile sound toggle — hidden for now; flip SHOW_MOBILE_SOUND to
-              bring it back. */}
-        </div>
-
-        <Reveal className="col-span-3 lg:col-span-12  ">
-          <AboutSectionText
-            columns
-            label="our story"
-            className="pb-6   w-full
+      <Reveal className="col-span-3 lg:col-span-12 bg-background p-6  ">
+        <AboutSectionText
+          columns
+          label="our story"
+          className="pb-6   w-full
               "
+        />
+      </Reveal>
+
+      {/* Selected projects: one card per row, full width, stacked
+            vertically and scrolling with the rest of the page. */}
+      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0 lg:p-6 ">
+        <CheckButton
+          label="selected projects"
+          href="/projects"
+          size="lg"
+          color="text-primary"
+          active
+          className="col-span-3 lg:col-span-12"
+        />
+        <div className="col-span-3 lg:col-span-12  flex flex-col gap-6 lg:gap-12 mt-3">
+          {featuredProjects.map((project) => (
+            <FeaturedCard
+              key={project.key}
+              project={project}
+              className="sticky top-16 lg:static lg:top-auto"
+            />
+          ))}
+        </div>
+        <CheckButton
+          size="xl"
+          label="see all projects"
+          active
+          color="text-secondary"
+          className="col-start-4 col-span-4 my-12 "
+        />
+      </Reveal>
+      <Reveal
+        sticky
+        className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixelCorners mb-6 "
+      >
+        <span className="col-span-3">
+          <CheckButton
+            label="our clients"
+            href="/projects"
+            size="lg"
+            color="text-primary"
+            active
           />
-        </Reveal>
-
-        {/* Selected projects. The section is taller than the viewport and its
-            inner wrapper is `sticky`: as the page scrolls through, the card row
-            slides left in step, bringing the fifth "see all projects" card in
-            without the reader touching the strip. Not wrapped in <Reveal> — a
-            settling transform on the ancestor would fight the sticky
-            positioning. */}
-
-        <section
-          ref={projectsSectionRef}
-          className="relative bg-background"
-          style={
-            trackScroll
-              ? { height: `calc(100vh + ${scrollRange}px)` }
-              : undefined
-          }
-        >
-          <div className="sticky top-8 flex h-screen flex-col justify-center overflow-hidden">
-            <CheckButton label="selected projects" href="/projects" size="lg" />
-            {/* The row is transform-driven, so its own overflow stays visible —
-                the sticky wrapper above does the clipping. */}
-            <div className="relative mt-0 lg:mt-0 w-full overflow-visible">
+        </span>
+        <div className=" flex flex-col items-end justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-4 pt-6 lg:pt-12">
+          <AnimatePresence mode="popLayout">
+            {clients.map((client, idx) => (
               <motion.div
-                ref={projectsStripRef}
-                style={trackScroll ? { x: stripX } : undefined}
-                className="flex items-start gap-0 pl-3 pr-6 lg:pl-0 lg:pr-0 pb-6 mr-3"
+                key={client.key}
+                layout
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25, delay: idx * 0.07 }}
+                className="w-full"
               >
-                {featuredProjects.map((project) => (
-                  <FeaturedCard
-                    key={project.key}
-                    project={project}
-                    captionBelow
-                    className="shrink-0 w-[90vw] sm:w-[46vw] lg:w-[calc((100vw-15rem)/2)]"
-                  />
-                ))}
-
-                {/* The fifth slot — same footprint as a card: square + caption. */}
                 <Link
-                  href="/projects"
-                  className="group shrink-0 w-[90vw] sm:w-[46vw] lg:w-[calc((100vw-16rem)/2)] flex flex-col gap-0 lg:gap-0 mb-3 lg:mb-6 pl-3"
+                  href={`/projects/${client.slug}`}
+                  className=" transition-all text-5xl font-visual font-thin  text-primary text-right lg:text-left lowercase w-full hover:text-secondary  hover:bg-transparent"
                 >
-                  <div className="relative flex aspect-square w-full items-center justify-center transition-opacity pixelCorners bg-primary text-primary-foreground group-hover:opacity-90">
-                    <span className="text-9xl lg:text-6xl font-thin font-visual leading-none">
-                      ↗
-                    </span>
-                  </div>
-                  <CheckButton
-                    size="lg"
-                    label="see all projects"
-                    active
-                    className="h4BtnText "
-                  />
+                  {client.label}
                 </Link>
               </motion.div>
-            </div>
-          </div>
-        </section>
-        <ConnectSection className="mt-48" contact={contact} />
+            ))}
+          </AnimatePresence>
+        </div>
+      </Reveal>
+      {/* One dark zone (bg-primary) spanning Connect through BottomNav —
+            `#connect-zone` is the anchor M2Nav watches to swap its own text
+            from primary to secondary while it's scrolled over this stretch,
+            back to primary once Footer (bg-secondary) covers it — see the
+            two-observer note in M2Nav. Sticky like everything above it, so
+            it stacks in turn. */}
+      <div id="connect-zone" className="sticky top-16 pixelCorners">
+        <ConnectSection className=" p-3" contact={contact} />
 
-        <Reveal className="w-full mb-6">
+        <Reveal className="w-full pb-6 bg-primary ">
           <BottomNav />
         </Reveal>
-
-        <Reveal>
-          <Footer />
-        </Reveal>
       </div>
+
+      <Reveal className="pixelCorners  mb-0 pb-0" id="footer-section" sticky>
+        <Footer />
+      </Reveal>
     </div>
   );
 }

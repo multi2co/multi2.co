@@ -185,7 +185,7 @@ export default function AllProjectsPageClient() {
   return (
     <div
       id="projects"
-      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-48 lg:pt-0   "
+      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-48 lg:pt-0 bg-background  "
     >
       {/* Grid/list, moved above the heading. On desktop, CategoryFilters
           rides alongside as a sticky column at col 9-12 instead of its own
@@ -357,6 +357,7 @@ export default function AllProjectsPageClient() {
             label={showFilters ? "close" : "filters"}
             size="lg"
             active
+            color="text-secondary"
             className="whitespace-nowrap"
             onClick={() => setShowFilters((v) => !v)}
           />
@@ -368,7 +369,9 @@ export default function AllProjectsPageClient() {
         <BottomNav />
       </Reveal>
 
-      <Footer />
+      <div id="footer-section">
+        <Footer />
+      </div>
     </div>
   );
 }

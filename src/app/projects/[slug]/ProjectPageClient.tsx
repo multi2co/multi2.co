@@ -144,7 +144,7 @@ function ProjectPageInner({
       <div className="grid grid-cols-3 lg:grid-cols-12 mb-3 lg:mb-0 items-baseline">
         {client && (
           <div className="hidden lg:flex col-start-1 col-span-1 lg:col-start-1 lg:col-span-3  px-0">
-            <CheckButton size="lg" label={client} active />
+            <CheckButton size="lg" label={client} color="text-secondary" active />
           </div>
         )}
         <h2 className="h2Text col-start-2 lg:col-start-4 col-span-3 lg:col-span-8 text-primary lowercase tracking-tight lg:px-3 ">
@@ -316,6 +316,7 @@ function ProjectPageInner({
                 onClick={() => setLightbox(false)}
                 label="close"
                 size="lg"
+                color="text-secondary"
                 marks={{ active: "×", inactive: "×" }}
               />
             </div>

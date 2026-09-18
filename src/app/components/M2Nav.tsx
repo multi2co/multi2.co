@@ -95,7 +95,15 @@ const BAR_ITEM = {
  *  palette. `active` drives the whole field between `rest` (faded out) and
  *  `active` (full opacity), staggered row by row and square by square; `rotate`
  *  (a multiple of 90°) rides in as `custom`. `aria-hidden` and click-through. */
-function NavField({ active, rotate }: { active: boolean; rotate: number }) {
+function NavField({
+  active,
+  rotate,
+  onDark,
+}: {
+  active: boolean;
+  rotate: number;
+  onDark: boolean;
+}) {
   // On the projects page the field is a 6-col grid with two `lg` rows on the
   // thirds; everywhere else it's 4-col with one row at the midpoint.
   const projects = usePathname() === "/projects";
@@ -110,7 +118,10 @@ function NavField({ active, rotate }: { active: boolean; rotate: number }) {
       variants={FIELD_STAGGER}
       initial="rest"
       animate={active ? "active" : "rest"}
-      className="pointer-events-none absolute inset-0 overflow-hidden font-visual text-base text-primary lg:text-base"
+      className={cn(
+        "pointer-events-none absolute inset-0 overflow-hidden font-visual text-base lg:text-base transition-colors",
+        onDark ? "text-secondary" : "text-primary",
+      )}
     >
       {rows.map((pos, r) => (
         <motion.div
@@ -118,7 +129,7 @@ function NavField({ active, rotate }: { active: boolean; rotate: number }) {
           custom={rotate}
           variants={ROW_STAGGER}
           className={cn(
-            "absolute inset-x-0 grid grid-cols-3 px-6 lg:p-3  gap-x-12 lg:gap-x-3",
+            "absolute inset-x-0 grid grid-cols-3 px-6 lg:p-6  gap-x-12 lg:gap-x-3",
             pos,
             projects ? "lg:grid-cols-6" : "lg:grid-cols-4",
           )}
@@ -165,6 +176,7 @@ function NavBar({
   onToggleDark,
   themeLabel,
   onCycleTheme,
+  onDark,
 }: {
   open: boolean;
   onToggleOpen: () => void;
@@ -177,7 +189,15 @@ function NavBar({
   onToggleDark: () => void;
   themeLabel: string;
   onCycleTheme: () => void;
+  onDark: boolean;
 }) {
+  // Over the connect/footer dark zone (bg-primary) the bar's own text has to
+  // flip to secondary to stay legible — same swap CheckButton's `color` prop
+  // drives on every other button, just scroll-position-triggered here instead
+  // of static. The open drawer's `!text-primary-foreground` override still
+  // wins regardless, since it's `!important` and applies after.
+  const barColor = onDark ? "text-secondary" : "text-primary";
+
   return (
     <motion.div
       {...(open ? { "data-cursor-invert": "" } : {})}
@@ -185,10 +205,10 @@ function NavBar({
       initial="hidden"
       animate="show"
       className={cn(
-        "pointer-events-auto grid h-16 grid-cols-3 gap-x-0 items-baseline px-0 transition-colors lg:h-12 lg:grid-cols-12",
+        "pointer-events-auto grid h-16 grid-cols-3 gap-x-0 lg:p-3 items-baseline  transition-colors lg:h-16 lg:grid-cols-12",
         open
           ? "bg-primary text-primary-foreground [&_*]:!text-primary-foreground"
-          : "bg-transparent text-primary",
+          : cn("bg-transparent", barColor),
       )}
     >
       {/* Mobile: one combined button — types "menu"/"close" and cycles the
@@ -201,6 +221,7 @@ function NavBar({
           href="/"
           label={menuLabel}
           active
+          color={barColor}
           onClick={onToggleOpen}
         >
           <TerminalM2Button
@@ -233,6 +254,7 @@ function NavBar({
           size="lg"
           label="sound"
           active
+          color={barColor}
           onClick={onToggleMute}
         />
       </motion.div>
@@ -248,6 +270,7 @@ function NavBar({
           href="/"
           label="multisquared"
           active
+          color={barColor}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <TerminalM2Button
@@ -276,6 +299,7 @@ function NavBar({
           size="lg"
           label={open ? "close" : "menu"}
           active
+          color={barColor}
           onClick={onToggleOpen}
         />
       </motion.div>
@@ -288,6 +312,7 @@ function NavBar({
           size="label"
           label={muted ? "sound off" : "sound on"}
           active
+          color={barColor}
           onClick={onToggleMute}
         />
       </motion.div>
@@ -308,6 +333,7 @@ function NavBar({
           size="lg"
           label={dark ? "dark" : "light"}
           active
+          color={barColor}
           onClick={onToggleDark}
         />
       </motion.div>
@@ -433,6 +459,56 @@ export default function M2Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
 
+  // Swaps the bar/field from primary to secondary text while `#connect-zone`
+  // (the Connect-through-BottomNav stretch, bg-primary) is scrolled under the
+  // bar, back to primary once `#footer-section` (bg-secondary) covers it. Both
+  // sections are `sticky top-0` — the home page's scroll-stacking cards — so
+  // once connect-zone is stuck it stays "intersecting" the thin observed line
+  // even after footer visually covers it; footer's own hit is what forces the
+  // bar back to primary, rather than connect-zone naturally exiting. The thin
+  // `-100%` rootMargin collapses the observed area to a single line at the
+  // bar's own height, so intersection flips right as a section's edge passes
+  // under it rather than whenever any part is visible.
+  //
+  // /projects is secondary-on-secondary throughout (its own CheckButtons are
+  // all `color="text-secondary"`), so there's no dark zone to scroll into —
+  // the bar is just secondary from the top, the same `#footer-section` hit
+  // flipping it back to primary once the footer arrives.
+  //
+  // Elsewhere (no `#connect-zone`, not /projects) the bar just stays primary.
+  const isProjectsPage = pathname === "/projects";
+  const [connectHit, setConnectHit] = useState(false);
+  const [footerHit, setFooterHit] = useState(false);
+  const onDark = isProjectsPage ? !footerHit : connectHit && !footerHit;
+  useEffect(() => {
+    setConnectHit(false);
+    setFooterHit(false);
+    const zone = document.getElementById("connect-zone");
+    const footer = document.getElementById("footer-section");
+    const opts: IntersectionObserverInit = {
+      rootMargin: "-64px 0px -100% 0px",
+      threshold: 0,
+    };
+    const observers: IntersectionObserver[] = [];
+    if (zone) {
+      const zoneObserver = new IntersectionObserver(
+        ([entry]) => setConnectHit(entry.isIntersecting),
+        opts,
+      );
+      zoneObserver.observe(zone);
+      observers.push(zoneObserver);
+    }
+    if (footer) {
+      const footerObserver = new IntersectionObserver(
+        ([entry]) => setFooterHit(entry.isIntersecting),
+        opts,
+      );
+      footerObserver.observe(footer);
+      observers.push(footerObserver);
+    }
+    return () => observers.forEach((o) => o.disconnect());
+  }, [pathname]);
+
   // A separate, momentary read of the same event: true while scroll events are
   // still firing, back to false ~160ms after they stop. The floating square
   // field rides this — turned and visible mid-scroll, faded out at rest.
@@ -511,11 +587,13 @@ export default function M2Nav() {
       <NavField
         active={scrolling || fieldShown || menuLoading}
         rotate={fieldTurn * 90}
+        onDark={onDark}
       />
 
       <div className="relative">
         <NavBar
           open={open}
+          onDark={onDark}
           onToggleOpen={() => setOpen((o) => !o)}
           menuLabel={menuLabel}
           menuLoading={menuLoading}

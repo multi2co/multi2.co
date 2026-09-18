@@ -24,7 +24,7 @@ export default function Footer() {
   const pixelRef = usePixelCorners<HTMLDivElement>();
 
   return (
-    <div className=" w-full flex flex-col justify-between items-stretch h-[90dvh] lg:h-[100dvh] bg-primary pt-6 pb-0 [&_*]:!text-primary-foreground">
+    <div className=" w-full flex flex-col justify-between items-stretch h-[90dvh] lg:h-[100dvh] bg-secondary pt-6 p-6 pb-0 [&_*]text-primary">
       {/* Contact columns. Each heading + its links is one grid cell, placed on
           an explicit column so the groups all sit on the top row and line up
           regardless of how many links they hold. Mobile stacks them in
@@ -107,7 +107,7 @@ export default function Footer() {
             </Button>
           </span>
         </div>
-        <h4 className="col-start-10 col-span-4 hidden lg:flex text-sm font-visual tracking-wide lowercase  ">
+        <h4 className="col-start-10 col-span-4 hidden lg:flex text-sm font-visual tracking-wide lowercase text-primary  ">
           © 2026 Multisquared All rights reserved
         </h4>
 
@@ -119,7 +119,7 @@ export default function Footer() {
       {/* Sits flush against the bottom edge of the footer. leading-none trims
           the wordmark's line box so its glyphs drive the row. */}
       <div className="flex flex-row lg:flex-row justify-between w-full items-baseline px-3 lg:pl-3 lg:pr-12 pb-0">
-        <h1 className="ml-0 lg:ml-0 font-visual text-7xl lg:text-[8rem] leading-none font-thin lowercase mb-0">
+        <h1 className="ml-0 lg:ml-0 font-visual text-7xl lg:text-[8rem] leading-none font-thin lowercase mb-0 text-primary">
           multi2.co
         </h1>
       </div>

@@ -51,6 +51,7 @@ export default function SearchCheck({
         label={placeholder}
         size={size}
         active={false}
+        color="text-secondary"
         onClick={onToggle}
         className={className}
       />

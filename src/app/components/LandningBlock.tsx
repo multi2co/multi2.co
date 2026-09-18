@@ -74,7 +74,13 @@ export default function LandningBlock({
               "col-start-1 col-span-3 lg:col-start-1 lg:col-span-3 ",
           )}
         >
-          <CheckButton label={label} href={href} size="lg" active />
+          <CheckButton
+            label={label}
+            href={href}
+            size="lg"
+            color="text-secondary"
+            active
+          />
         </div>
       )}
       {children && (

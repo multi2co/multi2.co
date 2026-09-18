@@ -10,30 +10,20 @@ import CheckButton from "./CheckButton";
 const MotionLink = motion.create(Link);
 
 /**
- * A project card for the home page's selected projects (two-up on desktop).
+ * A project card for the home page's selected projects. Mobile: a square
+ * image, client name below it. Desktop: a 16:9 image with the client name in
+ * a caption column to its right.
  *
- * The grid span is the caller's — pass it through `className`; the card itself
- * only claims a single cell (`col-span-1`).
- *
- * With `captionBelow`, the client and title sit in a caption under the image
- * (client in `pText`, title in `h4BtnText`). Without it — the treatment the
- * home page uses — the client sits below the image as a CheckButton marker on
- * mobile, and on desktop a caption column to the left of the image holds the
- * client at the top and the project's categories at the bottom, all as
- * CheckButton markers.
- *
- * With `revealOnView`, the card also scales up from 0.9 and fades in the first
- * time it scrolls into view.
+ * With `revealOnView`, the card also scales up from 0.9 and fades in the
+ * first time it scrolls into view.
  */
 export default function FeaturedCard({
   project,
   revealOnView = false,
-  captionBelow = false,
   className,
 }: {
   project: GridItem;
   revealOnView?: boolean;
-  captionBelow?: boolean;
   className?: string;
 }) {
   const reduce = useReducedMotion();
@@ -58,68 +48,31 @@ export default function FeaturedCard({
       {...reveal}
       href={`/projects/${project.slug}`}
       className={cn(
-        "col-span-1 group  relative w-full mb-0 lg:mb-0",
-        captionBelow
-          ? "flex flex-col gap-0 lg:gap-0"
-          : "grid grid-cols-3 lg:flex lg:flex-row lg:items-stretch gap-0 lg:gap-0",
+        "group relative w-full flex flex-col gap-3 lg:grid lg:grid-cols-6 lg:bg-background  pixelCorners bg-secondary  lg:items-stretch p-3 lg:gap-6",
         className,
       )}
     >
-      <div
-        className={cn(
-          "relative w-full pl-3",
-          !captionBelow && "col-span-3 lg:flex-1 lg:min-w-0",
-        )}
-      >
-        <PixelFrame
-          src={project.coverUrl ?? project.url}
-          mediaType={mediaType}
-          alt={project.alt}
-          sizes={
-            captionBelow
-              ? "(max-width: 1024px) 100vw, 25vw"
-              : "(max-width: 1024px) 100vw, 33vw"
-          }
-          className="w-full aspect-square "
-        />
-      </div>
+      <PixelFrame
+        src={project.coverUrl ?? project.url}
+        mediaType={mediaType}
+        alt={project.alt}
+        sizes="(max-width: 1024px) 100vw, 66vw"
+        className="w-full aspect-square lg:aspect-video lg:flex-1 lg:min-w-0 lg:col-span-4"
+      />
 
-      {!captionBelow && (
-        /* Desktop: caption column to the left of the image — client at the top,
-           the project's categories listed at the bottom, level with the image
-           edge. None are links; the whole card already is, and each CheckButton
-           flips its fill on card hover via `group`. */
-        <div className="hidden lg:flex lg:flex-col lg:w-1/2 justify-between lg:shrink-0 gap-2">
-          {project.client && (
-            <CheckButton
-              size="lg"
-              label={project.client}
-              active
-              className="h4BtnText"
-            />
-          )}
-        </div>
-      )}
-      {project.client && !captionBelow && (
-        /* Mobile: client name as a checkbox marker below the card. */
-        <div className="lg:hidden col-span-3">
+      {project.client && (
+        <div className="flex flex-col justify-between  lg:col-span-2 lg:shrink-0  ">
+          <span className="space-y-8 col-span-1 px-6 lg:px-0 pt-6 lg:pt-6">
+            <h2 className="text-3xl lg:text-5xl font-visual text-primary lowercase font-thin">
+              {project.title}
+            </h2>
+          </span>
           <CheckButton
-            size="lg"
-            label={project.client}
+            label="read more"
+            size="xl"
+            color="text-primary"
+            className="col-start-1 col-span-2 lg:col-start-2 lg:col-span-1"
             active
-            className="h2Text"
-          />
-        </div>
-      )}
-
-      {captionBelow && (
-        /* The caption sits under the image: client above, title below. */
-        <div className="w-full flex flex-col gap-0 lg:gap-0">
-          <CheckButton
-            size="lg"
-            label={project.client}
-            active
-            className="h4BtnText"
           />
         </div>
       )}

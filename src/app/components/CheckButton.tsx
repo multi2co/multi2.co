@@ -30,6 +30,9 @@ type Props = {
   /** Show only the mark — the `label` still names the control for
    *  screen readers but isn't drawn. */
   markOnly?: boolean;
+  /** Text colour class for the control (e.g. `text-secondary`) — the mark
+   *  and label both inherit it. Defaults to `text-primary`. */
+  color?: string;
 };
 
 /** `size` is geometry only — box, gutter and gap. Whether a
@@ -62,7 +65,7 @@ export const SIZE_GAP = {
   md: "gap-x-3 lg:gap-x-3",
   lg: "gap-x-3 lg:gap-x-1.5",
   label: "gap-x-3 lg:gap-x-1.5",
-  xl: "gap-x-3 lg:gap-x-1.5",
+  xl: "gap-x-3 lg:gap-x-3",
 } as const;
 
 /** The mark is a glyph now (■ / □ — U+25A0 / U+25A1), so its footprint is a
@@ -107,12 +110,14 @@ export default function CheckButton({
   labelSide,
   marks,
   markOnly = false,
+  color,
 }: Props) {
   const iconStyle = useIconStyle();
   const markOn =
     marks?.active ?? (iconStyle === "dot" ? MARK_ACTIVE_DOT : MARK_ACTIVE);
   const markOff =
-    marks?.inactive ?? (iconStyle === "dot" ? MARK_INACTIVE_DOT : MARK_INACTIVE);
+    marks?.inactive ??
+    (iconStyle === "dot" ? MARK_INACTIVE_DOT : MARK_INACTIVE);
   const content = (
     <div
       className={cn(
@@ -176,7 +181,11 @@ export default function CheckButton({
 
   const cls = cn(
     "group transition-colors",
-    active ? "text-primary" : "text-primary hover:text-primary/90",
+    color
+      ? [color, "hover:text-primary"]
+      : active
+        ? "text-primary"
+        : "text-primary hover:text-primary/90",
     (href || onClick) && "cursor-pointer",
     className,
   );

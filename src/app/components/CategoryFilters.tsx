@@ -129,6 +129,7 @@ export default function CategoryFilters({
                   label="close"
                   size="label"
                   active
+                  color="text-secondary"
                   className="hidden lg:col-start-1 lg:col-span-1 lg:row-start-1"
                   onClick={() => setShowFilters(false)}
                 />
@@ -136,6 +137,7 @@ export default function CategoryFilters({
                   label="categories"
                   size="label"
                   active={showCat}
+                  color="text-secondary"
                   className="col-start-1 row-start-1 lg:row-start-1"
                   onClick={() => setShowCat((v) => !v)}
                 />
@@ -159,6 +161,7 @@ export default function CategoryFilters({
                         <CheckButton
                           label={getFilterChipLabel(cat)}
                           size="label"
+                          color="text-secondary"
                           onClick={() => handleFilterChange(cat)}
                           active={activeFilter === cat}
                         />
@@ -171,6 +174,7 @@ export default function CategoryFilters({
                     label="settings"
                     size="label"
                     active={showSettings}
+                    color="text-secondary"
                     onClick={() => setShowSettings(!showSettings)}
                   />
                 </div>
@@ -180,12 +184,14 @@ export default function CategoryFilters({
                       label="list"
                       size="label"
                       active={showList}
+                      color="text-secondary"
                       onClick={showListView}
                     />
                     <CheckButton
                       label="thumbnails"
                       size="label"
                       active={showGrid}
+                      color="text-secondary"
                       onClick={showThumbnails}
                     />
 
@@ -194,11 +200,13 @@ export default function CategoryFilters({
                         <CheckButton
                           label="Zoom In"
                           size="label"
+                          color="text-secondary"
                           onClick={() => setNumCols(zoomInCols(numCols))}
                         />
                         <CheckButton
                           label="Zoom Out"
                           size="label"
+                          color="text-secondary"
                           onClick={() => setNumCols(zoomOutCols(numCols))}
                         />
                       </div>
@@ -206,7 +214,7 @@ export default function CategoryFilters({
                   </div>
                 )}
                 <SearchCheck
-                  className="col-start-2 col-span-2 row-start-5 lg:col-start-11 lg:col-span-2 lg:row-start-1"
+                  className="col-start-2 col-span-2 row-start-5 lg:col-start-2 lg:col-span-2 lg:row-start-1"
                   open={searchOpen}
                   onToggle={() => setSearchOpen((v) => !v)}
                   value={search}
@@ -217,6 +225,7 @@ export default function CategoryFilters({
                   label={`sort by ${sortMode}`}
                   size="label"
                   active
+                  color="text-secondary"
                   className="col-start-1 col-span-2 row-start-5"
                   onClick={() =>
                     setSortMode((m) => (m === "year" ? "title" : "year"))
@@ -239,6 +248,7 @@ export default function CategoryFilters({
               label="filters"
               size="lg"
               active
+              color="text-secondary"
               className="whitespace-nowrap"
               onClick={() => setShowFilters(true)}
             />

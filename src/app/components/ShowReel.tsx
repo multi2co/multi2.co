@@ -58,7 +58,10 @@ export default function ShowReel({
   return (
     <section
       ref={setReelEl}
-      className={cn("relative h-screen w-full overflow-hidden", className)}
+      className={cn(
+        "relative h-screen p-6 bg-secondary w-full overflow-hidden",
+        className,
+      )}
       aria-label="Showreel"
     >
       <ReactPlayer

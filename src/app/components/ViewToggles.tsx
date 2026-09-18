@@ -45,6 +45,7 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
       <CheckButton
         label="thumbnails"
         size="lg"
+        color="text-secondary"
         className=" col-span-1"
         active={showGrid}
         onClick={showThumbnails}
@@ -53,6 +54,7 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
       <CheckButton
         label="list"
         size="lg"
+        color="text-secondary"
         className="col-span-1"
         active={showList}
         onClick={showListView}
@@ -62,6 +64,7 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
           <CheckButton
             label="Zoom In"
             size="lg"
+            color="text-secondary"
             onClick={() => setNumCols(zoomInCols(numCols))}
             className="c"
           />
@@ -69,6 +72,7 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
           <CheckButton
             label="Zoom Out"
             size="lg"
+            color="text-secondary"
             className=""
             onClick={() => setNumCols(zoomOutCols(numCols))}
           />
@@ -109,6 +113,7 @@ export default function ViewToggles({
           size="lg"
           label={getActiveFilterLabel(activeFilter)}
           active={filtersOpen}
+          color="text-secondary"
           onClick={() => setFiltersOpen((v) => !v)}
           className={viewClass(filtersOpen)}
         />

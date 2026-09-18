@@ -111,7 +111,7 @@ export default function HeroCarousel({
               markOnly
               marks={{ active: "←", inactive: "←" }}
               size="label"
-              className="text-primary"
+              color="text-secondary"
             />
           </div>
 
@@ -122,7 +122,7 @@ export default function HeroCarousel({
               markOnly
               marks={{ active: "→", inactive: "→" }}
               size="label"
-              className="text-primary"
+              color="text-secondary"
             />
           </div>
 

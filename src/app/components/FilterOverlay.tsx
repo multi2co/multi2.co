@@ -75,6 +75,7 @@ export default function FilterOverlay() {
                     size="lg"
                     label={getFilterLabel(cat)}
                     active={activeFilter === cat}
+                    color="text-secondary"
                     onClick={() => handleFilterChange(cat)}
                     className={cn(" transition-colors duration-150   ")}
                   />
@@ -86,6 +87,7 @@ export default function FilterOverlay() {
               <CheckButton
                 label="Hide Filters"
                 size="lg"
+                color="text-secondary"
                 onClick={() => setFiltersOpen(false)}
                 className="col-start-2 w-full"
               />

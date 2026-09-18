@@ -7,7 +7,7 @@ import CheckButton from "./CheckButton";
 import { useWork } from "@/context/WorkContext";
 
 const ROW =
-  "flex flex-col lg:grid lg:grid-cols-12 w-full items-baseline gap-y-6 px-0 lg:px-0";
+  "flex flex-col lg:grid lg:grid-cols-12 w-full items-baseline gap-y-6 px-0 lg:px-0 bg-transparent";
 
 /**
  * The bottom-of-page nav, shared by every route.
@@ -54,6 +54,7 @@ export default function BottomNav() {
           label="all projects"
           size="xl"
           marks={{ active: "↖", inactive: "↖" }}
+          color="text-secondary"
           className="col-start-1 col-span-1 lg:col-start-4 lg:col-span-2 justify-center"
         />
         {prev && (
@@ -62,6 +63,7 @@ export default function BottomNav() {
             label="previous"
             size="xl"
             marks={{ active: "←", inactive: "←" }}
+            color="text-secondary"
             className="col-start-2 col-span-1 lg:col-start-7 lg:col-span-2"
           />
         )}
@@ -72,6 +74,7 @@ export default function BottomNav() {
             size="xl"
             labelSide="left"
             marks={{ active: "→", inactive: "→" }}
+            color="text-secondary"
             className="col-start-3 col-span-1 lg:col-start-10 lg:col-span-2 justify-end w-min"
           />
         )}
@@ -89,6 +92,7 @@ export default function BottomNav() {
         labelSide="right"
         marks={{ active: "↑", inactive: "↑" }}
         className="col-start-1 col-span-1 lg:col-start-4 lg:col-span-2 justify-center"
+        color="text-secondary"
       />
 
       <CheckButton
@@ -98,6 +102,7 @@ export default function BottomNav() {
         labelSide="left"
         marks={{ active: "→", inactive: "→" }}
         className="flex lg:hidden col-start-3 col-span-1 lg:col-start-7 lg:col-span-4 whitespace-nowrap w-min"
+        color="text-secondary"
       />
       <CheckButton
         href={archive ? "/" : "/projects"}
@@ -105,6 +110,7 @@ export default function BottomNav() {
         size="xl"
         labelSide="left"
         marks={{ active: "→", inactive: "→" }}
+        color="text-secondary"
         className="hidden lg:flex col-start-3 col-span-1 lg:col-start-7 lg:col-span-4 whitespace-nowrap w-min"
       />
     </nav>

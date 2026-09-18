@@ -74,16 +74,22 @@ export default function AboutSectionText({
     // into, as siblings sharing one baseline instead of two components each
     // reporting their own up through a separate grid item.
     return (
-      <div className="relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-0 justify-start text-primary ">
+      <div className=" bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-0 justify-start h-auto ">
         {label && (
           <div className="col-span-2 lg:col-start-1 lg:col-span-3 gap-y-0 space-y-0 flex items-baseline justify-start">
-            <CheckButton label={label} href={href} size="lg" active />
+            <CheckButton
+              label={label}
+              href={href}
+              size="lg"
+              color="text-secondary"
+              active
+            />
           </div>
         )}
         {resolvedText && (
           <p
             className={cn(
-              "col-span-3 lg:col-start-4 lg:col-span-6 pText px-6  lg:px-3 whitespace-pre-line",
+              "col-span-3 lg:col-start-4 lg:col-span-6 pText px-6  lg:px-3 whitespace-pre-line text-primary",
               className,
             )}
           >
