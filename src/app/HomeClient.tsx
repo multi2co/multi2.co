@@ -78,7 +78,7 @@ function HomeClientInner({
   }, [items]);
 
   return (
-    <div className="w-full bg-background  px-6 mt-16 ">
+    <div className="w-full bg-background px-6    mt-16 ">
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
 
       <Reveal
@@ -94,7 +94,7 @@ function HomeClientInner({
         <div className="absolute inset-0 bg-black/50 backdrop-blur-xl " />
         {/* The hero has no label, so its wordmark keeps the full twelve
                 columns rather than starting at four. */}
-        <h2 className="absolute inset-0 z-10 flex items-center  justify-start px-3 lg:px-12 text-center text-9xl font-visual font-thin max-w-sm lg:max-w-full lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
+        <h2 className="absolute inset-0 z-10 flex items-center  justify-start px-3 lg:px-12 text-center text-7xl lg:text-9xl font-visual font-thin max-w-sm lg:max-w-full lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
           multisquared
         </h2>
       </Reveal>
@@ -110,14 +110,14 @@ function HomeClientInner({
 
       {/* Selected projects: one card per row, full width, stacked
             vertically and scrolling with the rest of the page. */}
-      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0 lg:p-6 ">
+      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0 lg:p-6 w-full ">
         <CheckButton
           label="selected projects"
           href="/projects"
           size="lg"
           color="text-primary"
           active
-          className="col-span-3 lg:col-span-12"
+          className="col-span-3 lg:col-span-12 whitespace-nowrap"
         />
         <div className="col-span-3 lg:col-span-12  flex flex-col gap-6 lg:gap-12 mt-3">
           {featuredProjects.map((project) => (
@@ -133,7 +133,7 @@ function HomeClientInner({
           label="see all projects"
           active
           color="text-secondary"
-          className="col-start-4 col-span-4 my-12 "
+          className="col-start-4 col-span-4 my-6 lg:my-12 "
         />
       </Reveal>
       <Reveal
@@ -149,7 +149,7 @@ function HomeClientInner({
             active
           />
         </span>
-        <div className=" flex flex-col items-end justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-4 pt-6 lg:pt-12">
+        <div className=" flex flex-col items-start justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-2 lg:gap-y-4 pt-6 lg:pt-12">
           <AnimatePresence mode="popLayout">
             {clients.map((client, idx) => (
               <motion.div
@@ -163,7 +163,7 @@ function HomeClientInner({
               >
                 <Link
                   href={`/projects/${client.slug}`}
-                  className=" transition-all text-5xl font-visual font-thin  text-primary text-right lg:text-left lowercase w-full hover:text-secondary  hover:bg-transparent"
+                  className=" transition-all text-3xl lg:text-5xl font-visual font-thin  text-primary text-right lg:text-left lowercase w-full hover:text-secondary  hover:bg-transparent"
                 >
                   {client.label}
                 </Link>

@@ -81,7 +81,7 @@ export default function AboutSectionText({
               label={label}
               href={href}
               size="lg"
-              color="text-secondary"
+              color="text-primary"
               active
             />
           </div>
@@ -89,7 +89,7 @@ export default function AboutSectionText({
         {resolvedText && (
           <p
             className={cn(
-              "col-span-3 lg:col-start-4 lg:col-span-6 pText px-6  lg:px-3 whitespace-pre-line text-primary",
+              "col-span-3 lg:col-start-4 lg:col-span-6 pText px-0  lg:px-3 whitespace-pre-line text-primary",
               className,
             )}
           >
