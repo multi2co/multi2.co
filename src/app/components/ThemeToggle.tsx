@@ -37,7 +37,7 @@ export default function ThemeToggle({ className }: { className?: string }) {
       role="radiogroup"
       aria-label="Colour theme"
       className={cn(
-        "fixed top-1/2 right-3 lg:right-0 z-[90] flex -translate-y-1/2 flex-col gap-y-1",
+        "fixed top-1/2 right-0 lg:right-0 z-[90] flex -translate-y-1/2 flex-col gap-y-1",
         className,
       )}
     >

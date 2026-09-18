@@ -78,7 +78,7 @@ function HomeClientInner({
   }, [items]);
 
   return (
-    <div className="w-full bg-background px-6    mt-16 ">
+    <div className="w-full bg-background px-3 lg:px-6    mt-16 ">
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
 
       <Reveal
