@@ -78,28 +78,28 @@ function HomeClientInner({
   }, [items]);
 
   return (
-    <div className="w-full bg-background px-3 lg:px-6    mt-16 ">
+    <div className="w-full bg-background    mt-16 ">
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
-
-      <Reveal
-        pixelCorners
-        sticky
-        className="w-full aspect-[9/16] lg:aspect-video bg-secondary relative"
-      >
-        <ShowReel
-          className="absolute inset-0 h-full w-full aspect-[9/16] lg:aspect-video p-0"
-          src={reelUrl}
-        />
-        {/* Light scrim so the thin heading stays legible over the footage. */}
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-xl " />
-        {/* The hero has no label, so its wordmark keeps the full twelve
+      <div className=" px-3 lg:px-6 w-full">
+        <Reveal
+          pixelCorners
+          sticky
+          className="w-full aspect-[9/16] lg:aspect-video bg-secondary relative h-[calc(100vh-5rem)] lg:h-[calc(100vh-5.5rem)]"
+        >
+          <ShowReel
+            className="absolute inset-0 h-full w-full aspect-[9/16] lg:aspect-video p-0"
+            src={reelUrl}
+          />
+          {/* Light scrim so the thin heading stays legible over the footage. */}
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xl " />
+          {/* The hero has no label, so its wordmark keeps the full twelve
                 columns rather than starting at four. */}
-        <h2 className="absolute inset-0 z-10 flex items-center  justify-start px-3 lg:px-12 text-center text-7xl lg:text-9xl font-visual font-thin max-w-sm lg:max-w-full lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
-          multisquared
-        </h2>
-      </Reveal>
-
-      <Reveal className="col-span-3 lg:col-span-12 bg-background p-6  ">
+          <h2 className="absolute inset-0 z-10 flex items-center  justify-center px-3 lg:px-12 text-center text-6xl lg:text-[10rem] font-visual font-thin max-w-sm lg:max-w-full lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
+            multisquared
+          </h2>
+        </Reveal>
+      </div>
+      <Reveal className="col-span-3 lg:col-span-12 bg-background px-3 pt-12  ">
         <AboutSectionText
           columns
           label="our story"
@@ -110,7 +110,7 @@ function HomeClientInner({
 
       {/* Selected projects: one card per row, full width, stacked
             vertically and scrolling with the rest of the page. */}
-      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0 lg:p-6 w-full ">
+      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0  w-full px-3 pt-12 ">
         <CheckButton
           label="selected projects"
           href="/projects"
@@ -119,74 +119,73 @@ function HomeClientInner({
           active
           className="col-span-3 lg:col-span-12 whitespace-nowrap"
         />
-        <div className="col-span-3 lg:col-span-12  flex flex-col gap-6 lg:gap-12 mt-3">
+        <div className="col-span-3 lg:col-span-12  flex flex-col gap-3 lg:gap-6 mt-3 px-3">
           {featuredProjects.map((project) => (
-            <FeaturedCard
-              key={project.key}
-              project={project}
-              className="sticky top-16 lg:static lg:top-auto"
-            />
+            <FeaturedCard key={project.key} project={project} className="" />
           ))}
         </div>
-        <CheckButton
-          size="xl"
-          label="see all projects"
-          active
-          color="text-secondary"
-          className="col-start-4 col-span-4 my-6 lg:my-12 "
-        />
       </Reveal>
-      <Reveal
-        sticky
-        className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixelCorners mb-6 "
-      >
-        <span className="col-span-3">
-          <CheckButton
-            label="our clients"
-            href="/projects"
-            size="lg"
-            color="text-primary"
-            active
-          />
-        </span>
-        <div className=" flex flex-col items-start justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-2 lg:gap-y-4 pt-6 lg:pt-12">
-          <AnimatePresence mode="popLayout">
-            {clients.map((client, idx) => (
-              <motion.div
-                key={client.key}
-                layout
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25, delay: idx * 0.07 }}
-                className="w-full"
-              >
-                <Link
-                  href={`/projects/${client.slug}`}
-                  className=" transition-all text-3xl lg:text-5xl font-visual font-thin  text-primary text-right lg:text-left lowercase w-full hover:text-secondary  hover:bg-transparent"
+      <CheckButton
+        size="xl"
+        label="see all projects"
+        active
+        color="text-primary"
+        className="col-start-4 col-span-4 my-12 lg:my-12 lg:ml-3"
+      />
+      <div className="w-full px-3 lg:px-6">
+        <Reveal
+          sticky
+          className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixelCorners mb-6 "
+        >
+          <span className="col-span-3">
+            <CheckButton
+              label="our clients"
+              href="/projects"
+              size="lg"
+              color="text-primary"
+              active
+            />
+          </span>
+          <div className=" flex flex-col items-start justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-2 lg:gap-y-4 pt-6 lg:pt-12">
+            <AnimatePresence mode="popLayout">
+              {clients.map((client, idx) => (
+                <motion.div
+                  key={client.key}
+                  layout
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25, delay: idx * 0.07 }}
+                  className="w-full"
                 >
-                  {client.label}
-                </Link>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </Reveal>
+                  <Link
+                    href={`/projects/${client.slug}`}
+                    className=" transition-all text-3xl lg:text-5xl font-visual font-thin  text-primary text-right lg:text-left lowercase w-full hover:text-secondary  hover:bg-transparent"
+                  >
+                    {client.label}
+                  </Link>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </Reveal>
+      </div>
       {/* One dark zone (bg-primary) spanning Connect through BottomNav —
             `#connect-zone` is the anchor M2Nav watches to swap its own text
             from primary to secondary while it's scrolled over this stretch,
             back to primary once Footer (bg-secondary) covers it — see the
             two-observer note in M2Nav. Sticky like everything above it, so
             it stacks in turn. */}
-      <div id="connect-zone" className="sticky top-16 pixelCorners">
-        <ConnectSection className=" p-3" contact={contact} />
+      <div className="px-3 lg:px-6 w-full">
+        <div id="connect-zone" className="sticky top-16 pixelCorners">
+          <ConnectSection className=" p-3" contact={contact} />
 
-        <Reveal className="w-full pb-6 bg-primary ">
-          <BottomNav />
-        </Reveal>
+          <Reveal className="w-full pb-6 bg-primary ">
+            <BottomNav />
+          </Reveal>
+        </div>
       </div>
-
-      <Reveal className="pixelCorners  mb-0 pb-0" id="footer-section" sticky>
+      <Reveal className=" mt-12  mb-0 pb-0" id="footer-section" sticky>
         <Footer />
       </Reveal>
     </div>

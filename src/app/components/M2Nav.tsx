@@ -370,7 +370,7 @@ function NavVertical({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -24 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className={`p-0 space-y-0 w-full lg:w-full bg-primary pb-3 [&_*]:!text-primary-foreground flex flex-col h-[calc(100dvh-4rem)] lg:h-[calc(100dvh-3rem)] pr-0 lg:pr-6 pixelCornersBottom lg:[mask-border:none] lg:[-webkit-mask-box-image:none]`}
+      className={`p-0 space-y-0 lg:p-3 w-full lg:w-full bg-primary pb-3 [&_*]:!text-primary-foreground flex flex-col h-[calc(100dvh-4rem)] lg:h-[calc(100dvh-3rem)] pr-0 lg:pr-6 pixelCornersBottom lg:[mask-border:none] lg:[-webkit-mask-box-image:none]`}
     >
       <nav className="hidden lg:flex w-full flex-col items-start gap-y-0 flex-1 min-h-0 p-0  ">
         {NAV_ITEMS.map((item) => (
@@ -405,7 +405,7 @@ function NavVertical({
 
       {/* The wordmark, same as the footer's — `mt-auto` drops it to the
           bottom-left of the drawer whatever's above it. */}
-      <h1 className="mt-auto self-start text-left font-visual font-thin text-7xl lg:text-[8rem] leading-none lowercase mb-0 px-6 lg:px-3">
+      <h1 className="mt-auto self-start text-left font-visual font-thin text-7xl lg:text-[8rem] leading-none lowercase mb-0 px-6 lg:px-3 lg:pb-3">
         multi2.co
       </h1>
     </motion.div>

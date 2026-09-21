@@ -141,10 +141,15 @@ function ProjectPageInner({
 
   return (
     <div className=" relative w-full px-0 mt-48 ">
-      <div className="grid grid-cols-3 lg:grid-cols-12 mb-3 lg:mb-0 items-baseline">
+      <div className="grid grid-cols-3 lg:grid-cols-12 mb-3 lg:mb-0 items-baseline px-3">
         {client && (
           <div className="hidden lg:flex col-start-1 col-span-1 lg:col-start-1 lg:col-span-3  px-0">
-            <CheckButton size="lg" label={client} color="text-secondary" active />
+            <CheckButton
+              size="lg"
+              label={client}
+              color="text-secondary"
+              active
+            />
           </div>
         )}
         <h2 className="h2Text col-start-2 lg:col-start-4 col-span-3 lg:col-span-8 text-primary lowercase tracking-tight lg:px-3 ">
@@ -153,7 +158,7 @@ function ProjectPageInner({
       </div>
 
       {/* Hero: a single still filling the block, which spans all 12 columns. */}
-      <div className="relative px-6 lg:px-3 w-full">
+      <div className="relative px-3 lg:px-6 lg:mt-3 w-full">
         <LandningBlock
           className="h-[calc(100dvh-3.5rem)] pixelCorners items-start w-full  lg:px-3 "
           labelClassName="col-start-1  col-span-3 px-3 lg:col-start-1 lg:col-span-3 "
@@ -206,8 +211,8 @@ function ProjectPageInner({
         animate={{ opacity: revealed ? 1 : 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-12 mb-12 lg:mb-6 items-start text-primary">
-          <div className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 flex flex-col gap-y-6 px-0 lg:px-0 lowercase">
+        <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-12 gap-x-6 mb-12 lg:mb-6 items-start text-primary">
+          <div className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-7 flex flex-col gap-y-6 px-0 lg:px-0 lowercase">
             {description ? (
               <p className="pText">{description}</p>
             ) : (
@@ -272,8 +277,8 @@ function ProjectPageInner({
           directly below it. */}
 
       {slides.length > 0 && (
-        <div className="w-full  grid grid-cols-3 lg:grid-cols-12">
-          <div className="col-start-1 col-span-3 lg:col-span-8 relative h-[70dvh] lg:h-[80dvh] w-full px-6 lg:px-3">
+        <div className="w-full  grid grid-cols-3 lg:grid-cols-12 mt-3">
+          <div className="col-start-1 col-span-3 lg:col-span-8 relative h-[70dvh] lg:h-[80dvh] w-full px-3 lg:px-6">
             <HeroCarousel
               media={slides}
               selected={activeSlide}

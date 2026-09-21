@@ -21,7 +21,7 @@ export type ContactData = {
 const DEFAULT_EMAIL = "info@multi2.co";
 
 const LINK_BTN =
-  "flex items-center h-auto py-0 gap-x-1.5 font-thin justify-start whitespace-nowrap w-min text-secondary";
+  "flex items-center h-auto py-0 gap-x-1.5 font-thin justify-start whitespace-nowrap w-min text-secondary  text-3xl lg:text-5xl ";
 
 /** The named contacts sit at cols 4 / 7 — only the first two people show,
  *  matching the grid's two reserved slots. */

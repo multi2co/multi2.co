@@ -48,7 +48,7 @@ export default function FeaturedCard({
       {...reveal}
       href={`/projects/${project.slug}`}
       className={cn(
-        "group relative w-full flex flex-col gap-3 lg:grid lg:grid-cols-6 lg:bg-background  pixelCorners bg-secondary  lg:items-stretch p-3 lg:gap-6",
+        "group relative w-full flex flex-col gap-6  lg:grid lg:grid-cols-6 lg:bg-background bg-transparent  pixelCorners  lg:items-stretch p-0 pb-3 lg:pb-0 lg:gap-6",
         className,
       )}
     >
@@ -62,7 +62,7 @@ export default function FeaturedCard({
 
       {project.client && (
         <div className="flex flex-col justify-between  lg:col-span-2 lg:shrink-0  ">
-          <span className="space-y-8 col-span-1 px-6 lg:px-0 pt-6 lg:pt-6">
+          <span className="space-y-8 col-span-1 px-6 lg:px-0 pt-0 lg:pt-6 pb-0">
             <h2 className="text-3xl lg:text-5xl font-visual text-primary lowercase font-thin">
               {project.title}
             </h2>
@@ -71,7 +71,7 @@ export default function FeaturedCard({
             label="read more"
             size="xl"
             color="text-primary"
-            className="col-start-1 col-span-2 lg:col-start-2 lg:col-span-1"
+            className="hidden lg:flex col-start-1 col-span-2 lg:col-start-2 lg:col-span-1"
             active
           />
         </div>
