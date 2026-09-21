@@ -83,6 +83,10 @@ export default function BottomNav() {
   }
 
   const archive = pathname === "/projects";
+  // /about sits on a plain bg-background page, not a dark/secondary section,
+  // so its BottomNav reads text-primary like the rest of the page; everywhere
+  // else keeps the secondary treatment.
+  const color = pathname === "/about" ? "text-primary" : "text-secondary";
   return (
     <nav className={ROW}>
       <CheckButton
@@ -92,7 +96,7 @@ export default function BottomNav() {
         labelSide="right"
         marks={{ active: "↑", inactive: "↑" }}
         className="col-start-1 col-span-1 lg:col-start-4 lg:col-span-2 justify-center"
-        color="text-secondary"
+        color={color}
       />
 
       <CheckButton
@@ -102,7 +106,7 @@ export default function BottomNav() {
         labelSide="left"
         marks={{ active: "→", inactive: "→" }}
         className="flex lg:hidden col-start-3 col-span-1 lg:col-start-7 lg:col-span-4 whitespace-nowrap w-min"
-        color="text-secondary"
+        color={color}
       />
       <CheckButton
         href={archive ? "/" : "/projects"}
@@ -110,7 +114,7 @@ export default function BottomNav() {
         size="xl"
         labelSide="left"
         marks={{ active: "→", inactive: "→" }}
-        color="text-secondary"
+        color={color}
         className="hidden lg:flex col-start-3 col-span-1 lg:col-start-7 lg:col-span-4 whitespace-nowrap w-min"
       />
     </nav>

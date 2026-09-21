@@ -337,13 +337,7 @@ export default function AllProjectsPageClient() {
           className="hidden h-auto    content-center relative z-40 "
           labelClassName="col-span-2 lg:col-start-1 lg:col-span-12 lg:row-start-2 w-full"
           contentClassName="col-start-3 col-span-1 lg:col-start-4 lg:col-span-9 lg:row-start-2 lowercase w-full"
-        >
-          <TypedHeading
-            ready={!navLoading}
-            text="welcome to the archive"
-            className=" text-left hidden lg:flex  h2Text px-6 font-thin text-primary mb-3"
-          />
-        </LandningBlock>
+        ></LandningBlock>
       </Reveal>
       {/* Mobile only — fixed to the bottom of the viewport, in the same
           3-column grid M2Nav's top bar uses, so this sits in col 3 directly

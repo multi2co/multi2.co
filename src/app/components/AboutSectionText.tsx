@@ -103,7 +103,7 @@ export default function AboutSectionText({
   return (
     <div
       className={cn(
-        " flex flex-col  items-start justify-start text-primary space-y-0 lg:space-y-0   pb-3 px-3 lg:px-0   overflow-y-scroll  gap-0 w-full  ",
+        " flex flex-col  items-start justify-start text-primary space-y-0 lg:space-y-0   pb-3 px-3 lg:px-0   gap-0 w-full  ",
         className,
       )}
     >

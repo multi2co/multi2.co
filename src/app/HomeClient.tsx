@@ -9,7 +9,7 @@ import Link from "next/link";
 import AboutSectionText from "./components/AboutSectionText";
 import BottomNav from "./components/BottomNav";
 import CheckButton from "./components/CheckButton";
-import ConnectSection, { type ContactData } from "./components/ConnectSection";
+import ConnectSection from "./components/ConnectSection";
 import FeaturedCard from "./components/FeaturedCard";
 import { Reveal } from "./components/Reveal";
 import ShowReel from "./components/ShowReel";
@@ -22,10 +22,8 @@ const SHOW_MOBILE_SOUND = false;
 
 function HomeClientInner({
   reelUrl,
-  contact,
 }: {
   reelUrl?: string;
-  contact?: ContactData;
 }) {
   const { items } = useWork();
   const { notifyContentDone } = useUI();
@@ -178,7 +176,7 @@ function HomeClientInner({
             it stacks in turn. */}
       <div className="px-3 lg:px-6 w-full">
         <div id="connect-zone" className="sticky top-16 pixelCorners">
-          <ConnectSection className=" p-3" contact={contact} />
+          <ConnectSection className=" p-3" />
 
           <Reveal className="w-full pb-6 bg-primary ">
             <BottomNav />
@@ -192,12 +190,6 @@ function HomeClientInner({
   );
 }
 
-export default function HomeClient({
-  reelUrl,
-  contact,
-}: {
-  reelUrl?: string;
-  contact?: ContactData;
-}) {
-  return <HomeClientInner reelUrl={reelUrl} contact={contact} />;
+export default function HomeClient({ reelUrl }: { reelUrl?: string }) {
+  return <HomeClientInner reelUrl={reelUrl} />;
 }

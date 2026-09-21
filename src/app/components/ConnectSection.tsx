@@ -5,17 +5,9 @@ import { Button } from "@/components/ui/button";
 import CheckButton from "./CheckButton";
 import LandningBlock from "./LandningBlock";
 import { Reveal } from "./Reveal";
+import { useContact, type ContactData } from "@/context/ContactContext";
 
-export type ContactData = {
-  phone?: string;
-  email?: string;
-  people?: {
-    name: string;
-    title?: string;
-    phone?: string;
-    email?: string;
-  }[];
-};
+export type { ContactData };
 
 /** Falls back to this when the CMS's Contact doc has no email published yet. */
 const DEFAULT_EMAIL = "info@multi2.co";
@@ -41,11 +33,16 @@ const PERSON_COLS = [
  */
 export default function ConnectSection({
   className,
-  contact,
+  contact: contactProp,
 }: {
   className?: string;
+  /** Overrides the root-level fetch — the connect page passes its own so the
+   *  section and its full contact cards below read the same fetch. Every
+   *  other caller just omits it and gets the centralized one. */
   contact?: ContactData;
 }) {
+  const contextContact = useContact();
+  const contact = contactProp ?? contextContact;
   const links = [
     { label: "email", href: `mailto:${contact?.email ?? DEFAULT_EMAIL}` },
     { label: "Instagram", href: "#" },

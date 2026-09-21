@@ -72,18 +72,23 @@ export default function ProjectCard({
       ref={captionRef}
       className="flex flex-row items-baseline justify-between gap-0 w-full py-0 px-0 text-primary"
     >
-      <CheckButton label={item.client} active color="text-secondary" size="label" />
+      <CheckButton
+        label={item.client}
+        active
+        color="text-secondary"
+        size="label"
+      />
       <span className="h4BtnText text-primary lowercase">{item.title}</span>
     </div>
   ) : (
     <div
       ref={captionRef}
-      className="flex flex-col gap-1 lg:gap-0 w-full  py-3 px-0  text-primary   "
+      className="flex flex-col gap-1 lg:gap-0 w-full    text-primary   "
     >
       <CheckButton
         label={item.client}
         active={onClientClick ? clientExpanded : true}
-        size="label"
+        size="lg"
         color="text-secondary"
         onClick={onClientClick}
       />

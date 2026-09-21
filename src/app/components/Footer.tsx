@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 
 import { usePixelCorners } from "@/app/hooks/usePixelCorners";
 import Link from "next/link";
+import { useContact } from "@/context/ContactContext";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -12,16 +13,24 @@ const NAV_LINKS = [
   { href: "/connect", label: "Connect" },
 ] as const;
 
-const SOCIAL_LINKS = [
-  { href: "#", label: "Instagram" },
-  { href: "mailto:info@multi2.co", label: "Email" },
-  { href: "#", label: "LinkedIn" },
-] as const;
+/** Falls back to this when the CMS's Contact doc has no email published yet —
+ *  same default ConnectSection uses. */
+const DEFAULT_EMAIL = "info@multi2.co";
 
 export default function Footer() {
   // Only the top edge meets the page — the bottom sits at the viewport edge —
   // so just the top two corners get notched.
   const pixelRef = usePixelCorners<HTMLDivElement>();
+  const contact = useContact();
+
+  const socialLinks = [
+    { href: "#", label: "Instagram" },
+    { href: `mailto:${contact?.email ?? DEFAULT_EMAIL}`, label: "Email" },
+    { href: "#", label: "LinkedIn" },
+  ] as const;
+
+  // Only the first two — same reserved pair ConnectSection's PERSON_COLS use.
+  const people = contact?.people?.slice(0, 2) ?? [];
 
   return (
     <div className=" w-full flex flex-col justify-between items-stretch h-[90dvh] lg:h-[100dvh] bg-secondary pt-6 p-6 pb-0 [&_*]text-primary">
@@ -45,7 +54,7 @@ export default function Footer() {
         </nav>
 
         <div className="col-start-3 lg:col-start-4 flex flex-col items-start gap-y-0">
-          {SOCIAL_LINKS.map((link) => (
+          {socialLinks.map((link) => (
             <Button
               key={link.label}
               size="sm"
@@ -58,54 +67,35 @@ export default function Footer() {
           ))}
         </div>
         <div className="col-start-1 lg:col-start-7 flex flex-col items-start gap-y-12 px-6 lg:px-0">
-          <span className="flex flex-col items-start gap-y-0">
-            <Button
-              size="sm"
-              variant="link"
-              className="px-0 border-transparent h3Text"
-            >
-              Adam Odelfelt
-            </Button>
-            <Button
-              size="sm"
-              variant="link"
-              className="px-0 border-transparent h3Text"
-            >
-              +46704952184
-            </Button>
-            <Button
-              size="sm"
-              variant="link"
-              className="px-0 border-transparent h3Text"
-              asChild
-            >
-              <Link href="/">adam@multi2.co</Link>
-            </Button>
-          </span>
-          <span className="flex flex-col items-start gap-y-0">
-            <Button
-              size="sm"
-              variant="link"
-              className="px-0 border-transparent h3Text"
-            >
-              Daniel von Malmborg
-            </Button>
-            <Button
-              size="sm"
-              variant="link"
-              className="px-0 border-transparent h3Text"
-            >
-              +46704952184
-            </Button>
-            <Button
-              size="sm"
-              variant="link"
-              className="px-0 border-transparent h3Text"
-              asChild
-            >
-              <Link href="/">daniel@multi2.co</Link>
-            </Button>
-          </span>
+          {people.map((person) => (
+            <span key={person.name} className="flex flex-col items-start gap-y-0">
+              <Button size="sm" variant="link" className="px-0 border-transparent h3Text">
+                {person.name}
+              </Button>
+              {person.phone && (
+                <Button
+                  size="sm"
+                  variant="link"
+                  className="px-0 border-transparent h3Text"
+                  asChild
+                >
+                  <Link href={`tel:${person.phone.replace(/\s/g, "")}`}>
+                    {person.phone}
+                  </Link>
+                </Button>
+              )}
+              {person.email && (
+                <Button
+                  size="sm"
+                  variant="link"
+                  className="px-0 border-transparent h3Text"
+                  asChild
+                >
+                  <Link href={`mailto:${person.email}`}>{person.email}</Link>
+                </Button>
+              )}
+            </span>
+          ))}
         </div>
         <h4 className="col-start-10 col-span-4 hidden lg:flex text-sm font-visual tracking-wide lowercase text-primary  ">
           © 2026 Multisquared All rights reserved
