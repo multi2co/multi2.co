@@ -74,9 +74,14 @@ export default function AboutSectionText({
     // into, as siblings sharing one baseline instead of two components each
     // reporting their own up through a separate grid item.
     return (
-      <div className=" bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-0 justify-start h-auto ">
+      <div
+        className={cn(
+          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-0 justify-start h-auto ",
+          className,
+        )}
+      >
         {label && (
-          <div className="col-span-2 lg:col-start-1 lg:col-span-3 gap-y-0 space-y-0 flex items-baseline justify-start">
+          <div className="relative z-10 col-span-2 lg:col-start-1 lg:col-span-3 lg:row-start-1 gap-y-0 leading-loose space-y-0 flex items-baseline justify-start">
             <CheckButton
               label={label}
               href={href}
@@ -86,16 +91,27 @@ export default function AboutSectionText({
             />
           </div>
         )}
-        {resolvedText && (
+        {/* One <p> per paragraph, each starting at col 4 and spanning eight
+            on desktop — the first on the label's row. Only the paragraphs
+            after the first indent their opening line by one column: on
+            desktop that's 1 of the paragraph's 8 columns (12.5% of its border
+            box, i.e. of its content box plus lg:px-3's 1.5rem — hence the
+            extra 0.1875rem, 1/8 × 1.5rem); on mobile, a third of the
+            paragraph, which has no horizontal padding there. */}
+        {resolvedText?.split("\n\n").map((paragraph, i) => (
           <p
+            key={i}
             className={cn(
-              "col-span-3 lg:col-start-4 lg:col-span-6 pText px-0  lg:px-3 whitespace-pre-line text-primary",
-              className,
+              "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0  lg:px-3 whitespace-pre-line text-primary",
+              "lg:col-start-4 lg:col-span-8",
+              i === 0
+                ? "lg:row-start-1"
+                : "indent-[33.333%] lg:indent-[calc(12.5%+0.1875rem)]",
             )}
           >
-            {resolvedText}
+            {paragraph}
           </p>
-        )}
+        ))}
       </div>
     );
   }
@@ -103,7 +119,7 @@ export default function AboutSectionText({
   return (
     <div
       className={cn(
-        " flex flex-col  items-start justify-start text-primary space-y-0 lg:space-y-0   pb-3 px-3 lg:px-0   gap-0 w-full  ",
+        " flex flex-col  items-start justify-start text-primary space-y-0 lg:space-y-0   pb-3 px-3 lg:px-0   gap-y-6 w-full  ",
         className,
       )}
     >

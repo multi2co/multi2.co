@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { useUI } from "@/context/UIContext";
@@ -9,16 +9,14 @@ import ProjectCard from "@/app/components/ProjectCard";
 import CategoryFilters from "@/app/components/CategoryFilters";
 import CheckButton from "@/app/components/CheckButton";
 import FilterOverlay from "@/app/components/FilterOverlay";
-import { getFilterDoneMs, getPostLoadFilterDoneMs } from "@/lib/navTiming";
 import { getCategoryLabel } from "@/lib/categories";
 import LandningBlock from "@/app/components/LandningBlock";
-import TypedHeading from "@/app/components/TypedHeading";
 import BottomNav from "@/app/components/BottomNav";
 import Footer from "@/app/components/Footer";
 import { Reveal } from "@/app/components/Reveal";
 
 export default function AllProjectsPageClient() {
-  const { items, categories } = useWork();
+  const { items } = useWork();
   const {
     showGrid,
     showList,
@@ -27,7 +25,6 @@ export default function AllProjectsPageClient() {
     notifyContentDone,
     setOpenedCard,
     numCols,
-    navLoading,
     sortMode,
   } = useUI();
 
@@ -70,21 +67,11 @@ export default function AllProjectsPageClient() {
     }
   }, []);
 
-  // The list waits for the category column to finish typing itself in, so the
-  // two don't animate over each other.
-  const [listVisible, setListVisible] = useState(false);
-  const listRevealedRef = useRef(false);
+  // The archive is ready as soon as it renders — tell the nav to stop saying
+  // "loading".
   useEffect(() => {
-    const delay = listRevealedRef.current
-      ? getFilterDoneMs(categories)
-      : getPostLoadFilterDoneMs(categories);
-    const t = setTimeout(() => {
-      listRevealedRef.current = true;
-      setListVisible(true);
-      notifyContentDone();
-    }, delay);
-    return () => clearTimeout(t);
-  }, [categories, notifyContentDone]);
+    notifyContentDone();
+  }, [notifyContentDone]);
 
   const query = search.toLowerCase().trim();
   const slugsSeen = new Set<string>();
@@ -205,7 +192,7 @@ export default function AllProjectsPageClient() {
             setShowFilters={setShowFilters}
           />
         </div>
-        {listVisible && showList && (
+        {showList && (
           <Reveal className="col-start-4 col-span-8 hidden w-full lg:flex flex-col  justify-start items-start px-6  gap-3 mt-0 mb-12 ">
             <AnimatePresence mode="popLayout">
               {clients.map((client, idx) => (
@@ -230,7 +217,7 @@ export default function AllProjectsPageClient() {
           </Reveal>
         )}
 
-        {listVisible && showGrid && (
+        {showGrid && (
           <Reveal className="col-start-1 col-span-4 lg:col-start-5 lg:col-span-8 hidden w-full lg:block">
             <div
               className="mt-3 grid gap-x-3 gap-y-3 px-3 lg:px-3"
@@ -278,7 +265,7 @@ export default function AllProjectsPageClient() {
 
       {/* Mobile: the grid or the client list. */}
       <div className="flex w-full flex-col px-6 lg:hidden">
-        {listVisible && showGrid && (
+        {showGrid && (
           <Reveal className="flex flex-col w-full">
             <AnimatePresence mode="popLayout" initial={false}>
               {gridEntries.map(({ item, captionBelow, onClientClick }) => (
@@ -300,7 +287,7 @@ export default function AllProjectsPageClient() {
           </Reveal>
         )}
 
-        {listVisible && showList && (
+        {showList && (
           <Reveal className="grid grid-cols-3 lg:grid-cols-12 w-full">
             <AnimatePresence mode="popLayout">
               {clients.map((client, idx) => (

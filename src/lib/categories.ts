@@ -41,10 +41,6 @@ export const getActiveFilterLabel = (activeFilter: string) =>
 /**
  * The /projects category picker's own labels — longer, spelled-out forms,
  * distinct from CATEGORY_LABELS above (which favour short tags elsewhere).
- * Kept in one place so the picker's stagger-reveal timing (navTiming's
- * getFilterDoneMs) can't drift from what it's actually timing on screen —
- * it used to keep a separate copy of this map and disagree on a few labels,
- * which let the project grid reveal itself before the picker had finished.
  */
 const FILTER_CHIP_LABELS: Record<string, string> = {
   photo: "Photo",

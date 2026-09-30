@@ -1,22 +1,5 @@
 import { groq } from "next-sanity";
 
-// All work entries, ordered manually then by year
-export const allWorkQuery = groq`
-  *[_type == "work"] | order(year desc) {
-    _id,
-    title,
-    slug,
-    client,
-    year,
-    categories,
-    description,
-    featured,
-    coverSquare { asset->, hotspot, crop },
-    coverLandscape { asset->, hotspot, crop },
-    coverPortrait { asset->, hotspot, crop }
-  }
-`;
-
 // Single work entry by slug
 export const workBySlugQuery = groq`
   *[_type == "work" && slug.current == $slug][0] {
@@ -30,14 +13,14 @@ export const workBySlugQuery = groq`
     imagesPerPage,
     credits,
     heroCoverStyle,
-    coverSquare { asset->, hotspot, crop },
-    coverLandscape { asset->, hotspot, crop },
-    coverPortrait { asset->, hotspot, crop },
+    coverSquare { asset, hotspot, crop },
+    coverLandscape { asset, hotspot, crop },
+    coverPortrait { asset, hotspot, crop },
     media[] {
       _type,
       _key,
-      // image
-      asset->,
+      // image — the bare reference is all urlFor needs
+      asset,
       "aspectRatio": asset->metadata.dimensions.aspectRatio,
       aspectRatioType,
       hotspot,
@@ -46,7 +29,7 @@ export const workBySlugQuery = groq`
       caption,
       description,
       // videoUpload
-      file { asset-> },
+      file { "asset": asset->{ url } },
       // videoUrl
       url
     }
@@ -66,8 +49,6 @@ export const workCardsQuery = groq`
     title,
     client,
     year,
-    credits,
-    description,
     categories,
     featured,
     "slug": slug.current,
@@ -75,10 +56,9 @@ export const workCardsQuery = groq`
     media[] {
       _type,
       _key,
-      asset->,
+      asset,
       "aspectRatio": asset->metadata.dimensions.aspectRatio,
-      aspectRatioType,
-      file { asset-> },
+      file { "asset": asset->{ url } },
       url
     }
   }

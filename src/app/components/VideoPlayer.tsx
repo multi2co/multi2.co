@@ -1,6 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import ReactPlayer from "react-player";
+import { useInView } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useSound } from "@/context/SoundContext";
 
@@ -14,7 +16,10 @@ import { useSound } from "@/context/SoundContext";
  *  Passing `muted` forces this instance regardless of the toggle — only
  *  ShowReel is meant to carry the site's one audio track; every other
  *  passive background video (the home page's selected-project cards) stays
- *  silent even once a visitor has turned sound on. */
+ *  silent even once a visitor has turned sound on.
+ *
+ *  The player only exists while it's on (or near) screen: a grid of video
+ *  cards would otherwise download and decode every clip at once. */
 export default function VideoPlayer({
   src,
   className,
@@ -28,18 +33,24 @@ export default function VideoPlayer({
 }) {
   const { muted: soundMuted, volume } = useSound();
   const muted = mutedProp ?? soundMuted;
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: "200px" });
 
   return (
-    <ReactPlayer
-      src={src}
-      autoPlay
-      loop={!controls}
-      controls={controls}
-      muted={muted}
-      volume={volume}
-      playsInline
-      className={cn("object-cover", className)}
-      style={{ width: "100%", height: "100%" }}
-    />
+    <div ref={ref} className="h-full w-full">
+      {inView && (
+        <ReactPlayer
+          src={src}
+          autoPlay
+          loop={!controls}
+          controls={controls}
+          muted={muted}
+          volume={volume}
+          playsInline
+          className={cn("object-cover", className)}
+          style={{ width: "100%", height: "100%" }}
+        />
+      )}
+    </div>
   );
 }

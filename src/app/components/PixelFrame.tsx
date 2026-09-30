@@ -2,7 +2,6 @@
 
 import Image, { type ImageProps } from "next/image";
 import { motion, useReducedMotion } from "motion/react";
-import { usePixelCorners } from "@/app/hooks/usePixelCorners";
 import { cn } from "@/lib/utils";
 import VideoPlayer from "./VideoPlayer";
 
@@ -43,7 +42,6 @@ export default function PixelFrame({
   videoMuted,
   ...image
 }: Props) {
-  const ref = usePixelCorners<HTMLDivElement>();
   const reduce = useReducedMotion();
 
   const img =
@@ -64,7 +62,6 @@ export default function PixelFrame({
 
   return (
     <div
-      ref={ref}
       className={cn("pixelCorners relative overflow-hidden", className)}
     >
       {revealOnView && !reduce ? (

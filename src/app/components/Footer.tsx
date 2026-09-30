@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 
-import { usePixelCorners } from "@/app/hooks/usePixelCorners";
 import Link from "next/link";
 import { useContact } from "@/context/ContactContext";
 
@@ -18,9 +17,6 @@ const NAV_LINKS = [
 const DEFAULT_EMAIL = "info@multi2.co";
 
 export default function Footer() {
-  // Only the top edge meets the page — the bottom sits at the viewport edge —
-  // so just the top two corners get notched.
-  const pixelRef = usePixelCorners<HTMLDivElement>();
   const contact = useContact();
 
   const socialLinks = [

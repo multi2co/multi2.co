@@ -3,7 +3,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 
 import { cn } from "@/lib/utils";
-import { usePixelCorners } from "@/app/hooks/usePixelCorners";
 
 const buttonVariants = cva(
   "inline-flex shrink-0 items-center  justify-center gap-2 cursor-pointer lowercase rounded-md text-sm font-visual font-normal tracking-wide  whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -43,10 +42,6 @@ const buttonVariants = cva(
   },
 );
 
-/** Sizes small enough that the default corner ratio looks over-pixelated —
- *  these get half the intensity. */
-const SMALL_SIZES = new Set(["xs", "sm", "icon-xs", "icon-sm"]);
-
 function Button({
   className,
   variant = "default",
@@ -60,26 +55,9 @@ function Button({
   }) {
   const Comp = asChild ? Slot.Root : "button";
 
-  // Scale the pixel-corner notches to the rendered button. Small buttons use a
-  // gentler ratio so the corners don't eat the whole edge.
-  const pixelRef = usePixelCorners<HTMLElement>(
-    SMALL_SIZES.has(size ?? "")
-      ? { ratio: 0.1, min: 2, max: 6 }
-      : { ratio: 0.2, min: 4, max: 16 },
-  );
-
-  const setRef = React.useCallback(
-    (node: HTMLElement | null) => {
-      pixelRef.current = node;
-      if (typeof ref === "function") ref(node as HTMLButtonElement | null);
-      else if (ref) ref.current = node as HTMLButtonElement | null;
-    },
-    [pixelRef, ref],
-  );
-
   return (
     <Comp
-      ref={setRef}
+      ref={ref}
       data-slot="button"
       data-variant={variant}
       data-size={size}

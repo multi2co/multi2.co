@@ -3,8 +3,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
-    unoptimized: true,
+    // Sanity's CDN resizes and re-encodes on the fly — see the loader.
+    loader: "custom",
+    loaderFile: "./sanity/lib/imageLoader.ts",
   },
   webpack(config, { isServer }) {
     if (!isServer) {

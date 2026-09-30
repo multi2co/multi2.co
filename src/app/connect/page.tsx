@@ -1,4 +1,3 @@
-import BottomNav from "@/app/components/BottomNav";
 import ConnectSection, {
   type ContactData,
 } from "@/app/components/ConnectSection";

@@ -13,10 +13,6 @@ import { DEFAULT_COLS } from "@/lib/gridZoom";
 type UIContextType = {
   contentDoneKey: number;
   notifyContentDone: () => void;
-  /** M2Nav's own "loading…" state, published so a page can hold its intro
-   *  back until the bar has finished saying it. */
-  navLoading: boolean;
-  setNavLoading: (v: boolean) => void;
   showGrid: boolean;
   setShowGrid: (v: boolean) => void;
   showList: boolean;
@@ -55,7 +51,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [numCols, setNumCols] = useState(DEFAULT_COLS);
   const [sortMode, setSortMode] = useState<"year" | "title">("year");
   const [contentDoneKey, setContentDoneKey] = useState(0);
-  const [navLoading, setNavLoading] = useState(true);
   const notifyContentDone = useCallback(
     () => setContentDoneKey((k) => k + 1),
     [],
@@ -92,8 +87,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setSortMode,
         contentDoneKey,
         notifyContentDone,
-        navLoading,
-        setNavLoading,
       }}
     >
       {children}

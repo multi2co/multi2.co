@@ -14,8 +14,6 @@ export type GridItem = {
   client?: string;
   year?: number;
   createdAt?: string;
-  credits?: unknown;
-  description?: string;
   categories: string[];
   aspectRatio: number;
   /** The work's own square cover — a different asset from the media
@@ -25,7 +23,6 @@ export type GridItem = {
    *  block on the landing page. */
   featured?: boolean;
   isPrimary: boolean;
-  projectImages: { key: string; url: string; aspectRatio: number }[];
 };
 
 type WorkContextType = {

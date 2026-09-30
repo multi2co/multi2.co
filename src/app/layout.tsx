@@ -7,9 +7,7 @@ import { AboutContextServer } from "@/context/AboutContextServer";
 import { ContactContextServer } from "@/context/ContactContextServer";
 import { IconStyleContextServer } from "@/context/IconStyleContextServer";
 import { UIProvider } from "@/context/UIContext";
-import { ReelProvider } from "@/context/ReelContext";
 import { SoundProvider } from "@/context/SoundContext";
-import { CursorProvider } from "@/context/CursorContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import M2Nav from "@/app/components/M2Nav";
 import CookieAndSound from "@/app/components/CookieAndSound";
@@ -82,22 +80,15 @@ export default function RootLayout({
             <AboutContextServer>
               <ContactContextServer>
                 <UIProvider>
-                  {/* Wraps the whole tree: the consent box and the nav read reel
-                      state too, not just the page below them. */}
                   <SoundProvider>
-                    <ReelProvider>
-                      {/* CursorProvider stays for the busy-state signal the nav
-                          publishes; the custom cursor itself is off. */}
-                      <CursorProvider>
-                        <ThemeProvider>
-                          <ThemeToggle />
-                          <M2Nav />
-                          <CookieAndSound />
+                    <ThemeProvider>
+                      <UnderConstruction />
+                      <ThemeToggle />
+                      <M2Nav />
+                      <CookieAndSound />
 
-                          <SmoothScroll>{children}</SmoothScroll>
-                        </ThemeProvider>
-                      </CursorProvider>
-                    </ReelProvider>
+                      <SmoothScroll>{children}</SmoothScroll>
+                    </ThemeProvider>
                   </SoundProvider>
                 </UIProvider>
               </ContactContextServer>

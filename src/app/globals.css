@@ -246,7 +246,7 @@
   }
 
   .pText {
-    @apply text-xl font-thin  lg:text-xl leading-tight lg:tracking-normal   lg:leading-tight  font-visual lg:font-normal;
+    @apply text-xl font-thin  lg:text-2xl leading-tight lg:tracking-normal   lg:leading-tight  font-visual lg:font-normal;
   }
 
   .h1Text {

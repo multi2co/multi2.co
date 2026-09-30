@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { usePixelCorners } from "@/app/hooks/usePixelCorners";
 import CheckButton from "./CheckButton";
 
 type Props = {
@@ -46,13 +45,8 @@ export default function LandningBlock({
   background,
   children,
 }: Props) {
-  // Notches the block's four corners, scaled to its size — same treatment the
-  // buttons get, so the sections read as part of the same family.
-  const pixelRef = usePixelCorners<HTMLElement>();
-
   return (
     <section
-      ref={pixelRef}
       className={cn(
         "relative z-10 w-full grid grid-cols-3 lg:grid-cols-12 items-baseline gap-y-12 lg:gap-y-6   ",
         bg,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Fragment } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import LandningBlock from "@/app/components/LandningBlock";
 import CheckButton from "@/app/components/CheckButton";
@@ -35,9 +35,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   "music-production": "Music Prod",
 };
 
-const TYPING_MS = 22;
-const NAVIGATING_MS = 700;
-
 /** One credit line — "Creative Director: David Andersson" — split into its role
  *  and its name on the first `:` / `–` / `—`. A line with no delimiter is all
  *  role. */
@@ -46,6 +43,30 @@ function parseCredit(line: string): { role: string; name: string } {
   return match
     ? { role: match[1].trim(), name: match[2].trim() }
     : { role: line.trim(), name: "" };
+}
+
+/** The desktop/mobile cover pair as one art-directed <picture>, so the browser
+ *  only downloads the one it actually shows. */
+function HeroCover({ desktop, mobile }: { desktop?: string; mobile?: string }) {
+  const common = { alt: "", fill: true, priority: true, sizes: "100vw" };
+  const { props: img } = getImageProps({ ...common, src: mobile ?? desktop! });
+  const desktopSrcSet =
+    desktop && mobile
+      ? getImageProps({ ...common, src: desktop }).props.srcSet
+      : undefined;
+  return (
+    <picture>
+      {desktopSrcSet && (
+        <source
+          media="(min-width: 1024px)"
+          srcSet={desktopSrcSet}
+          sizes="100vw"
+        />
+      )}
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <img {...img} className="object-cover" />
+    </picture>
+  );
 }
 
 function ProjectPageInner({
@@ -71,26 +92,10 @@ function ProjectPageInner({
   coverUrlMobile?: string;
   coverAspectRatio?: number;
 }) {
-  const clientLen = client?.length ?? 0;
-  const titleLen = title.length;
-  const yearLen = year?.toString().length ?? 0;
-  const wTitleDelay = client ? (clientLen + 2) * TYPING_MS : 0;
-  const wYearDelay = wTitleDelay + (titleLen + 2) * TYPING_MS;
-  const wBackDelay = year
-    ? wYearDelay + (yearLen + 2) * TYPING_MS
-    : wTitleDelay + (titleLen + 2) * TYPING_MS;
-  const revealDelayMs = NAVIGATING_MS + wBackDelay + (4 + 2) * TYPING_MS + 100;
-
-  const [revealed, setRevealed] = useState(false);
   // Which carousel slide is showing — drives the caption below the hero and is
   // shared with the full-screen lightbox so the two carousels stay in step.
   const [activeSlide, setActiveSlide] = useState(0);
   const [lightbox, setLightbox] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setRevealed(true), revealDelayMs);
-    return () => clearTimeout(t);
-  }, [revealDelayMs]);
 
   // Lock the page and close on Escape while the lightbox is up.
   useEffect(() => {
@@ -164,24 +169,7 @@ function ProjectPageInner({
               </div>
             ) : hasCover ? (
               <div className=" relative h-full w-full">
-                {coverUrlDesktop && (
-                  <Image
-                    src={coverUrlDesktop}
-                    alt=""
-                    fill
-                    priority
-                    className="hidden object-cover lg:block"
-                    sizes="100vw"
-                  />
-                )}
-                <Image
-                  src={coverUrlMobile ?? coverUrlDesktop!}
-                  alt=""
-                  fill
-                  priority
-                  className="object-cover lg:hidden"
-                  sizes="100vw"
-                />
+                <HeroCover desktop={coverUrlDesktop} mobile={coverUrlMobile} />
               </div>
             ) : heroFallback ? (
               <div className=" relative h-full w-full">
@@ -203,7 +191,7 @@ function ProjectPageInner({
       <motion.div
         className=" w-full relative pb-4 mt-6 px-6"
         initial={{ opacity: 0 }}
-        animate={{ opacity: revealed ? 1 : 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
         <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-12 gap-x-6 mb-12 lg:mb-6 items-start text-primary">

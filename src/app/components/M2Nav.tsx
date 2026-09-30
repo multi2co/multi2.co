@@ -6,12 +6,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useSound } from "@/context/SoundContext";
 import { useUI } from "@/context/UIContext";
-import { useBusyCursor } from "@/context/CursorContext";
 import { THEMES, useTheme } from "@/context/ThemeContext";
 import { useIconStyle } from "@/context/IconStyleContext";
 import CheckButton from "./CheckButton";
-import CheckToggle from "./CheckToggle";
-import ColorButton from "./ColorButton";
 import TerminalM2Button from "./TerminalM2Button";
 
 const NAV_ITEMS = [
@@ -414,7 +411,7 @@ function NavVertical({
 
 export default function M2Nav() {
   const pathname = usePathname();
-  const { contentDoneKey, setNavLoading } = useUI();
+  const { contentDoneKey } = useUI();
   const { muted, toggleMute } = useSound();
   const { theme, cycleTheme, dark, toggleDark } = useTheme();
   const currentTheme = THEMES.find((t) => t.id === theme) ?? THEMES[0];
@@ -427,9 +424,6 @@ export default function M2Nav() {
   const [ready, setReady] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const loading = !ready || navigating;
-  // The nav already knows when the site is busy; the cursor cycles on the
-  // same signal.
-  useBusyCursor(loading);
 
   // A committed route change ends the pending navigation and puts the label
   // back into the waiting state until the new page reports in. M2Nav lives in
@@ -445,8 +439,7 @@ export default function M2Nav() {
 
   // Scrolling is its own answer to "is the page still loading?" — once the
   // reader has moved off the top the bar goes back to its own name, whether or
-  // not the route ever reported in. Scoped to the label: `loading` still drives
-  // the busy cursor until the page actually settles. Re-armed per route, and
+  // not the route ever reported in. Re-armed per route, and
   // read once on mount so a restored scroll position counts too.
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -541,8 +534,7 @@ export default function M2Nav() {
   }, [scrolling]);
 
   // The field stagger-reveals itself once on first load. `fieldShown` is that
-  // reveal window; while it's up the page keeps its own content held back, so
-  // the field always finishes before the page starts coming in top-to-bottom.
+  // reveal window.
   const [fieldShown, setFieldShown] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setFieldShown(false), NAVFIELD_REVEAL_MS);
@@ -557,12 +549,6 @@ export default function M2Nav() {
   // "loading" wins over both: the bar reports the site's state before it
   // reports the menu's.
   const menuLoading = loading && !scrolled;
-
-  // Published so pages hold their reveal behind the bar AND behind the field's
-  // stagger-in — the field goes first, then the page.
-  useEffect(() => {
-    setNavLoading(menuLoading || fieldShown);
-  }, [menuLoading, fieldShown, setNavLoading]);
 
   const menuLabel = menuLoading ? "loading" : open ? "close" : "multisquared";
 

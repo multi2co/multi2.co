@@ -7,14 +7,14 @@ import { WorkProvider, type GridItem } from "./WorkContext";
 const PLACEHOLDER_IMG = "https://placehold.co/1200x1200/111111/111111";
 
 const MOCK_ITEMS: import("./WorkContext").GridItem[] = [
-  { key: "mock-1", url: PLACEHOLDER_IMG, alt: "Norrlands Guld", slug: "norrlands-guld-summer", title: "Summer Campaign", client: "Norrlands Guld", year: 2024, categories: ["photo", "art-direction"], featured: true, isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-1-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
-  { key: "mock-2", url: PLACEHOLDER_IMG, alt: "Volvo Cars", slug: "volvo-electric", title: "Electric Future", client: "Volvo Cars", year: 2024, categories: ["video", "concept"], featured: true, isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-2-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
-  { key: "mock-3", url: PLACEHOLDER_IMG, alt: "H&M", slug: "hm-spring", title: "Spring Collection", client: "H&M", year: 2024, categories: ["photo", "production"], featured: true, isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-3-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
-  { key: "mock-4", url: PLACEHOLDER_IMG, alt: "Spotify", slug: "spotify-wrapped", title: "Wrapped", client: "Spotify", year: 2023, categories: ["concept", "art-direction"], isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-4-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
-  { key: "mock-5", url: PLACEHOLDER_IMG, alt: "Audi", slug: "audi-the-drive", title: "The Drive", client: "Audi", year: 2023, categories: ["video", "dop"], isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-5-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
-  { key: "mock-6", url: PLACEHOLDER_IMG, alt: "IKEA", slug: "ikea-home-stories", title: "Home Stories", client: "IKEA", year: 2023, categories: ["photo", "concept"], isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-6-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
-  { key: "mock-7", url: PLACEHOLDER_IMG, alt: "Absolut Vodka", slug: "absolut-new-drop", title: "New Drop", client: "Absolut Vodka", year: 2024, categories: ["photo", "art-direction", "production"], isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-7-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
-  { key: "mock-8", url: PLACEHOLDER_IMG, alt: "Peak Performance", slug: "peak-performance-fw24", title: "FW24", client: "Peak Performance", year: 2024, categories: ["video", "production", "concept"], isPrimary: true, aspectRatio: 1, projectImages: [{ key: "mock-8-img", url: PLACEHOLDER_IMG, aspectRatio: 1 }] },
+  { key: "mock-1", url: PLACEHOLDER_IMG, alt: "Norrlands Guld", slug: "norrlands-guld-summer", title: "Summer Campaign", client: "Norrlands Guld", year: 2024, categories: ["photo", "art-direction"], featured: true, isPrimary: true, aspectRatio: 1 },
+  { key: "mock-2", url: PLACEHOLDER_IMG, alt: "Volvo Cars", slug: "volvo-electric", title: "Electric Future", client: "Volvo Cars", year: 2024, categories: ["video", "concept"], featured: true, isPrimary: true, aspectRatio: 1 },
+  { key: "mock-3", url: PLACEHOLDER_IMG, alt: "H&M", slug: "hm-spring", title: "Spring Collection", client: "H&M", year: 2024, categories: ["photo", "production"], featured: true, isPrimary: true, aspectRatio: 1 },
+  { key: "mock-4", url: PLACEHOLDER_IMG, alt: "Spotify", slug: "spotify-wrapped", title: "Wrapped", client: "Spotify", year: 2023, categories: ["concept", "art-direction"], isPrimary: true, aspectRatio: 1 },
+  { key: "mock-5", url: PLACEHOLDER_IMG, alt: "Audi", slug: "audi-the-drive", title: "The Drive", client: "Audi", year: 2023, categories: ["video", "dop"], isPrimary: true, aspectRatio: 1 },
+  { key: "mock-6", url: PLACEHOLDER_IMG, alt: "IKEA", slug: "ikea-home-stories", title: "Home Stories", client: "IKEA", year: 2023, categories: ["photo", "concept"], isPrimary: true, aspectRatio: 1 },
+  { key: "mock-7", url: PLACEHOLDER_IMG, alt: "Absolut Vodka", slug: "absolut-new-drop", title: "New Drop", client: "Absolut Vodka", year: 2024, categories: ["photo", "art-direction", "production"], isPrimary: true, aspectRatio: 1 },
+  { key: "mock-8", url: PLACEHOLDER_IMG, alt: "Peak Performance", slug: "peak-performance-fw24", title: "FW24", client: "Peak Performance", year: 2024, categories: ["video", "production", "concept"], isPrimary: true, aspectRatio: 1 },
 ];
 
 const MOCK_CATEGORIES = ["art-direction", "concept", "dop", "photo", "production", "video"];
@@ -63,8 +63,6 @@ type WorkData = {
   title: string;
   client?: string;
   year?: number;
-  credits?: unknown;
-  description?: string;
   categories?: string[];
   featured?: boolean;
   slug: string;
@@ -85,8 +83,10 @@ export async function WorkContextServer({
       { tags: ["work"] },
     );
   } catch (error) {
-    // Sanity unreachable — fall through to the mock data below rather than
-    // crashing every page that renders inside this provider.
+    // In production, fail loudly: a failed ISR revalidation keeps serving the
+    // last good page, whereas swallowing the error would bake the mock
+    // clients below into the live site. In dev, fall through to the mocks.
+    if (process.env.NODE_ENV === "production") throw error;
     console.error("WorkContextServer: Sanity fetch failed", error);
   }
 
@@ -109,12 +109,6 @@ export async function WorkContextServer({
       .map(toDisplayMedia)
       .filter((m): m is DisplayMedia => m !== null);
 
-    const projectImages = allMedia.map((m) => ({
-      key: m.key,
-      url: m.url,
-      aspectRatio: m.aspectRatio,
-    }));
-
     const displayMedia = allMedia.slice(0, 3);
 
     if (displayMedia.length > 0) {
@@ -129,14 +123,11 @@ export async function WorkContextServer({
           client: work.client,
           year: work.year,
           createdAt: work._createdAt,
-          credits: work.credits,
-          description: work.description,
           categories: work.categories ?? [],
           aspectRatio: m.aspectRatio,
           coverUrl,
           featured: work.featured ?? false,
           isPrimary: idx === 0,
-          projectImages,
         });
       });
     } else if (coverUrl) {
@@ -149,20 +140,11 @@ export async function WorkContextServer({
         client: work.client,
         year: work.year,
         createdAt: work._createdAt,
-        credits: work.credits,
-        description: work.description,
         categories: work.categories ?? [],
         aspectRatio: 1,
         coverUrl,
         featured: work.featured ?? false,
         isPrimary: true,
-        projectImages: [
-          {
-            key: work._id,
-            url: coverUrl,
-            aspectRatio: 1,
-          },
-        ],
       });
     } else {
       // No image media and no coverSquare — e.g. a work whose only media is
@@ -179,27 +161,20 @@ export async function WorkContextServer({
         client: work.client,
         year: work.year,
         createdAt: work._createdAt,
-        credits: work.credits,
-        description: work.description,
         categories: work.categories ?? [],
         aspectRatio: 1,
         featured: work.featured ?? false,
         isPrimary: true,
-        projectImages: [
-          {
-            key: work._id,
-            url: PLACEHOLDER_IMG,
-            aspectRatio: 1,
-          },
-        ],
       });
     }
   }
 
   const categories = Array.from(categorySet).sort();
-  const finalItems = items.length > 0 ? items : MOCK_ITEMS;
+  const useMocks =
+    items.length === 0 && process.env.NODE_ENV !== "production";
+  const finalItems = useMocks ? MOCK_ITEMS : items;
   const finalCategories =
-    categories.length > 0 ? categories : MOCK_CATEGORIES;
+    useMocks ? MOCK_CATEGORIES : categories;
 
   return (
     <WorkProvider items={finalItems} categories={finalCategories}>

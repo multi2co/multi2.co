@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useUI } from "@/context/UIContext";
 import { useWork } from "@/context/WorkContext";
-import { useSound } from "@/context/SoundContext";
 import Link from "next/link";
 import AboutSectionText from "./components/AboutSectionText";
 import BottomNav from "./components/BottomNav";
@@ -13,35 +12,17 @@ import ConnectSection from "./components/ConnectSection";
 import FeaturedCard from "./components/FeaturedCard";
 import { Reveal } from "./components/Reveal";
 import ShowReel from "./components/ShowReel";
-import Image from "next/image";
 
 import Footer from "./components/Footer";
-
-/** The standing mobile "sound on/off" toggle in the hero corner — off for now. */
-const SHOW_MOBILE_SOUND = false;
 
 function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   const { items } = useWork();
   const { notifyContentDone } = useUI();
-  const { muted, toggleMute, consentSettled } = useSound();
 
-  const [revealed, setRevealed] = useState(false);
-  const [timerDone, setTimerDone] = useState(false);
-  const hasRevealedRef = useRef(false);
+  // Everything on the page is server-rendered, so it's ready once mounted.
   useEffect(() => {
-    const t = setTimeout(() => setTimerDone(true), 4000);
-    return () => clearTimeout(t);
-  }, []);
-  useEffect(() => {
-    if (items.length === 0 || !timerDone || hasRevealedRef.current) return;
-    hasRevealedRef.current = true;
-    setRevealed(true);
-  }, [items.length, timerDone]);
-
-  useEffect(() => {
-    if (!revealed) return;
     notifyContentDone();
-  }, [revealed, notifyContentDone]);
+  }, [notifyContentDone]);
 
   // The landing page's selected-projects block: four works, featured first, in
   // a single four-column row on desktop. Editors pick those with the "Featured
@@ -75,10 +56,10 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
     <div className="w-full bg-background    mt-16 ">
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
       <div className=" px-3 lg:px-6 w-full">
-        <Reveal
-          sticky
-          className="w-full aspect-[9/16] pixelCorners lg:aspect-video bg-secondary relative h-[calc(100vh-5rem)] lg:h-[calc(100vh-5.5rem)]"
-        >
+        {/* Plain div, not Reveal: this is the first thing on screen, so it
+            must be visible from the server HTML rather than waiting for JS
+            to hydrate and fade it in. */}
+        <div className="sticky top-0 w-full aspect-[9/16] pixelCorners lg:aspect-video bg-secondary h-[calc(100vh-5rem)] lg:h-[calc(100vh-5.5rem)]">
           <div className=" relative overflow-hidden w-full h-full">
             <ShowReel
               className="absolute inset-0 h-full w-full aspect-[9/16] lg:aspect-video p-0"
@@ -92,7 +73,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               multisquared
             </h2>
           </div>
-        </Reveal>
+        </div>
       </div>
       <Reveal className="col-span-3 lg:col-span-12 bg-background px-6 lg:px-3 pt-12  ">
         <AboutSectionText
