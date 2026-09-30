@@ -55,6 +55,7 @@ export default function FeaturedCard({
       <PixelFrame
         src={project.coverUrl ?? project.url}
         mediaType={mediaType}
+        videoMuted
         alt={project.alt}
         sizes="(max-width: 1024px) 100vw, 66vw"
         className="w-full aspect-square lg:aspect-video lg:flex-1 lg:min-w-0 lg:col-span-4"

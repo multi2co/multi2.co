@@ -20,6 +20,10 @@ type Props = ImageProps & {
   /** "video" plays `src` with VideoPlayer instead of rendering it as an
    *  <Image> — same frame, same corner clipping. */
   mediaType?: "image" | "video";
+  /** Forces the video silent regardless of the site-wide sound toggle — for
+   *  a passive background video that isn't meant to carry audio. Only
+   *  meaningful with `mediaType="video"`. */
+  videoMuted?: boolean;
 };
 
 /**
@@ -36,6 +40,7 @@ export default function PixelFrame({
   revealOnView = false,
   revealDelay = 0,
   mediaType = "image",
+  videoMuted,
   ...image
 }: Props) {
   const ref = usePixelCorners<HTMLDivElement>();
@@ -45,6 +50,7 @@ export default function PixelFrame({
     mediaType === "video" ? (
       <VideoPlayer
         src={image.src as string}
+        muted={videoMuted}
         className={cn("object-cover", imageClassName)}
       />
     ) : (

@@ -20,11 +20,7 @@ import Footer from "./components/Footer";
 /** The standing mobile "sound on/off" toggle in the hero corner — off for now. */
 const SHOW_MOBILE_SOUND = false;
 
-function HomeClientInner({
-  reelUrl,
-}: {
-  reelUrl?: string;
-}) {
+function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   const { items } = useWork();
   const { notifyContentDone } = useUI();
   const { muted, toggleMute, consentSettled } = useSound();
@@ -80,24 +76,25 @@ function HomeClientInner({
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
       <div className=" px-3 lg:px-6 w-full">
         <Reveal
-          pixelCorners
           sticky
-          className="w-full aspect-[9/16] lg:aspect-video bg-secondary relative h-[calc(100vh-5rem)] lg:h-[calc(100vh-5.5rem)]"
+          className="w-full aspect-[9/16] pixelCorners lg:aspect-video bg-secondary relative h-[calc(100vh-5rem)] lg:h-[calc(100vh-5.5rem)]"
         >
-          <ShowReel
-            className="absolute inset-0 h-full w-full aspect-[9/16] lg:aspect-video p-0"
-            src={reelUrl}
-          />
-          {/* Light scrim so the thin heading stays legible over the footage. */}
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-xl " />
-          {/* The hero has no label, so its wordmark keeps the full twelve
-                columns rather than starting at four. */}
-          <h2 className="absolute inset-0 z-10 flex items-center  justify-center px-3 lg:px-12 text-center text-6xl lg:text-[10rem] font-visual font-thin max-w-sm lg:max-w-full lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
-            multisquared
-          </h2>
+          <div className=" relative overflow-hidden w-full h-full">
+            <ShowReel
+              className="absolute inset-0 h-full w-full aspect-[9/16] lg:aspect-video p-0"
+              src={reelUrl}
+            />
+            {/* Light scrim so the thin heading stays legible over the footage. */}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-xl " />
+            {/* The hero has no label, so its wordmark keeps the full twelve
+                  columns rather than starting at four. */}
+            <h2 className="absolute inset-0 z-10 flex items-center  justify-center px-3 lg:px-12 text-center text-6xl lg:text-[10rem] font-visual font-thin max-w-sm lg:max-w-full lg:whitespace-nowrap tracking-normal lowercase lg:tracking-tight rotate-90 lg:rotate-0 text-primary">
+              multisquared
+            </h2>
+          </div>
         </Reveal>
       </div>
-      <Reveal className="col-span-3 lg:col-span-12 bg-background px-3 pt-12  ">
+      <Reveal className="col-span-3 lg:col-span-12 bg-background px-6 lg:px-3 pt-12  ">
         <AboutSectionText
           columns
           label="our story"

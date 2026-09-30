@@ -309,6 +309,28 @@
     border-image: url("/pixel_border_xs.svg") 6 / var(--pixel-corner) / 0
       stretch;
   }
+
+  /* Same single-step notch as .pixelCorners, as a clip-path instead of a
+     mask-border SVG. GPU-decoded <video> content routes through its own
+     compositor overlay in some browsers, which mask-border/-webkit-mask-
+     box-image doesn't reliably clip but clip-path does — use this variant
+     wherever the masked box contains a <video>. */
+  .pixelCornersClip {
+    clip-path: polygon(
+      var(--pixel-corner) 0,
+      calc(100% - var(--pixel-corner)) 0,
+      calc(100% - var(--pixel-corner)) var(--pixel-corner),
+      100% var(--pixel-corner),
+      100% calc(100% - var(--pixel-corner)),
+      calc(100% - var(--pixel-corner)) calc(100% - var(--pixel-corner)),
+      calc(100% - var(--pixel-corner)) 100%,
+      var(--pixel-corner) 100%,
+      var(--pixel-corner) calc(100% - var(--pixel-corner)),
+      0 calc(100% - var(--pixel-corner)),
+      0 var(--pixel-corner),
+      var(--pixel-corner) var(--pixel-corner)
+    );
+  }
 }
 
 html.black-on-green {
