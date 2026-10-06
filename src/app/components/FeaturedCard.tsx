@@ -10,9 +10,9 @@ import CheckButton from "./CheckButton";
 const MotionLink = motion.create(Link);
 
 /**
- * A project card for the home page's selected projects. Mobile: a square
- * image, client name below it. Desktop: a 16:9 image with the client name in
- * a caption column to its right.
+ * A project card for the home page's selected projects: a square image, then
+ * the work's hero intro, its title and a "go to project" call to action.
+ * Mobile stacks them; desktop puts the text in a column beside the image.
  *
  * With `revealOnView`, the card also scales up from 0.9 and fades in the
  * first time it scrolls into view.
@@ -58,25 +58,27 @@ export default function FeaturedCard({
         videoMuted
         alt={project.alt}
         sizes="(max-width: 1024px) 100vw, 66vw"
-        className="w-full aspect-square lg:aspect-video lg:flex-1 lg:min-w-0 lg:col-span-4"
+        className="w-full aspect-square lg:min-w-0 lg:col-span-3"
       />
 
-      {project.client && (
-        <div className="flex flex-col justify-between  lg:col-span-2 lg:shrink-0  ">
-          <span className="space-y-8 col-span-1 px-6 lg:px-0 pt-0 lg:pt-6 pb-0">
-            <h2 className="text-3xl lg:text-5xl font-visual text-primary lowercase font-thin">
-              {project.title}
-            </h2>
-          </span>
-          <CheckButton
-            label="read more"
-            size="xl"
-            color="text-primary"
-            className="hidden lg:flex col-start-1 col-span-2 lg:col-start-2 lg:col-span-1"
-            active
-          />
-        </div>
-      )}
+      {/* Intro, title, then (desktop only) the call to action — stacked under
+          the image on mobile, in a column beside it on desktop. On mobile the
+          whole card is the link. */}
+      <div className="flex flex-col gap-6 px-6 lg:px-0 lg:pt-6 lg:col-span-3">
+        {project.heroIntro && (
+          <p className="pText text-primary lowercase">{project.heroIntro}</p>
+        )}
+        <h2 className="text-3xl lg:text-5xl font-visual text-primary lowercase font-thin">
+          {project.title}
+        </h2>
+        <CheckButton
+          label="go to project"
+          size="xl"
+          color="text-primary"
+          className="hidden lg:flex px-0 lg:px-0"
+          active
+        />
+      </div>
     </MotionLink>
   );
 }

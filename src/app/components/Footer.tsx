@@ -28,8 +28,11 @@ export default function Footer() {
   // Only the first two — same reserved pair ConnectSection's PERSON_COLS use.
   const people = contact?.people?.slice(0, 2) ?? [];
 
+  // `overflow-hidden`: the big wordmark's line box reaches past the footer's
+  // bottom edge, which would otherwise make the page scroll a few px beyond
+  // the footer and show the page background below it.
   return (
-    <div className=" w-full flex flex-col justify-between items-stretch h-[90dvh] lg:h-[100dvh] bg-secondary pt-6 p-6 pb-0 [&_*]text-primary">
+    <div className=" w-full flex flex-col justify-between items-stretch h-[90dvh] lg:h-[100dvh] overflow-hidden bg-secondary pt-6 p-6 pb-0 [&_*]text-primary">
       {/* Contact columns. Each heading + its links is one grid cell, placed on
           an explicit column so the groups all sit on the top row and line up
           regardless of how many links they hold. Mobile stacks them in

@@ -72,6 +72,7 @@ export default function FilterOverlay() {
                   className="inline-flex items-baseline whitespace-nowrap w-full"
                 >
                   <CheckButton
+                    checkbox
                     size="lg"
                     label={getFilterLabel(cat)}
                     active={activeFilter === cat}
@@ -85,6 +86,7 @@ export default function FilterOverlay() {
             <SettingsOverlay className=" px-0" />
             <span className="fixed bottom-0 left-0 grid grid-cols-3 w-full z-90">
               <CheckButton
+                checkbox
                 label="Hide Filters"
                 size="lg"
                 color="text-secondary"

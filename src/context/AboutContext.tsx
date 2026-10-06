@@ -45,7 +45,7 @@ export function AboutProvider({
   );
 }
 
-/** The "our story" copy — `short` for the home page block, `long` for /about. */
+/** The "our concept" copy — `short` for the home page block, `long` for /about. */
 export function useAbout(variant: "short" | "long" = "short"): string | null {
   const { aboutShort, aboutLong } = useContext(AboutContext);
   return variant === "long" ? aboutLong : aboutShort;

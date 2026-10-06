@@ -12,7 +12,7 @@ const ERASING_MS_PER_CHAR = 14;
 const ERASE_SPEED = 0.2;
 
 /**
- * The "our story" copy. Reads the About entry — `short` by default (the home
+ * The "our concept" copy. Reads the About entry — `short` by default (the home
  * page block); the /about page passes `long`. `text` still overrides the
  * fetched copy when a caller wants to supply its own.
  */
@@ -31,10 +31,10 @@ export default function AboutSectionText({
   className?: string;
   /** Lays the first two paragraphs out side by side — col 4 / col 7 of the
    *  parent's 12-col grid — instead of one running block. The home page's
-   *  "our story" block uses this; /about keeps the single flowing block. */
+   *  "our concept" block uses this; /about keeps the single flowing block. */
   columns?: boolean;
   /** Renders a CheckButton at col 1, alongside the columned paragraphs —
-   *  the "our story" mark, sharing their grid instead of LandningBlock's
+   *  the "our concept" mark, sharing their grid instead of LandningBlock's
    *  separate label slot so it can't drift off their baseline. Only
    *  meaningful with `columns`. */
   label?: string;

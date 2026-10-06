@@ -18,7 +18,7 @@ type HeroMedia =
 
 /**
  * The project page hero: the work's media as a carousel. Each item is shown
- * whole (`object-contain`, padded). Prev/next are CheckButtons pinned to the
+ * whole (`object-contain`), pinned top-left. Prev/next are CheckButtons pinned to the
  * vertical centre of each edge; a "1 / 3" counter sits bottom-right. `onSelect`
  * reports the current index so the page can show that item's caption, and
  * `selected` is honoured back — so a second instance (the lightbox) stays in
@@ -61,7 +61,7 @@ export default function HeroCarousel({
   if (media.length === 0) return null;
 
   return (
-    <div className="border border-primary relative h-full w-full ">
+    <div className="relative h-full w-full">
       <div
         className={`h-full w-full overflow-hidden ${onOpen ? "cursor-zoom-in" : ""}`}
         ref={emblaRef}
@@ -77,7 +77,7 @@ export default function HeroCarousel({
           {media.map((item, i) => (
             <div
               key={item.key}
-              className="flex-none w-full h-full flex items-center justify-center"
+              className="flex-none w-full h-full flex items-start justify-start"
             >
               <div className="relative h-full w-full">
                 {item.type === "video" ? (
@@ -92,7 +92,7 @@ export default function HeroCarousel({
                     alt=""
                     fill
                     priority={i === 0}
-                    className="object-contain object-center"
+                    className="object-contain object-left-top"
                     sizes="100vw"
                   />
                 )}
@@ -111,7 +111,7 @@ export default function HeroCarousel({
               markOnly
               marks={{ active: "←", inactive: "←" }}
               size="label"
-              color="text-secondary"
+              color="text-primary"
             />
           </div>
 
@@ -122,7 +122,7 @@ export default function HeroCarousel({
               markOnly
               marks={{ active: "→", inactive: "→" }}
               size="label"
-              color="text-secondary"
+              color="text-primary"
             />
           </div>
 

@@ -89,10 +89,8 @@ type WorkData = {
   categories?: string[];
   year?: number;
   slug: { current: string };
-  heroCoverStyle?: "responsive" | "square";
   coverSquare?: { asset?: unknown };
   coverLandscape?: { asset?: unknown };
-  coverPortrait?: { asset?: unknown };
   media?: MediaItem[];
 };
 
@@ -113,29 +111,20 @@ export default async function WorkPage({
     .map(toProjectMedia)
     .filter((m): m is ProjectMedia => m !== null);
 
-  // The work's own cover assets, one per orientation — the page falls back to
-  // the first media item otherwise. Forced to their intended crop since these
-  // are dedicated fixed-ratio fields. An editor can opt a project into the
-  // square cover on both breakpoints instead of the responsive pair.
-  const coverUrlSquare = work.coverSquare?.asset
+  // The hero's cover: 1:1 on mobile, 16:9 on desktop. The desktop one is its
+  // own field, falling back to a 16:9 crop of the square cover (hotspot-aware).
+  // The page falls back to the first media item when neither is set.
+  const coverUrl = work.coverSquare?.asset
     ? urlFor(work.coverSquare).width(1600).height(1600).quality(85).url()
     : undefined;
-  const coverUrlDesktop =
-    work.heroCoverStyle === "square"
-      ? coverUrlSquare
-      : (work.coverLandscape?.asset
-          ? urlFor(work.coverLandscape).width(1920).height(1080).quality(85).url()
-          : undefined);
-  const coverUrlMobile =
-    work.heroCoverStyle === "square"
-      ? coverUrlSquare
-      : (work.coverPortrait?.asset
-          ? urlFor(work.coverPortrait).width(1080).height(1920).quality(85).url()
-          : undefined);
-  // Matches whichever cover the client falls back to when a work has no
-  // media of its own — desktop's, if it has one, else mobile's.
-  const coverAspectRatio =
-    work.heroCoverStyle === "square" ? 1 : coverUrlDesktop ? 16 / 9 : 9 / 16;
+  const wideSource = work.coverLandscape?.asset
+    ? work.coverLandscape
+    : work.coverSquare?.asset
+      ? work.coverSquare
+      : undefined;
+  const coverUrlWide = wideSource
+    ? urlFor(wideSource).width(2400).height(1350).quality(85).url()
+    : undefined;
 
   return (
     <WorkPageClient
@@ -147,9 +136,8 @@ export default async function WorkPage({
       categories={work.categories ?? []}
       year={work.year}
       media={media}
-      coverUrlDesktop={coverUrlDesktop}
-      coverUrlMobile={coverUrlMobile}
-      coverAspectRatio={coverAspectRatio}
+      coverUrl={coverUrl}
+      coverUrlWide={coverUrlWide}
     />
   );
 }

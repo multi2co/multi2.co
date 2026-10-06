@@ -43,6 +43,7 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
       {/* Zoom only steps the desktop grid, so it stays out of the mobile bar
           and hides whenever the list is the active view. */}
       <CheckButton
+        checkbox
         label="thumbnails"
         size="lg"
         color="text-secondary"
@@ -52,6 +53,8 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
       />
 
       <CheckButton
+
+        checkbox
         label="list"
         size="lg"
         color="text-secondary"
@@ -62,6 +65,7 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
       {showGrid && (
         <span className="hidden  gap-x-3  lg:flex flex-col ">
           <CheckButton
+            checkbox
             label="Zoom In"
             size="lg"
             color="text-secondary"
@@ -70,6 +74,8 @@ export function ViewToggleButtons({ className = "" }: { className?: string }) {
           />
 
           <CheckButton
+
+            checkbox
             label="Zoom Out"
             size="lg"
             color="text-secondary"
@@ -110,6 +116,7 @@ export default function ViewToggles({
     >
       <h2 className="flex items-baseline gap-x-3 justify-end w-full">
         <CheckButton
+          checkbox
           size="lg"
           label={getActiveFilterLabel(activeFilter)}
           active={filtersOpen}

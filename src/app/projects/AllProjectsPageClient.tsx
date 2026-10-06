@@ -28,24 +28,6 @@ export default function AllProjectsPageClient() {
     sortMode,
   } = useUI();
 
-  // Which clients (with more than one project) currently have their other
-  // projects revealed in the grid — toggled by clicking that client's name on
-  // its primary card. Page-local: nothing outside /projects needs to know.
-  const [expandedClients, setExpandedClients] = useState<Set<string>>(
-    new Set(),
-  );
-  function toggleClient(client: string) {
-    setExpandedClients((prev) => {
-      const next = new Set(prev);
-      if (next.has(client)) {
-        next.delete(client);
-      } else {
-        next.add(client);
-      }
-      return next;
-    });
-  }
-
   // Coming back from a project: drop the opened card so its tile isn't still
   // showing the centred hand-off label.
   useEffect(() => {
@@ -102,9 +84,7 @@ export default function AllProjectsPageClient() {
         // Same year — latest added first.
         return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
       }
-      const labelA = (a.client ?? a.title).toLowerCase();
-      const labelB = (b.client ?? b.title).toLowerCase();
-      return labelA.localeCompare(labelB, "sv");
+      return a.title.toLowerCase().localeCompare(b.title.toLowerCase(), "sv");
     });
 
   // List view is client names only, so one row per client — the row links to
@@ -129,44 +109,6 @@ export default function AllProjectsPageClient() {
       url: item.url,
       alt: item.alt,
     });
-  }
-
-  // Grid view: a client with several projects shows just its first one, with
-  // the rest tucked away until that card's client name is clicked. Revealed
-  // siblings are spliced in right after the primary card, captioned with both
-  // client and title (ProjectCard's "captionBelow") instead of client only.
-  type GridEntry = {
-    item: (typeof displayed)[number];
-    captionBelow: boolean;
-    onClientClick?: () => void;
-  };
-  const clientCounts = new Map<string, number>();
-  for (const item of displayed) {
-    if (!item.client) continue;
-    clientCounts.set(item.client, (clientCounts.get(item.client) ?? 0) + 1);
-  }
-  const gridClientsSeen = new Set<string>();
-  const gridEntries: GridEntry[] = [];
-  for (const item of displayed) {
-    const count = item.client ? (clientCounts.get(item.client) ?? 1) : 1;
-    if (!item.client || count <= 1) {
-      gridEntries.push({ item, captionBelow: false });
-      continue;
-    }
-    if (gridClientsSeen.has(item.client)) continue;
-    gridClientsSeen.add(item.client);
-    const client = item.client;
-    gridEntries.push({
-      item,
-      captionBelow: false,
-      onClientClick: () => toggleClient(client),
-    });
-    if (expandedClients.has(client)) {
-      for (const sibling of displayed) {
-        if (sibling === item || sibling.client !== client) continue;
-        gridEntries.push({ item: sibling, captionBelow: true });
-      }
-    }
   }
 
   return (
@@ -226,37 +168,28 @@ export default function AllProjectsPageClient() {
               }}
             >
               <AnimatePresence mode="popLayout" initial={false}>
-                {gridEntries.map(
-                  ({ item, captionBelow, onClientClick }, idx) => (
-                    <motion.div
-                      key={item.key}
-                      layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{
-                        duration: 0.35,
-                        delay: Math.min(idx * 0.07, 0.7),
-                        ease: "easeOut",
-                      }}
-                      // Separators only, no outer frame: a rule above every row
-                      // after the first, and left of every column after the first.
-                    >
-                      <ProjectCard
-                        item={item}
-                        sizes={`${Math.round(75 / numCols)}vw`}
-                        className="lg:mb-0"
-                        captionBelow={captionBelow}
-                        onClientClick={onClientClick}
-                        clientExpanded={
-                          onClientClick && item.client
-                            ? expandedClients.has(item.client)
-                            : undefined
-                        }
-                      />
-                    </motion.div>
-                  ),
-                )}
+                {displayed.map((item, idx) => (
+                  <motion.div
+                    key={item.key}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.35,
+                      delay: Math.min(idx * 0.07, 0.7),
+                      ease: "easeOut",
+                    }}
+                    // Separators only, no outer frame: a rule above every row
+                    // after the first, and left of every column after the first.
+                  >
+                    <ProjectCard
+                      item={item}
+                      sizes={`${Math.round(75 / numCols)}vw`}
+                      className="lg:mb-0"
+                    />
+                  </motion.div>
+                ))}
               </AnimatePresence>
             </div>
           </Reveal>
@@ -268,19 +201,9 @@ export default function AllProjectsPageClient() {
         {showGrid && (
           <Reveal className="flex flex-col w-full">
             <AnimatePresence mode="popLayout" initial={false}>
-              {gridEntries.map(({ item, captionBelow, onClientClick }) => (
+              {displayed.map((item) => (
                 <motion.div key={item.key} layout exit={{ opacity: 0 }}>
-                  <ProjectCard
-                    item={item}
-                    sizes="100vw"
-                    captionBelow={captionBelow}
-                    onClientClick={onClientClick}
-                    clientExpanded={
-                      onClientClick && item.client
-                        ? expandedClients.has(item.client)
-                        : undefined
-                    }
-                  />
+                  <ProjectCard item={item} sizes="100vw" />
                 </motion.div>
               ))}
             </AnimatePresence>

@@ -48,6 +48,7 @@ export default function SearchCheck({
   if (!open) {
     return (
       <CheckButton
+        checkbox
         label={placeholder}
         size={size}
         active={false}

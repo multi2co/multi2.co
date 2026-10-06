@@ -8,9 +8,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
+
+/** Routes where sound is always off — only project pages carry a sound toggle. */
+const SILENT_ROUTES = new Set(["/", "/projects"]);
 
 type SoundContextType = {
-  /** Site-wide mute. Starts on: browsers only permit muted autoplay. */
+  /** Site-wide mute. Starts on: browsers only permit muted autoplay. Always
+   *  true on the home and projects pages, and reset on every route change. */
   muted: boolean;
   setMuted: (v: boolean) => void;
   toggleMute: () => void;
@@ -47,6 +52,14 @@ const SoundContext = createContext<SoundContextType | null>(null);
  */
 export function SoundProvider({ children }: { children: ReactNode }) {
   const [muted, setMuted] = useState(true);
+  const pathname = usePathname();
+  const silent = SILENT_ROUTES.has(pathname ?? "");
+
+  // Every page starts silent; a project page only plays sound once the
+  // visitor turns it on there.
+  useEffect(() => {
+    setMuted(true);
+  }, [pathname]);
   const [volume, setVolumeState] = useState(1);
   const [consentSettled, setConsentSettled] = useState(false);
 
@@ -71,7 +84,7 @@ export function SoundProvider({ children }: { children: ReactNode }) {
   return (
     <SoundContext.Provider
       value={{
-        muted,
+        muted: silent || muted,
         setMuted,
         toggleMute,
         volume,

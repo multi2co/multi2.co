@@ -148,6 +148,8 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  /* CheckButton's hover: the palette's primary, a shade darker. */
+  --color-primary-dark: color-mix(in oklab, var(--primary) 75%, black);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);

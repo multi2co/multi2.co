@@ -13,6 +13,10 @@ import { DEFAULT_COLS } from "@/lib/gridZoom";
 type UIContextType = {
   contentDoneKey: number;
   notifyContentDone: () => void;
+  /** True once the home hero has opened out from square to 16:9 — the nav
+   *  bar waits on it before revealing its links on a first load of home. */
+  heroOpen: boolean;
+  notifyHeroOpen: () => void;
   showGrid: boolean;
   setShowGrid: (v: boolean) => void;
   showList: boolean;
@@ -55,6 +59,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
     () => setContentDoneKey((k) => k + 1),
     [],
   );
+  const [heroOpen, setHeroOpen] = useState(false);
+  const notifyHeroOpen = useCallback(() => setHeroOpen(true), []);
 
   // Thumbnails is the default view at every width. numCols only drives the
   // desktop grid; below lg the list is one card per row.
@@ -87,6 +93,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setSortMode,
         contentDoneKey,
         notifyContentDone,
+        heroOpen,
+        notifyHeroOpen,
       }}
     >
       {children}

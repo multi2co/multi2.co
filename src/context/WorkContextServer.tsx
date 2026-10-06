@@ -65,6 +65,7 @@ type WorkData = {
   year?: number;
   categories?: string[];
   featured?: boolean;
+  heroIntro?: string;
   slug: string;
   coverSquare?: { asset: { _ref: string } };
   media?: MediaItem[];
@@ -127,6 +128,7 @@ export async function WorkContextServer({
           aspectRatio: m.aspectRatio,
           coverUrl,
           featured: work.featured ?? false,
+          heroIntro: work.heroIntro,
           isPrimary: idx === 0,
         });
       });
@@ -144,6 +146,7 @@ export async function WorkContextServer({
         aspectRatio: 1,
         coverUrl,
         featured: work.featured ?? false,
+        heroIntro: work.heroIntro,
         isPrimary: true,
       });
     } else {
@@ -164,6 +167,7 @@ export async function WorkContextServer({
         categories: work.categories ?? [],
         aspectRatio: 1,
         featured: work.featured ?? false,
+        heroIntro: work.heroIntro,
         isPrimary: true,
       });
     }

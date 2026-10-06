@@ -22,6 +22,8 @@ export type GridItem = {
   /** "Featured on homepage" toggle in the CMS — drives the selected-projects
    *  block on the landing page. */
   featured?: boolean;
+  /** "Hero intro" from the CMS — shown on the homepage's featured cards. */
+  heroIntro?: string;
   isPrimary: boolean;
 };
 

@@ -35,6 +35,14 @@ export const work = defineType({
       of: [{ type: "string" }],
     }),
     defineField({
+      name: "heroIntro",
+      title: "Hero intro",
+      description:
+        "A short intro shown under the image when this project is featured on the homepage.",
+      type: "text",
+      rows: 3,
+    }),
+    defineField({
       name: "description",
       title: "Description",
       type: "text",
@@ -42,21 +50,23 @@ export const work = defineType({
     }),
     defineField({
       name: "coverSquare",
-      title: "Cover — Square (1:1)",
-      description: "Used as the cover on the projects archive.",
+      title: "Cover (1:1)",
+      description:
+        "Square cover — the project page hero on mobile, and the cover on the homepage and in the projects archive.",
       type: "image",
       options: { hotspot: true },
     }),
     defineField({
       name: "coverLandscape",
-      title: "Cover — Landscape (16:9)",
+      title: "Cover — Desktop (16:9)",
       description:
-        "Used as the project page hero on desktop, unless Hero Cover Style below is set to Square only.",
+        "The project page hero on desktop. Leave empty to use a 16:9 crop of the 1:1 cover.",
       type: "image",
       options: { hotspot: true },
     }),
     defineField({
       name: "coverPortrait",
+      hidden: true,
       title: "Cover — Portrait (9:16)",
       description:
         "Used as the project page hero on mobile, unless Hero Cover Style below is set to Square only.",
@@ -65,6 +75,7 @@ export const work = defineType({
     }),
     defineField({
       name: "heroCoverStyle",
+      hidden: true,
       title: "Hero Cover Style",
       description:
         "How this project's hero picks a cover. Responsive uses the landscape/portrait covers per device; Square only uses the 1:1 cover on both.",

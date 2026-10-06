@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import CheckButton from "./CheckButton";
@@ -34,12 +35,16 @@ const PERSON_COLS = [
 export default function ConnectSection({
   className,
   contact: contactProp,
+  children,
 }: {
   className?: string;
   /** Overrides the root-level fetch — the connect page passes its own so the
    *  section and its full contact cards below read the same fetch. Every
    *  other caller just omits it and gets the centralized one. */
   contact?: ContactData;
+  /** Rendered at the bottom of the section, on its background — the home
+   *  page drops its BottomNav in here. */
+  children?: ReactNode;
 }) {
   const contextContact = useContact();
   const contact = contactProp ?? contextContact;
@@ -50,7 +55,7 @@ export default function ConnectSection({
   ] as const;
 
   return (
-    <Reveal className="relative isolate grid grid-cols-3 lg:grid-cols-12 gap-x-3 h-dvh bg-primary text-secondary">
+    <Reveal className="relative isolate grid grid-cols-3 lg:grid-cols-12 gap-x-3 h-[75vh] bg-primary text-secondary">
       <LandningBlock
         bg=" "
         className={cn(
@@ -110,6 +115,11 @@ export default function ConnectSection({
           </div>
         ))}
       </LandningBlock>
+      {children && (
+        <div className="absolute inset-x-0 bottom-0 z-10 pb-6">
+          {children}
+        </div>
+      )}
     </Reveal>
   );
 }

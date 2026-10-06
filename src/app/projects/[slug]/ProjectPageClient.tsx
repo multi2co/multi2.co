@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, Fragment } from "react";
-import Image, { getImageProps } from "next/image";
-import { motion, AnimatePresence } from "motion/react";
+import { getImageProps } from "next/image";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import LandningBlock from "@/app/components/LandningBlock";
 import CheckButton from "@/app/components/CheckButton";
 import HeroCarousel from "@/app/components/HeroCarousel";
@@ -45,23 +45,23 @@ function parseCredit(line: string): { role: string; name: string } {
     : { role: line.trim(), name: "" };
 }
 
-/** The desktop/mobile cover pair as one art-directed <picture>, so the browser
- *  only downloads the one it actually shows. */
-function HeroCover({ desktop, mobile }: { desktop?: string; mobile?: string }) {
-  const common = { alt: "", fill: true, priority: true, sizes: "100vw" };
-  const { props: img } = getImageProps({ ...common, src: mobile ?? desktop! });
-  const desktopSrcSet =
-    desktop && mobile
-      ? getImageProps({ ...common, src: desktop }).props.srcSet
+/** The hero cover as one art-directed <picture>: the 16:9 image on desktop,
+ *  the 1:1 one on mobile, so the browser only downloads the one it shows. */
+function HeroCover({ square, wide }: { square: string; wide?: string }) {
+  const common = { alt: "", fill: true, priority: true };
+  const { props: img } = getImageProps({
+    ...common,
+    src: square,
+    sizes: "100vw",
+  });
+  const wideSrcSet =
+    wide && wide !== square
+      ? getImageProps({ ...common, src: wide, sizes: "100vw" }).props.srcSet
       : undefined;
   return (
     <picture>
-      {desktopSrcSet && (
-        <source
-          media="(min-width: 1024px)"
-          srcSet={desktopSrcSet}
-          sizes="100vw"
-        />
+      {wideSrcSet && (
+        <source media="(min-width: 1024px)" srcSet={wideSrcSet} sizes="100vw" />
       )}
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <img {...img} className="object-cover" />
@@ -77,9 +77,8 @@ function ProjectPageInner({
   credits,
   categories,
   media,
-  coverUrlDesktop,
-  coverUrlMobile,
-  coverAspectRatio = 16 / 9,
+  coverUrl,
+  coverUrlWide,
 }: {
   client?: string;
   title: string;
@@ -88,13 +87,20 @@ function ProjectPageInner({
   credits?: string;
   categories: string[];
   media: ProjectMedia[];
-  coverUrlDesktop?: string;
-  coverUrlMobile?: string;
-  coverAspectRatio?: number;
+  coverUrl?: string;
+  coverUrlWide?: string;
 }) {
   // Which carousel slide is showing — drives the caption below the hero and is
   // shared with the full-screen lightbox so the two carousels stay in step.
   const [activeSlide, setActiveSlide] = useState(0);
+
+  // Desktop only: the hero renders square, then opens out to 16:9. Read after
+  // mount, so the server HTML is the square on every width.
+  const reduceMotion = useReducedMotion();
+  const [heroWide, setHeroWide] = useState(false);
+  useEffect(() => {
+    setHeroWide(window.matchMedia("(min-width: 1024px)").matches);
+  }, []);
   const [lightbox, setLightbox] = useState(false);
 
   // Lock the page and close on Escape while the lightbox is up.
@@ -112,37 +118,19 @@ function ProjectPageInner({
     };
   }, [lightbox]);
 
-  // The hero is a single still (or the first video). A still prefers the
-  // work's own desktop/mobile covers, rendered responsively below, falling
-  // back to the first media item when neither cover is set.
+  // The hero is the first video if there is one, else the work's cover (1:1
+  // on mobile, 16:9 on desktop), falling back to the first media item.
   const heroVideo = media.find((m) => m.type === "video");
-  const hasCover = Boolean(coverUrlDesktop || coverUrlMobile);
-  const heroFallback: ProjectMedia | undefined = media[0];
+  const heroStill = coverUrl ?? coverUrlWide ?? media[0]?.url;
 
   // The gallery carousel further down runs the whole media list; the cover is
   // the fallback when a work has no media of its own yet.
   const slides: ProjectMedia[] =
     media.length > 0
       ? media
-      : coverUrlDesktop
-        ? [
-            {
-              type: "image",
-              key: "cover",
-              url: coverUrlDesktop,
-              aspectRatio: coverAspectRatio,
-            },
-          ]
-        : coverUrlMobile
-          ? [
-              {
-                type: "image",
-                key: "cover",
-                url: coverUrlMobile,
-                aspectRatio: coverAspectRatio,
-              },
-            ]
-          : [];
+      : coverUrl
+        ? [{ type: "image", key: "cover", url: coverUrl, aspectRatio: 1 }]
+        : [];
 
   return (
     <div className=" relative w-full px-0 mt-48 ">
@@ -157,34 +145,45 @@ function ProjectPageInner({
         </h2>
       </div>
 
-      {/* Hero: a single still filling the block, which spans all 12 columns. */}
+      {/* Hero: slides up from below on load. A square, full width on mobile.
+          On desktop it takes the viewport's height, left-aligned, and then
+          opens out from square to 16:9 — the width follows the ratio, capped
+          at the full row. */}
       <div className="relative px-3 lg:px-6 lg:mt-3 w-full">
-        <LandningBlock
-          className="h-[calc(100dvh-3.5rem)] pixelCorners items-start w-full  lg:px-3 "
-          labelClassName="col-start-1  col-span-3 px-3 lg:col-start-1 lg:col-span-3 "
-          background={
-            heroVideo ? (
-              <div className=" relative h-full w-full">
-                <VideoPlayer src={heroVideo.url} className="h-full w-full" />
-              </div>
-            ) : hasCover ? (
-              <div className=" relative h-full w-full">
-                <HeroCover desktop={coverUrlDesktop} mobile={coverUrlMobile} />
-              </div>
-            ) : heroFallback ? (
-              <div className=" relative h-full w-full">
-                <Image
-                  src={heroFallback.url}
-                  alt=""
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="100vw"
-                />
-              </div>
-            ) : undefined
+        <motion.div
+          initial={{ aspectRatio: 1, y: reduceMotion ? 0 : "40vh" }}
+          animate={{ aspectRatio: heroWide ? 16 / 9 : 1, y: 0 }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : {
+                  // Slides up into place first, then opens out.
+                  y: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+                  aspectRatio: {
+                    duration: 1.2,
+                    delay: 0.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  },
+                }
           }
-        />
+          className="w-full lg:w-auto max-w-full lg:h-[calc(100dvh-3.5rem)]"
+        >
+          <LandningBlock
+            className="h-full w-full pixelCorners items-start lg:px-3"
+            labelClassName="col-start-1  col-span-3 px-3 lg:col-start-2 lg:col-span-3 "
+            background={
+              heroVideo ? (
+                <div className=" relative h-full w-full">
+                  <VideoPlayer src={heroVideo.url} className="h-full w-full" />
+                </div>
+              ) : heroStill ? (
+                <div className=" relative h-full w-full">
+                  <HeroCover square={heroStill} wide={coverUrlWide} />
+                </div>
+              ) : undefined
+            }
+          />
+        </motion.div>
       </div>
 
       {/* Description + credits — reached by scrolling past the hero. */}
@@ -304,7 +303,7 @@ function ProjectPageInner({
                 onClick={() => setLightbox(false)}
                 label="close"
                 size="lg"
-                color="text-secondary"
+                color="text-primary"
                 marks={{ active: "×", inactive: "×" }}
               />
             </div>
@@ -331,9 +330,8 @@ export default function ProjectPageClient(props: {
   categories: string[];
   year?: number;
   media: ProjectMedia[];
-  coverUrlDesktop?: string;
-  coverUrlMobile?: string;
-  coverAspectRatio?: number;
+  coverUrl?: string;
+  coverUrlWide?: string;
 }) {
   return <ProjectPageInner {...props} />;
 }

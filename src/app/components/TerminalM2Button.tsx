@@ -60,7 +60,8 @@ export default function TerminalM2Button({
   const stopCycleRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    if (!loading && activePhrase === null) {
+    // Only the loading state carries dots — the cycling phrases stand alone.
+    if (!loading) {
       setDots(".");
       return;
     }
@@ -68,7 +69,7 @@ export default function TerminalM2Button({
       setDots((d) => (d.length >= 3 ? "." : d + "."));
     }, 400);
     return () => clearInterval(dotsT);
-  }, [loading, activePhrase]);
+  }, [loading]);
 
   useEffect(() => {
     if (isFirstRef.current) {
@@ -177,11 +178,6 @@ export default function TerminalM2Button({
           visible={phraseVisible}
           delay={0}
         />
-        {/* The wordmark stands on its own — the trailing dots are for the
-            working-status phrases, not the brand. */}
-        {activePhrase !== "multi2.co" && (
-          <span className="whitespace-nowrap">{`${dots}`}</span>
-        )}
       </>
     );
   } else {

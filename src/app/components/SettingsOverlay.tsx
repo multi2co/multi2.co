@@ -25,6 +25,7 @@ export default function SettingsOverlay({ className }: { className?: string }) {
       {!muted && (
         <div className="lg:hidden grid grid-cols-3   space-x-0 pr-0 mb-12">
           <CheckButton
+            checkbox
             className=""
             size="lg"
             label={muted ? "Sound Off" : "Sound On"}

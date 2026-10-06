@@ -33,6 +33,10 @@ type Props = {
   /** Text colour class for the control (e.g. `text-secondary`) — the mark
    *  and label both inherit it. Defaults to `text-primary`. */
   color?: string;
+  /** Behave as a real checkbox: the mark follows `active` (filled / empty)
+   *  and flips on hover. Without it the mark is always filled and hover just
+   *  darkens the text — only the projects filter section opts in. */
+  checkbox?: boolean;
 };
 
 /** `size` is geometry only — box, gutter and gap. Whether a
@@ -57,7 +61,7 @@ export const SIZE_TEXT = {
   md: "text-base lg:text-lg lowercase",
   lg: "font-normal text-base lg:text-base lowercase",
   label: "font-normal text-base lg:text-base lowercase",
-  xl: "font-normal lg:font-thin text-base lg:text-3xl lowercase",
+  xl: "font-normal lg:font-thin text-base lg:text-2xl lowercase",
 } as const;
 
 export const SIZE_GAP = {
@@ -111,6 +115,7 @@ export default function CheckButton({
   marks,
   markOnly = false,
   color,
+  checkbox = false,
 }: Props) {
   const iconStyle = useIconStyle();
   const markOn =
@@ -154,15 +159,21 @@ export default function CheckButton({
             SIZE_CHECK[size],
           )}
         >
-          {/* Hovering anywhere in the control flips the fill: the empty box
-              fills in, the filled box empties out. Both glyphs are the same
-              width, so the swap doesn't shift the row. */}
-          <span className="group-hover:hidden">
-            {active ? markOn : markOff}
-          </span>
-          <span className="hidden group-hover:inline">
-            {active ? markOff : markOn}
-          </span>
+          {checkbox ? (
+            <>
+              {/* Hovering anywhere in the control flips the fill: the empty
+                  box fills in, the filled box empties out. Both glyphs are the
+                  same width, so the swap doesn't shift the row. */}
+              <span className="group-hover:hidden">
+                {active ? markOn : markOff}
+              </span>
+              <span className="hidden group-hover:inline">
+                {active ? markOff : markOn}
+              </span>
+            </>
+          ) : (
+            markOn
+          )}
         </span>
         {children ??
           (terminal ? (
@@ -181,11 +192,8 @@ export default function CheckButton({
 
   const cls = cn(
     "group transition-colors",
-    color
-      ? [color, "hover:text-primary"]
-      : active
-        ? "text-primary"
-        : "text-primary hover:text-primary/90",
+    color ?? "text-primary",
+    checkbox ? "hover:text-primary" : "hover:text-primary-dark",
     (href || onClick) && "cursor-pointer",
     className,
   );

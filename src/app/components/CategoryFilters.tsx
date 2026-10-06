@@ -126,6 +126,7 @@ export default function CategoryFilters({
                 className="grid grid-cols-3 lg:flex lg:flex-col  gap-x-0 gap-y-12 lg:gap-y-12 items-baseline w-full px-3 pt-48 pb-6 lg:p-3"
               >
                 <CheckButton
+                  checkbox
                   label="close"
                   size="label"
                   active
@@ -134,6 +135,7 @@ export default function CategoryFilters({
                   onClick={() => setShowFilters(false)}
                 />
                 <CheckButton
+                  checkbox
                   label="categories"
                   size="label"
                   active={showCat}
@@ -159,6 +161,7 @@ export default function CategoryFilters({
                         className="inline-flex items-baseline whitespace-nowrap col-span-1 "
                       >
                         <CheckButton
+                          checkbox
                           label={getFilterChipLabel(cat)}
                           size="label"
                           color="text-secondary"
@@ -171,6 +174,7 @@ export default function CategoryFilters({
                 )}
                 <div className="relative col-start-1 row-start-3 lg:row-start-1">
                   <CheckButton
+                    checkbox
                     label="settings"
                     size="label"
                     active={showSettings}
@@ -181,6 +185,7 @@ export default function CategoryFilters({
                 {showSettings && (
                   <div className="col-start-1 col-span-2 row-start-4 grid grid-cols-2 lg:grid-cols-2 px-0 gap-y-6 w-full">
                     <CheckButton
+                      checkbox
                       label="list"
                       size="label"
                       active={showList}
@@ -188,6 +193,7 @@ export default function CategoryFilters({
                       onClick={showListView}
                     />
                     <CheckButton
+                      checkbox
                       label="thumbnails"
                       size="label"
                       active={showGrid}
@@ -198,12 +204,14 @@ export default function CategoryFilters({
                     {showGrid && (
                       <div className="col-span-2 lg:col-span-2 grid grid-cols-2 lg:grid-cols-2 w-full ">
                         <CheckButton
+                          checkbox
                           label="Zoom In"
                           size="label"
                           color="text-secondary"
                           onClick={() => setNumCols(zoomInCols(numCols))}
                         />
                         <CheckButton
+                          checkbox
                           label="Zoom Out"
                           size="label"
                           color="text-secondary"
@@ -222,6 +230,8 @@ export default function CategoryFilters({
                 />
 
                 <CheckButton
+
+                  checkbox
                   label={`sort by ${sortMode}`}
                   size="label"
                   active
@@ -245,6 +255,7 @@ export default function CategoryFilters({
         {!showFilters && (
           <div className="hidden lg:block lg:px-3 lg:py-0">
             <CheckButton
+              checkbox
               label="filters"
               size="lg"
               active

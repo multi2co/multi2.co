@@ -26,6 +26,9 @@ const READY_FALLBACK_MS = 2500;
  *  its own reveal until this is up, so the field always comes in first. */
 const NAVFIELD_REVEAL_MS = 1500;
 
+/** If the home hero never reports in, the bar comes in anyway after this. */
+const BAR_FALLBACK_MS = 3000;
+
 /** How far down the page counts as "the reader has moved on". */
 const SCROLLED_PX = 40;
 
@@ -157,7 +160,7 @@ function NavField({
 
 /** The top control row — its own overlay, sitting above `NavField` on the
  *  click-through layer. `grid-cols-3` on mobile; always `grid-cols-12` on `lg`
- *  (wordmark · menu · sound · dark + palette at cols 1 / 4 / 7 / 10) so the
+ *  (wordmark · menu · sound/connect · dark at cols 1 / 4 / 7 / 10) so the
  *  controls hold their positions whatever the field grid does underneath.
  *  Opening the drawer fills it with `bg-primary` so the panel below reads as
  *  one surface. */
@@ -169,12 +172,16 @@ function NavBar({
   cycleMenuLabel,
   muted,
   onToggleMute,
+  showSound,
+  onConnect,
   dark,
   onToggleDark,
   themeLabel,
   onCycleTheme,
   onDark,
+  revealed,
 }: {
+  revealed: boolean;
   open: boolean;
   onToggleOpen: () => void;
   menuLabel: string;
@@ -182,6 +189,8 @@ function NavBar({
   cycleMenuLabel: boolean;
   muted: boolean;
   onToggleMute: () => void;
+  showSound: boolean;
+  onConnect?: () => void;
   dark: boolean;
   onToggleDark: () => void;
   themeLabel: string;
@@ -200,7 +209,7 @@ function NavBar({
       {...(open ? { "data-cursor-invert": "" } : {})}
       variants={BAR_STAGGER}
       initial="hidden"
-      animate="show"
+      animate={revealed ? "show" : "hidden"}
       className={cn(
         "pointer-events-auto grid h-16 grid-cols-3 gap-x-0 lg:p-3 items-baseline  transition-colors lg:h-16 lg:grid-cols-12",
         open
@@ -231,7 +240,7 @@ function NavBar({
             loadingText="loading"
             phrases={
               cycleMenuLabel
-                ? ["loading", "multi2.co", "multisquared", "multi²"]
+                ? ["multi2", "multi2.co", "multisquared", "multi²"]
                 : []
             }
             loop={cycleMenuLabel}
@@ -240,20 +249,32 @@ function NavBar({
         </CheckButton>
       </motion.div>
 
-      {/* Mobile: the sound toggle in the spare third column, pushed right. */}
-
+      {/* Mobile: the spare third column — the sound toggle on project pages,
+          "connect" everywhere else. */}
       <motion.div
         variants={BAR_ITEM}
         className="col-start-3 flex justify-start  lg:hidden"
       >
-        <CheckButton
-          className="font-visual justify-start"
-          size="lg"
-          label="sound"
-          active
-          color={barColor}
-          onClick={onToggleMute}
-        />
+        {showSound ? (
+          <CheckButton
+            className="font-visual justify-start"
+            size="lg"
+            label={muted ? "sound off" : "sound on"}
+            active
+            color={barColor}
+            onClick={onToggleMute}
+          />
+        ) : (
+          <CheckButton
+            className="font-visual justify-start"
+            size="lg"
+            label="connect"
+            href={onConnect ? undefined : "/connect"}
+            active
+            color={barColor}
+            onClick={onConnect}
+          />
+        )}
       </motion.div>
 
       {/* Desktop col 1: the wordmark; clicking it scrolls back to top. */}
@@ -277,8 +298,9 @@ function NavBar({
             visible
             delay={0}
             // Once the reader has scrolled, the button keeps cycling between
-            // "loading" and the wordmark so the bar still says who it is.
-            phrases={cycleMenuLabel ? ["loading", "multi2.co", "multi²"] : []}
+            // variants of the wordmark, starting from "multi2", so the bar still
+            // says who it is.
+            phrases={cycleMenuLabel ? ["multi2", "multi2.co", "multi²"] : []}
             loop={cycleMenuLabel}
             trigger={cycleMenuLabel ? "scrolled" : "idle"}
           />
@@ -300,21 +322,33 @@ function NavBar({
           onClick={onToggleOpen}
         />
       </motion.div>
+      {/* Desktop col 7: the sound toggle on project pages, "connect"
+          everywhere else. */}
       <motion.div
         variants={BAR_ITEM}
         className="hidden lg:block lg:col-start-7 lg:col-span-2"
       >
-        <CheckButton
-          className="font-visual w-full"
-          size="label"
-          label={muted ? "sound off" : "sound on"}
-          active
-          color={barColor}
-          onClick={onToggleMute}
-        />
+        {showSound ? (
+          <CheckButton
+            className="font-visual w-full"
+            size="label"
+            label={muted ? "sound off" : "sound on"}
+            active
+            color={barColor}
+            onClick={onToggleMute}
+          />
+        ) : (
+          <CheckButton
+            className="font-visual w-full"
+            size="label"
+            label="connect"
+            href={onConnect ? undefined : "/connect"}
+            active
+            color={barColor}
+            onClick={onConnect}
+          />
+        )}
       </motion.div>
-
-      {/* Desktop col 7: the sound toggle. */}
 
       {/* Desktop col 10: the dark toggle and the palette swatch, far right. */}
 
@@ -411,7 +445,7 @@ function NavVertical({
 
 export default function M2Nav() {
   const pathname = usePathname();
-  const { contentDoneKey } = useUI();
+  const { contentDoneKey, heroOpen } = useUI();
   const { muted, toggleMute } = useSound();
   const { theme, cycleTheme, dark, toggleDark } = useTheme();
   const currentTheme = THEMES.find((t) => t.id === theme) ?? THEMES[0];
@@ -556,6 +590,33 @@ export default function M2Nav() {
   // wordmark rather than sitting on one.
   const cycleMenuLabel = scrolled && !open && !menuLoading;
 
+  // On a first load of home the links hold back until the hero has opened
+  // out from square to 16:9, then stagger in. Once in, they stay in — a later
+  // client-side visit home doesn't hide them again.
+  const [barRevealed, setBarRevealed] = useState(false);
+  const revealBar = barRevealed || pathname !== "/" || heroOpen;
+  useEffect(() => {
+    if (revealBar) setBarRevealed(true);
+  }, [revealBar]);
+  useEffect(() => {
+    const t = setTimeout(() => setBarRevealed(true), BAR_FALLBACK_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Sound only has a toggle on project pages — it's always off on home and
+  // the archive. Everywhere else that slot is "connect": a scroll down to the
+  // connect section on home, the connect page from anywhere else.
+  const onProjectPage = pathname?.startsWith("/projects/") ?? false;
+  const scrollToConnect =
+    pathname === "/"
+      ? () => {
+          const el = document.getElementById("connect");
+          if (!el) return;
+          const top = el.getBoundingClientRect().top + window.scrollY - 64;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      : undefined;
+
   function handleNavigate(href: string) {
     setOpen(false);
     if (href !== pathname) setNavigating(true);
@@ -578,6 +639,7 @@ export default function M2Nav() {
 
       <div className="relative">
         <NavBar
+          revealed={revealBar}
           open={open}
           onDark={onDark}
           onToggleOpen={() => setOpen((o) => !o)}
@@ -586,6 +648,8 @@ export default function M2Nav() {
           cycleMenuLabel={cycleMenuLabel}
           muted={muted}
           onToggleMute={toggleMute}
+          showSound={onProjectPage}
+          onConnect={scrollToConnect}
           dark={dark}
           onToggleDark={toggleDark}
           themeLabel={currentTheme.label}
