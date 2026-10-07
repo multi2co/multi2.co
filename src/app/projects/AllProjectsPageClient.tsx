@@ -255,13 +255,13 @@ export default function AllProjectsPageClient() {
           (open and close) via its label/state, rather than a separate close
           control. A sibling of LandningBlock rather than nested in it, so it
           stays reachable regardless of that block's own visibility. */}
-      <div className="fixed bottom-3 left-0 z-40 grid w-full grid-cols-3 gap-x-0 px-0 lg:hidden">
+      <div className="fixed bottom-3 left-0 z-[96] grid w-full grid-cols-3 gap-x-0 px-0 lg:hidden">
         <div className="col-start-3 flex justify-start">
           <CheckButton
             label={showFilters ? "close" : "filters"}
             size="lg"
             active
-            color="text-secondary"
+            color="text-primary"
             className="whitespace-nowrap"
             onClick={() => setShowFilters((v) => !v)}
           />

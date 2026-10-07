@@ -16,8 +16,8 @@ const getFilterLabel = (cat: string) =>
  * column (CategoryFilters); below lg there is no room for it, so the same list
  * takes over the screen while `filtersOpen` is set.
  *
- * Sits below ViewToggles in the stack so its "Hide Filters" button stays
- * tappable over the overlay.
+ * Sits above M2Nav's square field and below its control row; "Hide Filters"
+ * closes it.
  */
 export default function FilterOverlay() {
   const {
@@ -56,16 +56,21 @@ export default function FilterOverlay() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="flex lg:hidden fixed inset-0 z-40 w-full h-dvh overflow-y-scroll   "
+          // Above M2Nav's square field (z-90) but starting below its control
+          // row, so the bar stays visible and tappable. Scrolls on its own:
+          // `data-lenis-prevent` hands wheel/touch back to the browser, and
+          // `overscroll-contain` keeps the page behind from scrolling too.
+          data-lenis-prevent
+          className="flex lg:hidden fixed inset-x-0 top-16 bottom-0 z-[95] w-full overflow-y-auto overscroll-contain bg-secondary"
         >
           <div
             data-cursor-invert
-            className="flex flex-col h-dvh mt-16 pt-12 bg-secondary px-0 w-full"
+            className="flex flex-col min-h-full h-max pt-12 pb-24 px-0 w-full"
           >
             {/* The settings sheet the "filter settings" button opens into,
                 stacked above the category list in the same overlay. */}
 
-            <div className="grid grid-cols-3 gap-x-0 items-baseline justify-center overflow-y-auto pointer-events-auto px-0  mb-12 pt-0 gap-y-0 w-full ">
+            <div className="grid grid-cols-3 gap-x-0 items-baseline justify-center pointer-events-auto px-0  mb-12 pt-0 gap-y-0 w-full ">
               {allCats.map((cat) => (
                 <span
                   key={cat}
@@ -76,7 +81,7 @@ export default function FilterOverlay() {
                     size="lg"
                     label={getFilterLabel(cat)}
                     active={activeFilter === cat}
-                    color="text-secondary"
+                    color="text-primary"
                     onClick={() => handleFilterChange(cat)}
                     className={cn(" transition-colors duration-150   ")}
                   />
@@ -89,7 +94,7 @@ export default function FilterOverlay() {
                 checkbox
                 label="Hide Filters"
                 size="lg"
-                color="text-secondary"
+                color="text-primary"
                 onClick={() => setFiltersOpen(false)}
                 className="col-start-2 w-full"
               />

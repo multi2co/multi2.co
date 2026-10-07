@@ -497,16 +497,10 @@ export default function M2Nav() {
   // bar's own height, so intersection flips right as a section's edge passes
   // under it rather than whenever any part is visible.
   //
-  // /projects is secondary-on-secondary throughout (its own CheckButtons are
-  // all `color="text-secondary"`), so there's no dark zone to scroll into —
-  // the bar is just secondary from the top, the same `#footer-section` hit
-  // flipping it back to primary once the footer arrives.
-  //
-  // Elsewhere (no `#connect-zone`, not /projects) the bar just stays primary.
-  const isProjectsPage = pathname === "/projects";
+  // Elsewhere (no `#connect-zone`) the bar just stays primary.
   const [connectHit, setConnectHit] = useState(false);
   const [footerHit, setFooterHit] = useState(false);
-  const onDark = isProjectsPage ? !footerHit : connectHit && !footerHit;
+  const onDark = connectHit && !footerHit;
   useEffect(() => {
     setConnectHit(false);
     setFooterHit(false);

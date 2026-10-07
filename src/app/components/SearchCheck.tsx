@@ -52,7 +52,7 @@ export default function SearchCheck({
         label={placeholder}
         size={size}
         active={false}
-        color="text-secondary"
+        color="text-primary"
         onClick={onToggle}
         className={className}
       />

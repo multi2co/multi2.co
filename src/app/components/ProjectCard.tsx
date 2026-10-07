@@ -61,7 +61,7 @@ export default function ProjectCard({
           label={item.title}
           active
           size="lg"
-          color="text-secondary"
+          color="text-primary"
         />
       )}
     </Link>

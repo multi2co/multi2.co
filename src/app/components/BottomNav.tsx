@@ -40,10 +40,11 @@ export default function BottomNav() {
   }
 
   const archive = pathname === "/projects";
-  // /about sits on a plain bg-background page, not a dark/secondary section,
-  // so its BottomNav reads text-primary like the rest of the page; everywhere
-  // else keeps the secondary treatment.
-  const color = pathname === "/about" ? "text-primary" : "text-secondary";
+  // /about and the /projects archive sit on plain bg-background pages, not a
+  // dark/secondary section, so their BottomNav reads text-primary like the
+  // rest of the page; everywhere else keeps the secondary treatment.
+  const color =
+    pathname === "/about" || archive ? "text-primary" : "text-secondary";
   return (
     <nav className={ROW}>
       <CheckButton

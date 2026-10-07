@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, Fragment } from "react";
-import { getImageProps } from "next/image";
+import Image, { getImageProps } from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { cn } from "@/lib/utils";
 import LandningBlock from "@/app/components/LandningBlock";
 import CheckButton from "@/app/components/CheckButton";
 import HeroCarousel from "@/app/components/HeroCarousel";
@@ -67,6 +68,11 @@ function HeroCover({ square, wide }: { square: string; wide?: string }) {
       <img {...img} className="object-cover" />
     </picture>
   );
+}
+
+/** Landscape images and videos take two columns of the gallery grid. */
+function isWide(item: ProjectMedia) {
+  return item.type === "video" || item.aspectRatio > 1.05;
 }
 
 function ProjectPageInner({
@@ -209,7 +215,7 @@ function ProjectPageInner({
             )}
           </div>
 
-          <dl className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 grid grid-cols-[auto_1fr] lg:grid-cols-8 gap-x-6 gap-y-2 px-3 lg:px-0 h4BtnText lowercase text-primary">
+          <dl className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 grid grid-cols-[auto_1fr] lg:grid-cols-8 gap-x-6 gap-y-2 px-0 lg:px-0 h4BtnText lowercase text-primary">
             <dt className="font-normal lowercase lg:col-span-2">project</dt>
             <dd className="m-0 lg:col-span-6 uppercase font-normal">{title}</dd>
             {client && (
@@ -255,30 +261,81 @@ function ProjectPageInner({
         </div>
       </motion.div>
 
-      {/* Gallery: the work's media as a carousel, with the figure caption
-          directly below it. */}
-
+      {/* Gallery: the work's media in a 4-col grid (a single column on
+          mobile) — landscape images and videos span two columns, everything
+          else one. Each item is notched and shown at its own ratio, its
+          figure caption below. Clicking one opens the full-screen carousel
+          there. `grid-flow-dense` backfills the gaps a wide item leaves. */}
       {slides.length > 0 && (
-        <div className="w-full  grid grid-cols-3 lg:grid-cols-12 mt-3">
-          <div className="col-start-1 col-span-3 lg:col-span-8 relative h-[70dvh] lg:h-[80dvh] w-full px-3 lg:px-6">
-            <HeroCarousel
-              media={slides}
-              selected={activeSlide}
-              onSelect={setActiveSlide}
-              onOpen={() => setLightbox(true)}
-            />
-          </div>
-
-          <div className="mt-6 lg:mt-0 col-start-1 lg:col-start-9 col-span-3 ">
-            {slides[activeSlide]?.description && (
-              <h4 className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary">
-                <span className="col-span-1 pl-6">fig.{activeSlide + 1}</span>
-                <span className="col-span-2 pr-6">
-                  {slides[activeSlide]?.description}
-                </span>
-              </h4>
-            )}
-          </div>
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-4 lg:grid-flow-dense lg:gap-x-6 lg:gap-y-6 lg:items-start mt-3 px-3 lg:px-6">
+          {slides.map((item, i) => (
+            <figure
+              key={item.key}
+              className={cn(
+                "w-full flex flex-col gap-3",
+                isWide(item) ? "lg:col-span-2" : "lg:col-span-1",
+              )}
+            >
+              {/* Wide items come in as a square at 56.25% of the cell and open
+                  out to 16:9 at full width as they scroll into view — width
+                  and ratio move together, so the height never changes. */}
+              <motion.div
+                {...(isWide(item)
+                  ? {
+                      initial: reduceMotion
+                        ? false
+                        : { width: "56.25%", aspectRatio: 1 },
+                      whileInView: { width: "100%", aspectRatio: 16 / 9 },
+                      viewport: { once: true, margin: "0px 0px -15% 0px" },
+                      transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+                      style: { aspectRatio: 16 / 9 },
+                    }
+                  : {
+                      style: {
+                        aspectRatio:
+                          item.type === "image" ? item.aspectRatio : 16 / 9,
+                      },
+                    })}
+                role="button"
+                tabIndex={0}
+                aria-label={`open fig.${i + 1} full screen`}
+                onClick={() => {
+                  setActiveSlide(i);
+                  setLightbox(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setActiveSlide(i);
+                    setLightbox(true);
+                  }
+                }}
+                className="pixelCorners relative w-full overflow-hidden cursor-zoom-in"
+              >
+                {item.type === "video" ? (
+                  <VideoPlayer src={item.url} className="object-cover" />
+                ) : (
+                  <Image
+                    src={item.url}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes={
+                      isWide(item)
+                        ? "(max-width: 1024px) 100vw, 50vw"
+                        : "(max-width: 1024px) 100vw, 25vw"
+                    }
+                  />
+                )}
+              </motion.div>
+              {item.description && (
+                <figcaption className="h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary">
+                  <span className="col-span-1">fig.{i + 1}</span>
+                  <span className="col-span-2">{item.description}</span>
+                </figcaption>
+              )}
+            </figure>
+          ))}
         </div>
       )}
 
@@ -288,7 +345,8 @@ function ProjectPageInner({
 
       <Footer />
 
-      {/* Full-screen lightbox — the same carousel, shared slide index. */}
+      {/* Full-screen lightbox — the media as a carousel, opened on whichever
+          grid item was clicked. */}
       <AnimatePresence>
         {lightbox && slides.length > 0 && (
           <motion.div

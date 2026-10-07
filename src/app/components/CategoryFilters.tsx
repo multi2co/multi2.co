@@ -12,7 +12,7 @@ import {
   getFilterChipLabel,
   getVisibleFilterCats,
 } from "@/lib/categories";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Reveal } from "./Reveal";
 
 const DRAWER_EASE = [0.22, 1, 0.36, 1] as const;
@@ -54,6 +54,14 @@ export default function CategoryFilters({
   // `showCat` toggles just the category list within the panel.
   const [showCat, setShowCat] = useState(true);
 
+  // Below lg the open panel is its own scroll area; Lenis has to let go of it
+  // (`data-lenis-prevent`) or wheel/touch would scroll the page behind. The
+  // desktop sidebar doesn't scroll, so it stays under Lenis.
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    setMobile(!window.matchMedia("(min-width: 1024px)").matches);
+  }, []);
+
   function showThumbnails() {
     setShowGrid(true);
     setShowList(false);
@@ -81,6 +89,7 @@ export default function CategoryFilters({
 
   return (
     <div
+      data-lenis-prevent={mobile && showFilters ? "" : undefined}
       className={cn(
         // Mobile: a bottom-left drawer — a narrow tab holding just the "show
         // filters" button until opened, growing upward into the full panel
@@ -94,12 +103,14 @@ export default function CategoryFilters({
         // left-3 always insets the tab from the screen edge; open, right-3
         // pairs with it so the panel spans between the two insets rather than
         // a full 100vw that would overflow past them.
+        // Open, it sits above M2Nav's square field (z-90) but starts below
+        // its control row (top-16), so the bar stays visible and tappable.
         "fixed top-12 right-3 z-30 pixelCorners",
         "transition-[width] duration-300 ease-out",
         showFilters
-          ? "right-0 left-0 top-0 bg-background p-3 h-auto max-h-dvh overflow-y-auto"
+          ? "right-0 left-0 top-16 bottom-0 z-[95] bg-background p-3 overflow-y-auto overscroll-contain"
           : "w-1/3 bg-transparent ",
-        "lg:static lg:inset-auto lg:z-auto lg:w-auto lg:bg-transparent lg:pb-0 lg:max-h-none lg:overflow-visible lg:[mask-border:none] lg:[-webkit-mask-box-image:none]",
+        "lg:static lg:inset-auto lg:z-auto lg:overscroll-auto lg:w-auto lg:bg-transparent lg:pb-0 lg:max-h-none lg:overflow-visible lg:[mask-border:none] lg:[-webkit-mask-box-image:none]",
         className,
       )}
     >
@@ -123,14 +134,14 @@ export default function CategoryFilters({
                 animate={{ y: 0 }}
                 exit={{ y: 32 }}
                 transition={{ duration: 0.4, ease: DRAWER_EASE }}
-                className="grid grid-cols-3 lg:flex lg:flex-col  gap-x-0 gap-y-12 lg:gap-y-12 items-baseline w-full px-3 pt-48 pb-6 lg:p-3"
+                className="grid grid-cols-3 lg:flex lg:flex-col  gap-x-0 gap-y-12 lg:gap-y-12 items-baseline w-full px-3 pt-32 pb-24 lg:p-3"
               >
                 <CheckButton
                   checkbox
                   label="close"
                   size="label"
                   active
-                  color="text-secondary"
+                  color="text-primary"
                   className="hidden lg:col-start-1 lg:col-span-1 lg:row-start-1"
                   onClick={() => setShowFilters(false)}
                 />
@@ -139,7 +150,7 @@ export default function CategoryFilters({
                   label="categories"
                   size="label"
                   active={showCat}
-                  color="text-secondary"
+                  color="text-primary"
                   className="col-start-1 row-start-1 lg:row-start-1"
                   onClick={() => setShowCat((v) => !v)}
                 />
@@ -164,7 +175,7 @@ export default function CategoryFilters({
                           checkbox
                           label={getFilterChipLabel(cat)}
                           size="label"
-                          color="text-secondary"
+                          color="text-primary"
                           onClick={() => handleFilterChange(cat)}
                           active={activeFilter === cat}
                         />
@@ -178,7 +189,7 @@ export default function CategoryFilters({
                     label="settings"
                     size="label"
                     active={showSettings}
-                    color="text-secondary"
+                    color="text-primary"
                     onClick={() => setShowSettings(!showSettings)}
                   />
                 </div>
@@ -189,7 +200,7 @@ export default function CategoryFilters({
                       label="list"
                       size="label"
                       active={showList}
-                      color="text-secondary"
+                      color="text-primary"
                       onClick={showListView}
                     />
                     <CheckButton
@@ -197,7 +208,7 @@ export default function CategoryFilters({
                       label="thumbnails"
                       size="label"
                       active={showGrid}
-                      color="text-secondary"
+                      color="text-primary"
                       onClick={showThumbnails}
                     />
 
@@ -207,14 +218,14 @@ export default function CategoryFilters({
                           checkbox
                           label="Zoom In"
                           size="label"
-                          color="text-secondary"
+                          color="text-primary"
                           onClick={() => setNumCols(zoomInCols(numCols))}
                         />
                         <CheckButton
                           checkbox
                           label="Zoom Out"
                           size="label"
-                          color="text-secondary"
+                          color="text-primary"
                           onClick={() => setNumCols(zoomOutCols(numCols))}
                         />
                       </div>
@@ -235,7 +246,7 @@ export default function CategoryFilters({
                   label={`sort by ${sortMode}`}
                   size="label"
                   active
-                  color="text-secondary"
+                  color="text-primary"
                   className="col-start-1 col-span-2 row-start-5"
                   onClick={() =>
                     setSortMode((m) => (m === "year" ? "title" : "year"))
@@ -259,7 +270,7 @@ export default function CategoryFilters({
               label="filters"
               size="lg"
               active
-              color="text-secondary"
+              color="text-primary"
               className="whitespace-nowrap"
               onClick={() => setShowFilters(true)}
             />

@@ -19,7 +19,7 @@ export default function ShowReel({
   className?: string;
   src?: string;
 }) {
-  const { muted, volume } = useSound();
+  const { playbackMuted: muted, volume } = useSound();
   const [playing, setPlaying] = useState(true);
 
   // Driven imperatively rather than through ReactPlayer's `playing` prop:

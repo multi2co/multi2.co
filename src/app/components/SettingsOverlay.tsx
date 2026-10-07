@@ -30,7 +30,7 @@ export default function SettingsOverlay({ className }: { className?: string }) {
             size="lg"
             label={muted ? "Sound Off" : "Sound On"}
             active={!muted}
-            color="text-secondary"
+            color="text-primary"
             onClick={toggleMute}
           />
         </div>
