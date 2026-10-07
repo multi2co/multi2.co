@@ -6,23 +6,24 @@ import useEmblaCarousel from "embla-carousel-react";
 import VideoPlayer from "./VideoPlayer";
 import CheckButton from "./CheckButton";
 
-type HeroMedia =
-  | {
-      type: "image";
-      key: string;
-      url: string;
-      aspectRatio: number;
-      description?: string;
-    }
-  | { type: "video"; key: string; url: string; description?: string };
+type HeroMedia = {
+  type: "image" | "video";
+  key: string;
+  url: string;
+  /** The editor's picked ratio — each slide renders in a box of exactly
+   *  this ratio, as large as fits. */
+  aspectRatio: number;
+  description?: string;
+};
 
 /**
- * The project page hero: the work's media as a carousel. Each item is shown
- * whole (`object-contain`), pinned top-left. Prev/next are CheckButtons pinned to the
- * vertical centre of each edge; a "1 / 3" counter sits bottom-right. `onSelect`
- * reports the current index so the page can show that item's caption, and
- * `selected` is honoured back — so a second instance (the lightbox) stays in
- * step. Passing `onOpen` makes the slide area click to open that lightbox.
+ * The project page lightbox: the work's media as a carousel. Each item is
+ * shown in a box of its picked ratio, as large as fits, pinned top-left.
+ * Prev/next are CheckButtons pinned to the vertical centre of each edge; a "1
+ * / 3" counter sits bottom-right. `onSelect` reports the current index so the
+ * page can show that item's caption, and `selected` is honoured back — so a
+ * second instance (the lightbox) stays in step. Passing `onOpen` makes the
+ * slide area click to open that lightbox.
  */
 export default function HeroCarousel({
   media,
@@ -55,7 +56,8 @@ export default function HeroCarousel({
   // event above.
   useEffect(() => {
     if (!emblaApi) return;
-    if (emblaApi.selectedScrollSnap() !== selected) emblaApi.scrollTo(selected, true);
+    if (emblaApi.selectedScrollSnap() !== selected)
+      emblaApi.scrollTo(selected, true);
   }, [emblaApi, selected]);
 
   if (media.length === 0) return null;
@@ -75,16 +77,25 @@ export default function HeroCarousel({
       >
         <div className="flex h-full">
           {media.map((item, i) => (
+            // `container-type: size` lets the box size itself against the
+            // slide in both directions: as wide as fits, unless that would be
+            // too tall, in which case as tall as fits.
             <div
               key={item.key}
-              className="flex-none w-full h-full flex items-start justify-start"
+              className="flex-none w-full h-full flex items-start justify-start [container-type:size]"
             >
-              <div className="relative h-full w-full">
+              <div
+                className="relative overflow-hidden pixelCorners"
+                style={{
+                  aspectRatio: item.aspectRatio,
+                  width: `min(100cqw, calc(100cqh * ${item.aspectRatio}))`,
+                }}
+              >
                 {item.type === "video" ? (
                   <VideoPlayer
                     src={item.url}
                     controls
-                    className="object-contain"
+                    className="object-cover"
                   />
                 ) : (
                   <Image
@@ -92,7 +103,7 @@ export default function HeroCarousel({
                     alt=""
                     fill
                     priority={i === 0}
-                    className="object-contain object-left-top"
+                    className="object-cover"
                     sizes="100vw"
                   />
                 )}

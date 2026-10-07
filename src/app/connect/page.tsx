@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import ConnectSection, {
   type ContactData,
 } from "@/app/components/ConnectSection";
@@ -7,6 +8,12 @@ import { contactQuery } from "../../../sanity/lib/queries";
 import { Reveal } from "@/app/components/Reveal";
 
 const LINK_BTN = "px-0 border-transparent h3Text";
+
+export const metadata: Metadata = {
+  title: "Connect",
+  description: "Get in touch with Multi2, a creative agency in Stockholm.",
+  alternates: { canonical: "/connect" },
+};
 
 export default async function ConnectPage() {
   let contact: ContactData | null = null;
@@ -23,6 +30,7 @@ export default async function ConnectPage() {
 
   return (
     <div className="flex min-h-screen flex-col pt-28 px-3 lg:px-6 lg:pt-28">
+      <h1 className="sr-only">Connect with Multi2</h1>
       <Reveal className="flex-1 pixelCorners">
         <ConnectSection contact={contact ?? undefined} />
 

@@ -23,12 +23,13 @@ export default function UnderConstruction() {
         onClick={() => setOpen(false)}
         className="absolute top-6 right-6"
       />
-      <h1 className="font-visual h1Text text-primary leading-[0.9]">
+      {/* Not headings: the gate shouldn't compete with the page's own h1. */}
+      <p className="font-visual h1Text text-primary leading-[0.9]">
         under construction
-      </h1>
-      <h2 className="font-visual h2Text text-primary">
+      </p>
+      <p className="font-visual h2Text text-primary">
         {"("}multi2.co coming soon{")"}
-      </h2>
+      </p>
     </div>
   );
 }

@@ -22,5 +22,12 @@ export default async function Page() {
 
   // contact comes from ContactContextServer in the root layout now — Footer
   // and ConnectSection read it via useContact() instead of a page-level fetch.
-  return <HomeClient reelUrl={reelUrl} />;
+  // The page has no visible title, so its h1 is for search engines and
+  // screen readers only — `sr-only` takes it out of the layout.
+  return (
+    <>
+      <h1 className="sr-only">Multi2 — creative agency in Stockholm</h1>
+      <HomeClient reelUrl={reelUrl} />
+    </>
+  );
 }

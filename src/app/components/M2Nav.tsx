@@ -436,9 +436,9 @@ function NavVertical({
 
       {/* The wordmark, same as the footer's — `mt-auto` drops it to the
           bottom-left of the drawer whatever's above it. */}
-      <h1 className="mt-auto self-start text-left font-visual font-thin text-7xl lg:text-[8rem] leading-none lowercase mb-0 px-6 lg:px-3 lg:pb-3">
+      <p className="mt-auto self-start text-left font-visual font-thin text-7xl lg:text-[8rem] leading-none lowercase mb-0 px-6 lg:px-3 lg:pb-3">
         multi2.co
-      </h1>
+      </p>
     </motion.div>
   );
 }

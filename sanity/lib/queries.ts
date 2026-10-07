@@ -11,6 +11,8 @@ export const workBySlugQuery = groq`
     categories,
     description,
     imagesPerPage,
+    showGallery,
+    heroIntro,
     credits,
     coverSquare { asset, hotspot, crop },
     coverLandscape { asset, hotspot, crop },

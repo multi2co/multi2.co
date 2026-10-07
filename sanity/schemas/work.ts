@@ -1,5 +1,27 @@
 import { defineField, defineType } from "sanity";
 
+/** Every media item must say which ratio it's shown at — the project page
+ *  always renders it in exactly this box (images are cropped to it around
+ *  their hotspot). Values map to ratios in the project page's
+ *  ASPECT_RATIO_BY_TYPE; "cube" is the original key for 1:1. */
+const aspectRatioField = defineField({
+  name: "aspectRatioType",
+  title: "Aspect Ratio",
+  type: "string",
+  options: {
+    list: [
+      { title: "Portrait (2:3)", value: "portrait" },
+      { title: "Portrait (4:5)", value: "portrait45" },
+      { title: "Vertical (9:16)", value: "vertical" },
+      { title: "Square (1:1)", value: "cube" },
+      { title: "Landscape (3:2)", value: "landscape" },
+      { title: "Widescreen (16:9)", value: "widescreen" },
+    ],
+    layout: "radio",
+  },
+  validation: (r) => r.required(),
+});
+
 export const work = defineType({
   name: "work",
   title: "Work",
@@ -82,12 +104,22 @@ export const work = defineType({
       type: "string",
       options: {
         list: [
-          { title: "Responsive (16:9 desktop / 9:16 mobile)", value: "responsive" },
+          {
+            title: "Responsive (16:9 desktop / 9:16 mobile)",
+            value: "responsive",
+          },
           { title: "Square only (1:1)", value: "square" },
         ],
         layout: "radio",
       },
       initialValue: "responsive",
+    }),
+    defineField({
+      name: "showGallery",
+      title: "Show gallery",
+      description: "Show the media gallery on the project page.",
+      type: "boolean",
+      initialValue: true,
     }),
     defineField({
       name: "media",
@@ -99,20 +131,7 @@ export const work = defineType({
           type: "image",
           options: { hotspot: true },
           fields: [
-            defineField({
-              name: "aspectRatioType",
-              title: "Aspect Ratio",
-              type: "string",
-              options: {
-                list: [
-                  { title: "Portrait (2:3)", value: "portrait" },
-                  { title: "Cube (1:1)", value: "cube" },
-                  { title: "Landscape (3:2)", value: "landscape" },
-                ],
-                layout: "radio",
-              },
-              validation: (r) => r.required(),
-            }),
+            aspectRatioField,
             defineField({
               name: "alt",
               type: "string",
@@ -142,6 +161,7 @@ export const work = defineType({
               type: "file",
               options: { accept: "video/*" },
             }),
+            aspectRatioField,
             defineField({
               name: "caption",
               type: "string",
@@ -172,6 +192,7 @@ export const work = defineType({
               type: "url",
               description: "YouTube, Vimeo, or direct video link",
             }),
+            aspectRatioField,
             defineField({
               name: "caption",
               type: "string",
@@ -204,7 +225,8 @@ export const work = defineType({
       name: "imagesPerPage",
       title: "Images per page",
       type: "number",
-      description: "Limit how many media items appear in the gallery (leave blank to show all)",
+      description:
+        "Limit how many media items appear in the gallery (leave blank to show all)",
     }),
     defineField({
       name: "featured",

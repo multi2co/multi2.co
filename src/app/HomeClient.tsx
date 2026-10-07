@@ -68,25 +68,29 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   }, [items]);
 
   return (
-    <div className="w-full bg-background    mt-16 ">
+    <div className="w-full bg-background mt-48">
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
       <div className="relative px-3 lg:px-6 w-full">
         {/* Not Reveal: this is the first thing on screen, so it must be
             visible from the server HTML rather than waiting for JS to fade it
-            in. Square on mobile; on desktop it renders square, then opens
-            out to 16:9 — and only then does M2Nav reveal its links (see
-            `heroOpen`). On desktop the height is fixed and the width follows
-            the ratio, capped at the full row. */}
+            in. Square on mobile. On desktop it renders as a square at 56.25%
+            of the row, then widens to 16:9 at full width — width and ratio
+            move together, so the height holds — and only then does M2Nav
+            reveal its links (see `heroOpen`). */}
         <motion.div
           initial={{ aspectRatio: 1 }}
-          animate={{ aspectRatio: heroWide ? 16 / 9 : 1 }}
+          animate={
+            heroWide
+              ? { aspectRatio: 16 / 9, width: "100%" }
+              : { aspectRatio: 1 }
+          }
           transition={
             reduceMotion
               ? { duration: 0 }
               : { duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }
           }
           onAnimationComplete={heroWide ? notifyHeroOpen : undefined}
-          className="sticky top-0 w-full lg:w-auto max-w-full pixelCorners bg-secondary h-auto lg:h-[calc(100vh-5.5rem)]"
+          className="sticky top-0 w-full lg:w-[56.25%] pixelCorners bg-secondary"
         >
           <div className=" relative overflow-hidden w-full h-full">
             <ShowReel
@@ -103,9 +107,9 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
         </motion.div>
         {/* Desktop: the wordmark is centred on the whole first viewport, not
             just the box — so it isn't clipped while the box is still square.
-            `-top-16` cancels the page's `mt-16`. */}
+            `-top-48` cancels the page's `mt-48`. */}
         {SHOW_HERO_WORDMARK && (
-          <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-x-0 -top-16 z-10 h-screen items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
+          <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-x-0 -top-48 z-10 h-screen items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
         )}
       </div>
       <Reveal className="col-span-3 lg:col-span-12 bg-background px-6 lg:px-3 pt-12  ">

@@ -14,10 +14,38 @@ import CookieAndSound from "@/app/components/CookieAndSound";
 import SmoothScroll from "@/app/components/SmoothScroll";
 import UnderConstruction from "./components/UnderConstruction";
 import ThemeToggle from "./components/ThemeToggle";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "multi2",
-  description: "multiplied",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — creative agency, Stockholm`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "en_US",
+    url: "/",
+  },
+  twitter: { card: "summary_large_image" },
+};
+
+/** Who's behind the site, for search engines — rendered as JSON-LD. */
+const ORGANIZATION_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.png`,
+  description: SITE_DESCRIPTION,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Stockholm",
+    addressCountry: "SE",
+  },
 };
 
 const visualFont = localFont({
@@ -75,6 +103,12 @@ export default function RootLayout({
       <body
         className={`${visualFont.variable} ${multiDotsFont.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(ORGANIZATION_JSON_LD),
+          }}
+        />
         <WorkContextServer>
           <IconStyleContextServer>
             <AboutContextServer>
