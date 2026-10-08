@@ -147,7 +147,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
       <div className="w-full px-3 lg:px-6">
         <Reveal
           sticky
-          className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixelCorners mb-6 "
+          className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixelCorners mb-16 lg:mb-30"
         >
           <span className="col-span-3">
             <CheckButton
@@ -197,7 +197,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
           </ConnectSection>
         </div>
       </div>
-      <Reveal className=" mt-12  mb-0 pb-0" id="footer-section" sticky>
+      <Reveal className="mt-16 lg:mt-30 mb-0 pb-0" id="footer-section" sticky>
         <Footer />
       </Reveal>
     </div>
