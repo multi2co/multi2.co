@@ -8,7 +8,7 @@ import Footer from "../components/Footer";
 
 export default function AboutPage() {
   return (
-    <div id="about" className="relative   w-full bg-[rgb(255,255,0)]    ">
+    <div id="about" className="relative w-full bg-background">
       <h1 className="sr-only">About Multi2</h1>
       <Reveal className="relative z-10 w-full grid grid-cols-3 lg:grid-cols-12 items-baseline gap-y-12 lg:gap-y-6 h-auto   content-center px-3 lg:px-3 pt-28 lg:mt-0 lg:pt-36  bg-transparent">
         <div className="relative z-10 flex items-baseline justify-start col-start-1 col-span-3 lg:col-start-1 lg:col-span-3">

@@ -34,7 +34,7 @@ export default function Footer() {
   // beyond the footer and show the page background below it.
   return (
     <div className="w-full px-3 lg:px-6">
-      <div className=" w-full flex flex-col justify-between items-stretch h-[90dvh] lg:h-[100dvh] overflow-hidden pixelCorners bg-secondary pt-6 p-6 pb-0 [&_*]text-primary">
+      <div className=" w-full flex flex-col justify-between items-stretch h-[90dvh] lg:h-[75vh] overflow-hidden pixelCornersTop bg-secondary pt-6 p-6 pb-0 [&_*]text-primary">
         {/* Contact columns. Each heading + its links is one grid cell, placed on
           an explicit column so the groups all sit on the top row and line up
           regardless of how many links they hold. Mobile stacks them in

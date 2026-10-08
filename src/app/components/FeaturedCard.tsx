@@ -6,13 +6,15 @@ import { cn } from "@/lib/utils";
 import type { GridItem } from "@/context/WorkContext";
 import PixelFrame from "./PixelFrame";
 import CheckButton from "./CheckButton";
+import TypeInView from "./TypeInView";
+import { useScrollInset } from "@/lib/useScrollInset";
 
 const MotionLink = motion.create(Link);
 
 /**
- * A project card for the home page's selected projects: a square image, then
- * the work's hero intro, its title and a "go to project" call to action.
- * Mobile stacks them; desktop puts the text in a column beside the image.
+ * A project card for the home page's selected projects: the work's hero
+ * intro, client and a "go to project" call to action, then its cover — 9:16
+ * on mobile, 16:9 on desktop.
  *
  * With `revealOnView`, the card also scales up from 0.9 and fades in the
  * first time it scrolls into view.
@@ -43,42 +45,97 @@ export default function FeaturedCard({
         }
       : {};
 
-  return (
-    <MotionLink
-      {...reveal}
-      href={`/projects/${project.slug}`}
-      className={cn(
-        "group relative w-full flex flex-col gap-6  lg:grid lg:grid-cols-6 lg:bg-background bg-transparent  pixelCorners  lg:items-stretch p-0 pb-3 lg:pb-0 lg:gap-6",
-        className,
-      )}
-    >
-      <PixelFrame
-        src={project.coverUrl ?? project.url}
-        mediaType={mediaType}
-        videoMuted
-        alt={project.alt}
-        sizes="(max-width: 1024px) 100vw, 66vw"
-        className="w-full aspect-square lg:min-w-0 lg:col-span-3"
-      />
+  const href = `/projects/${project.slug}`;
 
-      {/* Intro, title, then (desktop only) the call to action — stacked under
-          the image on mobile, in a column beside it on desktop. On mobile the
-          whole card is the link. */}
-      <div className="flex flex-col gap-6 px-6 lg:px-0 lg:pt-6 lg:col-span-3">
-        {project.heroIntro && (
-          <p className="pText text-primary lowercase">{project.heroIntro}</p>
-        )}
-        <h2 className="text-3xl lg:text-5xl font-visual text-primary lowercase font-thin">
-          {project.title}
-        </h2>
-        <CheckButton
-          label="go to project"
-          size="xl"
-          color="text-primary"
-          className="hidden lg:flex px-0 lg:px-0"
-          active
-        />
-      </div>
-    </MotionLink>
+  // The media's side margin grows from px-3 to px-6 as it scrolls away. The
+  // list it sits in is already inset 24px, so the link pulls out by 12px
+  // (`-mx-3`) and pads back in from 0 to 12.
+  const mediaInset = useScrollInset<HTMLAnchorElement>(0, 12);
+
+  // The text pins below the nav (`sticky top-16`, z-0) and the card's own
+  // media (z-10) scrolls up over it, so the text reads as a background layer.
+  // The card wrapper gives the sticky text room to travel — the full height
+  // of text + media — and takes it away again when the card ends.
+  return (
+    <div className={cn("relative w-full", className)}>
+      <MotionLink
+        {...reveal}
+        href={href}
+        className="group sticky top-16 z-0 block w-full mb-6"
+      >
+        {/* Text row: stacked on mobile; on desktop its own 12-col grid —
+          hero intro in cols 1–6, client at col 9, the call to action in
+          col 12 pushed to the right edge, all on one row (`row-start-1`, since the client comes
+          first in the markup but sits right of the intro). */}
+        <div className="flex flex-col gap-6 px-6 lg:px-0 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-end">
+          {project.client && (
+            <CheckButton
+              label={project.client}
+              size="lg"
+              color="text-primary"
+              className="px-0 hidden lg:flex lg:px-0 lg:row-start-1 lg:col-start-9 lg:col-span-2"
+              active
+            />
+          )}
+          <div className="flex flex-col gap-6 lg:row-start-1 lg:col-start-1 lg:col-span-6">
+            {project.heroIntro && (
+              <TypeInView
+                text={project.heroIntro}
+                className="text-3xl lg:text-5xl font-visual text-primary  font-thin leading-tight"
+              />
+            )}
+          </div>
+          <CheckButton
+            label="go to project"
+            size="lg"
+            color="text-primary"
+            className="hidden lg:flex px-0 lg:px-0 lg:row-start-1 lg:col-start-12 lg:col-span-1 lg:justify-self-end lg:justify-end whitespace-nowrap"
+            active
+          />
+        </div>
+      </MotionLink>
+      {/* Same destination as the text link above, so it's kept out of the
+          tab order and the accessibility tree to avoid announcing it twice.
+          `z-[95]` lifts it over the fixed nav (z-90) too, so as it scrolls up
+          it covers the bar as well as the pinned text. */}
+      <MotionLink
+        ref={mediaInset.ref}
+        style={mediaInset.style}
+        href={href}
+        tabIndex={-1}
+        aria-hidden
+        className="relative z-[95] block -mx-3"
+      >
+        {/* 9:16 full width on mobile, 16:9 at 75% width and centred on
+            desktop — two frames, one per breakpoint,
+          each with its own crop of the cover. The hidden one is never
+          fetched: lazy images and VideoPlayer both wait until on screen. */}
+        {/* Same motion as the home showreel: a slight rise into place, once,
+            as it comes into view. */}
+        <motion.div
+          initial={reduce ? false : { y: 48 }}
+          whileInView={{ y: 0 }}
+          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <PixelFrame
+            src={project.coverTallUrl ?? project.url}
+            mediaType={mediaType}
+            videoMuted
+            alt={project.alt}
+            sizes="100vw"
+            className="w-full aspect-[9/16] pixel-corners-2 lg:hidden"
+          />
+          <PixelFrame
+            src={project.coverWideUrl ?? project.url}
+            mediaType={mediaType}
+            videoMuted
+            alt={project.alt}
+            sizes="100vw"
+            className="hidden lg:block w-full lg:w-3/4 lg:mx-auto aspect-video lg:pixel-corners-2"
+          />
+        </motion.div>
+      </MotionLink>
+    </div>
   );
 }

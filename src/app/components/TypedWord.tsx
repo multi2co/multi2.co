@@ -60,7 +60,9 @@ export default function TypedWord({
         },
       }}
     >
-      {text.split("").map((char, i) => (
+      {/* Array.from splits by code point, so characters outside the BMP
+          (e.g. 🄼🅄🄻🅃🄸) stay whole instead of breaking into surrogate halves. */}
+      {Array.from(text).map((char, i) => (
         <motion.span key={i} variants={letterVariants}>
           {char}
         </motion.span>

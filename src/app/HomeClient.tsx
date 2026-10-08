@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useUI } from "@/context/UIContext";
 import { useWork } from "@/context/WorkContext";
@@ -11,6 +11,7 @@ import CheckButton from "./components/CheckButton";
 import ConnectSection from "./components/ConnectSection";
 import FeaturedCard from "./components/FeaturedCard";
 import { Reveal } from "./components/Reveal";
+import { useScrollInset } from "@/lib/useScrollInset";
 import ShowReel from "./components/ShowReel";
 import HeroWordmark from "./components/HeroWordmark";
 
@@ -23,15 +24,12 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   const { items } = useWork();
   const { notifyContentDone, notifyHeroOpen } = useUI();
   const reduceMotion = useReducedMotion();
+  const reelInset = useScrollInset<HTMLDivElement>(12, 24);
 
-  // The hero stays square on mobile and only opens out to 16:9 on desktop.
-  // Read after mount, so the server HTML is the square on every width. With
-  // nothing to animate (mobile, or reduced motion) the nav needn't wait.
-  const [heroWide, setHeroWide] = useState(false);
+  // With reduced motion the reel doesn't slide in, so there's nothing for the
+  // nav to wait on.
   useEffect(() => {
-    const wide = window.matchMedia("(min-width: 1024px)").matches;
-    setHeroWide(wide);
-    if (!wide || reduceMotion) notifyHeroOpen();
+    if (reduceMotion) notifyHeroOpen();
   }, [reduceMotion, notifyHeroOpen]);
 
   // Everything on the page is server-rendered, so it's ready once mounted.
@@ -70,27 +68,26 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   return (
     <div className="w-full bg-background mt-48">
       {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
-      <div className="relative px-3 lg:px-6 w-full">
+      {/* The showreel's side margin grows from px-3 to px-6 as it scrolls
+          away (see useScrollInset). */}
+      <motion.div
+        ref={reelInset.ref}
+        style={reelInset.style}
+        className="relative w-full"
+      >
         {/* Not Reveal: this is the first thing on screen, so it must be
             visible from the server HTML rather than waiting for JS to fade it
-            in. Square on mobile. On desktop it renders as a square at 56.25%
-            of the row, then widens to 16:9 at full width — width and ratio
-            move together, so the height holds — and only then does M2Nav
-            reveal its links (see `heroOpen`). */}
+            in. 9:16 on mobile; 16:9 at 75% of the row (~9 of 12 columns),
+            centred, on desktop. On load it rises a little into place — a
+            transform only, never hidden — and once it's there M2Nav reveals
+            its links (see `heroOpen`). `z-[95]` puts it over the fixed nav
+            (z-90) as it scrolls up, like the featured cards' media. */}
         <motion.div
-          initial={{ aspectRatio: 1 }}
-          animate={
-            heroWide
-              ? { aspectRatio: 16 / 9, width: "100%" }
-              : { aspectRatio: 1 }
-          }
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : { duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }
-          }
-          onAnimationComplete={heroWide ? notifyHeroOpen : undefined}
-          className="sticky top-0 w-full lg:w-[56.25%] pixelCorners bg-secondary"
+          initial={reduceMotion ? false : { y: 48 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          onAnimationComplete={notifyHeroOpen}
+          className="sticky top-0 z-[95] w-full aspect-[9/16] lg:aspect-video lg:w-3/4 lg:mx-auto pixelCorners pixel-corners-2 bg-secondary"
         >
           <div className=" relative overflow-hidden w-full h-full">
             <ShowReel
@@ -111,7 +108,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
         {SHOW_HERO_WORDMARK && (
           <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-x-0 -top-48 z-10 h-screen items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
         )}
-      </div>
+      </motion.div>
       <Reveal className="col-span-3 lg:col-span-12 bg-background px-6 lg:px-3 pt-12  ">
         <AboutSectionText
           columns
@@ -132,9 +129,11 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
           active
           className="col-span-3 lg:col-span-12 whitespace-nowrap"
         />
-        <div className="col-span-3 lg:col-span-12  flex flex-col gap-3 lg:gap-6 mt-3 px-3">
+        <div className="col-span-3 lg:col-span-12 flex flex-col gap-y-16 lg:gap-y-30 mt-3 px-3">
+          {/* In each card the text pins below the nav and the card's media
+              scrolls up over it — see FeaturedCard. */}
           {featuredProjects.map((project) => (
-            <FeaturedCard key={project.key} project={project} className="" />
+            <FeaturedCard key={project.key} project={project} />
           ))}
         </div>
       </Reveal>

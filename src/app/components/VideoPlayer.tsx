@@ -25,6 +25,16 @@ import { useSound } from "@/context/SoundContext";
  *  Only project pages autoplay. Everywhere else (the archive grid, the home
  *  page's featured cards) a video sits on its first frame and plays while
  *  the pointer is over it. */
+/** Third-party players without their tracking cookies: YouTube is played
+ *  from its youtube-nocookie domain, and Vimeo gets `dnt` (do not track). */
+const NO_TRACKING_CONFIG = { vimeo: { dnt: true } };
+function toNoCookieSrc(src: string) {
+  const id = src.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/|live\/))([\w-]{11})/,
+  )?.[1];
+  return id ? `https://www.youtube-nocookie.com/embed/${id}` : src;
+}
+
 export default function VideoPlayer({
   src,
   className,
@@ -68,7 +78,8 @@ export default function VideoPlayer({
       {inView && (
         <ReactPlayer
           ref={videoRef}
-          src={src}
+          src={toNoCookieSrc(src)}
+          config={NO_TRACKING_CONFIG}
           autoPlay={!hoverOnly}
           loop={!controls}
           controls={controls}

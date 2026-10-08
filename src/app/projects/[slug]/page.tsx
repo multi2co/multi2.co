@@ -7,6 +7,7 @@ import {
   allWorkSlugsQuery,
 } from "../../../../sanity/lib/queries";
 import { urlFor } from "../../../../sanity/lib/image";
+import { coverUrls, type WorkCovers } from "../../../../sanity/lib/covers";
 import WorkPageClient, { type ProjectMedia } from "./ProjectPageClient";
 
 /** The ratios editors pick per media item (`aspectRatioType` in the Work
@@ -37,6 +38,7 @@ type MediaItem = {
   asset?: unknown;
   aspectRatio?: number;
   aspectRatioType?: string;
+  crop?: { top?: number; bottom?: number; left?: number; right?: number };
   alt?: string;
   description?: string;
   file?: { asset?: { url?: string } };
@@ -45,25 +47,25 @@ type MediaItem = {
 
 /** Maps one raw Sanity media entry onto what the client actually needs to
  *  render — an image, a video upload's direct file URL, or an embed/direct
- *  video URL — or drops it when it's missing the asset it needs. Every item
- *  carries the ratio the editor picked; an item saved before that choice was
- *  required falls back to the image's own ratio, or 16:9 for a video. Images
- *  are cropped to that ratio here, around their hotspot. */
+ *  video URL — or drops it when it's missing the asset it needs. Images keep
+ *  the ratio they were uploaded at (after any crop made in the Studio).
+ *  Videos can't report theirs up front, so they use the ratio the editor
+ *  picks, defaulting to 16:9. */
 function toProjectMedia(m: MediaItem): ProjectMedia | null {
   const picked = m.aspectRatioType
     ? ASPECT_RATIO_BY_TYPE[m.aspectRatioType]
     : undefined;
   if (m._type === "image" && m.asset) {
-    const aspectRatio = picked ?? m.aspectRatio ?? 1;
+    const c = m.crop ?? {};
+    const keptW = 1 - (c.left ?? 0) - (c.right ?? 0);
+    const keptH = 1 - (c.top ?? 0) - (c.bottom ?? 0);
+    const aspectRatio = ((m.aspectRatio ?? 1) * keptW) / keptH;
     return {
       type: "image",
       key: m._key,
-      // Full-width in the gallery, so wide enough for a large screen.
-      url: urlFor(m)
-        .width(2400)
-        .height(Math.round(2400 / aspectRatio))
-        .quality(85)
-        .url(),
+      // Full-width in the gallery, so wide enough for a large screen. Width
+      // only — the height follows the image's own ratio.
+      url: urlFor(m).width(2400).quality(85).url(),
       aspectRatio,
       alt: m.alt,
       description: m.description,
@@ -115,10 +117,8 @@ type WorkData = {
   slug: { current: string };
   showGallery?: boolean;
   heroIntro?: string;
-  coverSquare?: { asset?: unknown };
-  coverLandscape?: { asset?: unknown };
   media?: MediaItem[];
-};
+} & WorkCovers;
 
 async function fetchWork(slug: string) {
   return sanityFetch<WorkData | null>(
@@ -178,20 +178,12 @@ export default async function WorkPage({
     .map(toProjectMedia)
     .filter((m): m is ProjectMedia => m !== null);
 
-  // The hero's cover: 1:1 on mobile, 16:9 on desktop. The desktop one is its
-  // own field, falling back to a 16:9 crop of the square cover (hotspot-aware).
-  // The page falls back to the first media item when neither is set.
-  const coverUrl = work.coverSquare?.asset
-    ? urlFor(work.coverSquare).width(1600).height(1600).quality(85).url()
-    : undefined;
-  const wideSource = work.coverLandscape?.asset
-    ? work.coverLandscape
-    : work.coverSquare?.asset
-      ? work.coverSquare
-      : undefined;
-  const coverUrlWide = wideSource
-    ? urlFor(wideSource).width(2400).height(1350).quality(85).url()
-    : undefined;
+  // The hero's cover: 9:16 on mobile, 16:9 on desktop — each its own upload
+  // or a crop of another cover. The page falls back to the first media item
+  // when the work has no cover at all.
+  const covers = coverUrls(work, 2400);
+  const coverUrl = covers.tall;
+  const coverUrlWide = covers.wide;
 
   // The work as a CreativeWork, for search engines.
   const jsonLd = {

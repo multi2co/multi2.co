@@ -6,6 +6,11 @@ export const SITE_URL = (
 
 export const SITE_NAME = "Multi2";
 
+/** The line the nav's wordmark button cycles to on desktop, and the site's
+ *  default page title. */
+export const SITE_TAGLINE =
+  "multi² - the creative production company with exponential output";
+
 export const SITE_DESCRIPTION =
   "Multi2 is a creative agency in Stockholm working across photo, video, production, art direction and concept.";
 

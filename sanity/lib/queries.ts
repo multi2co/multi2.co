@@ -16,6 +16,7 @@ export const workBySlugQuery = groq`
     credits,
     coverSquare { asset, hotspot, crop },
     coverLandscape { asset, hotspot, crop },
+    coverPortrait { asset, hotspot, crop },
     media[] {
       _type,
       _key,
@@ -53,7 +54,9 @@ export const workCardsQuery = groq`
     featured,
     heroIntro,
     "slug": slug.current,
-    coverSquare { asset },
+    coverSquare { asset, hotspot, crop },
+    coverLandscape { asset, hotspot, crop },
+    coverPortrait { asset, hotspot, crop },
     media[] {
       _type,
       _key,

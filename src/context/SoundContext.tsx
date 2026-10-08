@@ -30,26 +30,7 @@ type SoundContextType = {
    *  on mute. Muting keeps the set level to come back to. */
   volume: number;
   setVolume: (v: number) => void;
-  /** True once the visitor has been through the cookie + sound consent flow
-   *  (or was a returning visitor with nothing left to answer). Standing sound
-   *  controls that would otherwise cover the prompt wait on this. */
-  consentSettled: boolean;
-  markConsentSettled: () => void;
 };
-
-/** Returning visitors have already resolved the flow — read that straight from
- *  storage so the standing controls don't flash in and out on first paint. */
-function readConsentSettled(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return (
-      localStorage.getItem("sound-consent") !== null ||
-      localStorage.getItem("cookie-consent") === "declined"
-    );
-  } catch {
-    return false;
-  }
-}
 
 const SoundContext = createContext<SoundContextType | null>(null);
 
@@ -69,7 +50,6 @@ export function SoundProvider({ children }: { children: ReactNode }) {
   const volumeRef = useRef(1);
   const mutedRef = useRef(true);
   const rafRef = useRef<number | null>(null);
-  const [consentSettled, setConsentSettled] = useState(false);
   const pathname = usePathname();
   const silent = SILENT_ROUTES.has(pathname ?? "");
 
@@ -129,13 +109,6 @@ export function SoundProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => stopFade, [stopFade]);
 
-  // Post-mount only: the server render has no localStorage, so seeding this
-  // during useState would desync hydration.
-  useEffect(() => {
-    if (readConsentSettled()) setConsentSettled(true);
-  }, []);
-
-  const markConsentSettled = useCallback(() => setConsentSettled(true), []);
 
   // Raising the level is itself an unmute — otherwise dragging the slider up
   // does nothing audible and reads as broken. A drag sets the level directly
@@ -165,8 +138,6 @@ export function SoundProvider({ children }: { children: ReactNode }) {
         toggleMute,
         volume: level,
         setVolume,
-        consentSettled,
-        markConsentSettled,
       }}
     >
       {children}

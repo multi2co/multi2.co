@@ -287,7 +287,8 @@
      everywhere except a stair-stepped cut at each corner; `fill` keeps the
      centre painted so only the corners are clipped. The rendered corner is a
      constant `--pixel-corner` (the M2Nav field-square size) so every notch on
-     the page reads at the same scale. */
+     the page reads at the same scale. Top/Bottom cut the same single-step
+     notch as .pixelCorners, on just those two corners. */
   .pixelCorners {
     -webkit-mask-box-image: url("/pixel_xxs.svg") 9 fill stretch;
     -webkit-mask-box-image-width: var(--pixel-corner);
@@ -295,15 +296,15 @@
   }
 
   .pixelCornersTop {
-    -webkit-mask-box-image: url("/pixel_top.svg") 18 fill stretch;
+    -webkit-mask-box-image: url("/pixel_top.svg") 9 fill stretch;
     -webkit-mask-box-image-width: var(--pixel-corner);
-    mask-border: url("/pixel_top.svg") 18 fill / var(--pixel-corner) stretch;
+    mask-border: url("/pixel_top.svg") 9 fill / var(--pixel-corner) stretch;
   }
 
   .pixelCornersBottom {
-    -webkit-mask-box-image: url("/pixel_bottom.svg") 18 fill stretch;
+    -webkit-mask-box-image: url("/pixel_bottom.svg") 9 fill stretch;
     -webkit-mask-box-image-width: var(--pixel-corner);
-    mask-border: url("/pixel_bottom.svg") 18 fill / var(--pixel-corner) stretch;
+    mask-border: url("/pixel_bottom.svg") 9 fill / var(--pixel-corner) stretch;
   }
 
   .pixelCornersBorder {
@@ -447,19 +448,21 @@ html.multi2_bw {
   --ring: oklch(0 0 0);
 }
 
+/* Red (the default palette) in dark mode: a black page with the red primary
+   as the text colour. */
 html.multi2_dark {
-  --background: oklch(0.16 0.018 29.23);
-  --foreground: oklch(0.943 0.0286 29.23);
-  --card: oklch(0.16 0.018 29.23);
-  --card-foreground: oklch(0.943 0.0286 29.23);
-  --popover: oklch(0.16 0.018 29.23);
-  --popover-foreground: oklch(0.943 0.0286 29.23);
+  --background: #000000;
+  --foreground: oklch(0.628 0.2577 29.2339);
+  --card: #000000;
+  --card-foreground: oklch(0.628 0.2577 29.2339);
+  --popover: #000000;
+  --popover-foreground: oklch(0.628 0.2577 29.2339);
   --muted: oklch(0.22 0.03 29.23);
   --muted-foreground: oklch(0.72 0.13 29.23);
   --accent: oklch(0.22 0.03 29.23);
   --accent-foreground: oklch(0.943 0.0286 29.23);
   --primary: oklch(0.628 0.2577 29.2339);
-  --primary-foreground: oklch(0.16 0.018 29.23);
+  --primary-foreground: #000000;
   --secondary: oklch(0.1 0.2577 29.2339);
   --secondary-foreground: oklch(0.9 0.2577 29.2339);
   --border: oklch(0.66 0.24 29.23);
@@ -565,4 +568,16 @@ html.multi2_bw.multi2_dark {
   --border: oklch(0.96 0 0);
   --input: oklch(0.28 0 0);
   --ring: oklch(0.96 0 0);
+}
+
+/* A two-step pixel notch for the larger media (the 16:9 frames): the same
+   single-step cut as .pixelCorners, stepped twice. /pixel_two_step.svg has its
+   steps at 9 and 18 of an 18-unit corner slice, drawn at twice
+   --pixel-corner, so each step is exactly --pixel-corner. A utility, so it
+   takes variants and wins over .pixelCorners (`lg:pixel-corners-2`). */
+@utility pixel-corners-2 {
+  -webkit-mask-box-image: url("/pixel_two_step.svg") 18 fill stretch;
+  -webkit-mask-box-image-width: calc(var(--pixel-corner) * 2);
+  mask-border: url("/pixel_two_step.svg") 18 fill /
+    calc(var(--pixel-corner) * 2) stretch;
 }

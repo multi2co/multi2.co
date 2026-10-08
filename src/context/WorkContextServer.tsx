@@ -2,6 +2,7 @@ import React from "react";
 import { sanityFetch } from "../../sanity/lib/client";
 import { workCardsQuery } from "../../sanity/lib/queries";
 import { urlFor } from "../../sanity/lib/image";
+import { coverUrls, type WorkCovers } from "../../sanity/lib/covers";
 import { WorkProvider, type GridItem } from "./WorkContext";
 
 const PLACEHOLDER_IMG = "https://placehold.co/1200x1200/111111/111111";
@@ -67,9 +68,8 @@ type WorkData = {
   featured?: boolean;
   heroIntro?: string;
   slug: string;
-  coverSquare?: { asset: { _ref: string } };
   media?: MediaItem[];
-};
+} & WorkCovers;
 
 export async function WorkContextServer({
   children,
@@ -102,9 +102,13 @@ export async function WorkContextServer({
     // Hoisted: works with media still have a cover, and callers that want the
     // cover specifically can't get it from the media-derived `url`. Forced to
     // a 1:1 crop since this is the dedicated archive-cover field.
-    const coverUrl = work.coverSquare?.asset
-      ? urlFor(work.coverSquare).width(1200).height(1200).quality(80).url()
-      : undefined;
+    const covers = coverUrls(work, 1200);
+    const coverUrl = covers.square;
+    const coverFields = {
+      coverUrl,
+      coverWideUrl: covers.wide,
+      coverTallUrl: covers.tall,
+    };
 
     const allMedia = (work.media ?? [])
       .map(toDisplayMedia)
@@ -126,7 +130,7 @@ export async function WorkContextServer({
           createdAt: work._createdAt,
           categories: work.categories ?? [],
           aspectRatio: m.aspectRatio,
-          coverUrl,
+          ...coverFields,
           featured: work.featured ?? false,
           heroIntro: work.heroIntro,
           isPrimary: idx === 0,
@@ -144,7 +148,7 @@ export async function WorkContextServer({
         createdAt: work._createdAt,
         categories: work.categories ?? [],
         aspectRatio: 1,
-        coverUrl,
+        ...coverFields,
         featured: work.featured ?? false,
         heroIntro: work.heroIntro,
         isPrimary: true,

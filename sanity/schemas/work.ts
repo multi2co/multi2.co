@@ -1,9 +1,8 @@
 import { defineField, defineType } from "sanity";
 
-/** Every media item must say which ratio it's shown at — the project page
- *  always renders it in exactly this box (images are cropped to it around
- *  their hotspot). Values map to ratios in the project page's
- *  ASPECT_RATIO_BY_TYPE; "cube" is the original key for 1:1. */
+/** The ratio a video is shown at — a video can't report its own size before
+ *  it loads, so the editor picks it. Values map to ratios in the project
+ *  page's ASPECT_RATIO_BY_TYPE; "cube" is the original key for 1:1. */
 const aspectRatioField = defineField({
   name: "aspectRatioType",
   title: "Aspect Ratio",
@@ -20,6 +19,15 @@ const aspectRatioField = defineField({
     layout: "radio",
   },
   validation: (r) => r.required(),
+});
+
+/** Images render at the ratio they were uploaded at, so they don't need one
+ *  picked. Hidden rather than removed: items saved with a ratio keep it
+ *  without the Studio flagging an unknown field. */
+const imageAspectRatioField = defineField({
+  ...aspectRatioField,
+  hidden: true,
+  validation: undefined,
 });
 
 export const work = defineType({
@@ -74,7 +82,7 @@ export const work = defineType({
       name: "coverSquare",
       title: "Cover (1:1)",
       description:
-        "Square cover — the project page hero on mobile, and the cover on the homepage and in the projects archive.",
+        "Square cover for the projects archive. The other covers fall back to a crop of this one when they're empty.",
       type: "image",
       options: { hotspot: true },
     }),
@@ -82,16 +90,15 @@ export const work = defineType({
       name: "coverLandscape",
       title: "Cover — Desktop (16:9)",
       description:
-        "The project page hero on desktop. Leave empty to use a 16:9 crop of the 1:1 cover.",
+        "Desktop: the homepage card and the project page hero. Leave empty to use a 16:9 crop of the 1:1 cover.",
       type: "image",
       options: { hotspot: true },
     }),
     defineField({
       name: "coverPortrait",
-      hidden: true,
-      title: "Cover — Portrait (9:16)",
+      title: "Cover — Mobile (9:16)",
       description:
-        "Used as the project page hero on mobile, unless Hero Cover Style below is set to Square only.",
+        "Mobile: the homepage card and the project page hero. Leave empty to use a 9:16 crop of the 1:1 cover.",
       type: "image",
       options: { hotspot: true },
     }),
@@ -131,7 +138,7 @@ export const work = defineType({
           type: "image",
           options: { hotspot: true },
           fields: [
-            aspectRatioField,
+            imageAspectRatioField,
             defineField({
               name: "alt",
               type: "string",

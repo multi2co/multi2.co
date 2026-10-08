@@ -34,11 +34,14 @@ export default function ProjectCard({
         {/* group-hover, not hover: the scale should follow the whole card.
             overflow-hidden on the parent crops the growth instead of letting
             it push into the neighbouring masonry column. */}
-        {item.mediaType === "video" ? (
+        {/* Square on every width: the work's 1:1 cover (its own upload or a
+            crop of another cover) when it has one, else its first media
+            item cropped into the square. */}
+        {!item.coverUrl && item.mediaType === "video" ? (
           <VideoPlayer src={item.url} className="object-cover" />
         ) : (
           <Image
-            src={item.url}
+            src={item.coverUrl ?? item.url}
             alt={item.alt}
             fill
             className="object-cover "

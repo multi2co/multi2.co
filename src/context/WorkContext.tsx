@@ -19,6 +19,10 @@ export type GridItem = {
   /** The work's own square cover — a different asset from the media
    *  images, so `url` is not a stand-in for it. */
   coverUrl?: string;
+  /** The 16:9 and 9:16 covers (own upload or a crop of another cover) —
+   *  desktop and mobile on the home page's featured cards. */
+  coverWideUrl?: string;
+  coverTallUrl?: string;
   /** "Featured on homepage" toggle in the CMS — drives the selected-projects
    *  block on the landing page. */
   featured?: boolean;

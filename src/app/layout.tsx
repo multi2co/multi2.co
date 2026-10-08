@@ -10,16 +10,20 @@ import { UIProvider } from "@/context/UIContext";
 import { SoundProvider } from "@/context/SoundContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import M2Nav from "@/app/components/M2Nav";
-import CookieAndSound from "@/app/components/CookieAndSound";
 import SmoothScroll from "@/app/components/SmoothScroll";
 import UnderConstruction from "./components/UnderConstruction";
 import ThemeToggle from "./components/ThemeToggle";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+} from "@/lib/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — creative agency, Stockholm`,
+    default: SITE_TAGLINE,
     template: `%s — ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -41,6 +45,7 @@ const ORGANIZATION_JSON_LD = {
   url: SITE_URL,
   logo: `${SITE_URL}/icon.png`,
   description: SITE_DESCRIPTION,
+  slogan: SITE_TAGLINE,
   address: {
     "@type": "PostalAddress",
     addressLocality: "Stockholm",
@@ -119,7 +124,6 @@ export default function RootLayout({
                       <UnderConstruction />
                       <ThemeToggle />
                       <M2Nav />
-                      <CookieAndSound />
 
                       <SmoothScroll>{children}</SmoothScroll>
                     </ThemeProvider>
