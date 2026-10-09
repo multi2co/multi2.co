@@ -11,7 +11,6 @@ import CheckButton from "./components/CheckButton";
 import ConnectSection from "./components/ConnectSection";
 import FeaturedCard from "./components/FeaturedCard";
 import { Reveal } from "./components/Reveal";
-import { useScrollInset } from "@/lib/useScrollInset";
 import ShowReel from "./components/ShowReel";
 import HeroWordmark from "./components/HeroWordmark";
 
@@ -24,7 +23,6 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   const { items } = useWork();
   const { notifyContentDone, notifyHeroOpen } = useUI();
   const reduceMotion = useReducedMotion();
-  const reelInset = useScrollInset<HTMLDivElement>(12, 24);
 
   // With reduced motion the reel doesn't slide in, so there's nothing for the
   // nav to wait on.
@@ -66,32 +64,25 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   }, [items]);
 
   return (
-    <div className="w-full bg-background mt-48">
-      {/* One gutter for the whole page: px-3 on mobile, px-6 from lg up. */}
-      {/* The showreel's side margin grows from px-3 to px-6 as it scrolls
-          away (see useScrollInset). */}
-      <motion.div
-        ref={reelInset.ref}
-        style={reelInset.style}
-        className="relative w-full"
-      >
+    <div className="w-full bg-background">
+      {/* The showreel fills the viewport edge to edge on every width. */}
+      <div className="relative w-screen">
         {/* Not Reveal: this is the first thing on screen, so it must be
             visible from the server HTML rather than waiting for JS to fade it
-            in. 9:16 on mobile; 16:9 at 75% of the row (~9 of 12 columns),
-            centred, on desktop. On load it rises a little into place — a
+            in. Full screen on all widths. On load it rises a little into place — a
             transform only, never hidden — and once it's there M2Nav reveals
-            its links (see `heroOpen`). `z-[95]` puts it over the fixed nav
-            (z-90) as it scrolls up, like the featured cards' media. */}
+            its links (see `heroOpen`). `z-[80]` keeps it under the fixed nav
+            (z-90) so the nav stays visible on top of the reel. */}
         <motion.div
           initial={reduceMotion ? false : { y: 48 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           onAnimationComplete={notifyHeroOpen}
-          className="sticky top-0 z-[95] w-full aspect-[9/16] lg:aspect-video lg:w-3/4 lg:mx-auto pixelCorners pixel-corners-2 bg-secondary"
+          className="sticky top-0 z-[80] h-screen w-screen bg-secondary"
         >
           <div className=" relative overflow-hidden w-full h-full">
             <ShowReel
-              className="absolute inset-0 h-full w-full aspect-[9/16] lg:aspect-video p-0"
+              className="absolute inset-0 h-full w-full"
               src={reelUrl}
             />
             {/* Light scrim so the thin heading stays legible over the footage. */}
@@ -103,12 +94,11 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
           </div>
         </motion.div>
         {/* Desktop: the wordmark is centred on the whole first viewport, not
-            just the box — so it isn't clipped while the box is still square.
-            `-top-48` cancels the page's `mt-48`. */}
+            just the box. */}
         {SHOW_HERO_WORDMARK && (
-          <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-x-0 -top-48 z-10 h-screen items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
+          <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-x-0 top-0 z-10 h-screen items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
         )}
-      </motion.div>
+      </div>
       <Reveal className="col-span-3 lg:col-span-12 bg-background px-6 lg:px-3 pt-12  ">
         <AboutSectionText
           columns

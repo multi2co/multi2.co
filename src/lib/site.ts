@@ -6,8 +6,7 @@ export const SITE_URL = (
 
 export const SITE_NAME = "Multi2";
 
-/** The line the nav's wordmark button cycles to on desktop, and the site's
- *  default page title. */
+/** The site's default page title. */
 export const SITE_TAGLINE =
   "multi² - the creative production company with exponential output";
 

@@ -10,7 +10,6 @@ import { THEMES, useTheme } from "@/context/ThemeContext";
 import { useIconStyle } from "@/context/IconStyleContext";
 import CheckButton from "./CheckButton";
 import TerminalM2Button from "./TerminalM2Button";
-import { SITE_TAGLINE } from "@/lib/site";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
@@ -18,6 +17,12 @@ const NAV_ITEMS = [
   { href: "/about", label: "About" },
   { href: "/connect", label: "Connect" },
   { href: "/studio", label: "Log In" },
+] as const;
+
+/** What the desktop bar links to directly — it has no menu drawer. */
+const DESKTOP_LINKS = [
+  { href: "/projects", label: "Projects" },
+  { href: "/about", label: "About" },
 ] as const;
 
 /** Routes that never call notifyContentDone (e.g. /studio) still have to settle. */
@@ -29,12 +34,7 @@ const NAVFIELD_REVEAL_MS = 1500;
 
 /** What the wordmark button cycles through once the page is scrolled, after
  *  resting on "multi²" — the same set on mobile and desktop. */
-const WORDMARK_PHRASES = [
-  SITE_TAGLINE,
-  "(multisquared)",
-  "/ˈmʌl.ti.skweəd/",
-  "multi2.co",
-];
+const WORDMARK_PHRASES = ["(multisquared)", "/ˈmʌl.ti.skweəd/", "multi2.co"];
 
 /** If the home hero never reports in, the bar comes in anyway after this. */
 const BAR_FALLBACK_MS = 3000;
@@ -170,7 +170,9 @@ function NavField({
 
 /** The top control row — its own overlay, sitting above `NavField` on the
  *  click-through layer. `grid-cols-3` on mobile; always `grid-cols-12` on `lg`
- *  (wordmark · menu · sound/connect · dark at cols 1–2 / 7 / 10 / 12) so the
+ *  (wordmark · – · projects · about · connect · dark at cols
+ *  1–2 / 3 / 4 / 7 / 10 / 12; on project pages light/dark moves to col 3
+ *  and sound takes col 12) so the
  *  controls hold their positions whatever the field grid does underneath.
  *  Opening the drawer fills it with `bg-primary` so the panel below reads as
  *  one surface. */
@@ -189,8 +191,10 @@ function NavBar({
   onCycleTheme,
   onDark,
   revealed,
+  onNavigate,
 }: {
   revealed: boolean;
+  onNavigate: (href: string) => void;
   open: boolean;
   onToggleOpen: () => void;
   menuLoading: boolean;
@@ -275,7 +279,7 @@ function NavBar({
       {/* Desktop cols 1–2: the wordmark; clicking it scrolls back to top. */}
       <motion.div
         variants={BAR_ITEM}
-        className="hidden lg:block lg:col-start-1 lg:col-span-2"
+        className="hidden lg:block lg:col-start-1 lg:col-span-2 min-w-0 overflow-hidden"
       >
         <CheckButton
           className="font-visual w-full"
@@ -286,46 +290,92 @@ function NavBar({
           color={barColor}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <TerminalM2Button
-            className="tracking-wide whitespace-nowrap"
-            key={menuLoading ? "loading" : "wordmark"}
-            text="multi²"
-            visible
-            delay={0}
-            // Rests on "multi²"; once the reader has scrolled it cycles the
-            // tagline, the name, its pronunciation and the domain, then
-            // back, so the bar still says who it is.
-            phrases={cycleMenuLabel ? WORDMARK_PHRASES : []}
-            loop={cycleMenuLabel}
-            trigger={cycleMenuLabel ? "scrolled" : "idle"}
-          />
+          {/* Clipped to cols 1–2 so no phrase runs into the links. */}
+          <span className="block min-w-0 truncate">
+            <TerminalM2Button
+              className="tracking-wide whitespace-nowrap"
+              key={menuLoading ? "loading" : "wordmark"}
+              text="multi²"
+              visible
+              delay={0}
+              // Rests on "multi²"; once the reader has scrolled it cycles the
+              // name, its pronunciation and the domain, then
+              // back, so the bar still says who it is.
+              phrases={cycleMenuLabel ? WORDMARK_PHRASES : []}
+              loop={cycleMenuLabel}
+              trigger={cycleMenuLabel ? "scrolled" : "idle"}
+            />
+          </span>
         </CheckButton>
       </motion.div>
 
-      {/* Desktop col 7: a plain menu/close toggle for the drawer. */}
-      <motion.div
-        variants={BAR_ITEM}
-        className="hidden lg:block lg:col-start-7 lg:col-span-2"
-      >
-        <CheckButton
-          className="font-visual w-full"
-          size="lg"
-          label={open ? "close" : "menu"}
-          active
-          color={barColor}
-          onClick={onToggleOpen}
-        />
-      </motion.div>
-      {/* Desktop col 10: the sound toggle on project pages, "connect"
-          everywhere else. */}
+      {/* Desktop col 3: the light/dark toggle on project pages, where the
+          sound toggle takes its far-right slot. */}
+      {showSound && (
+        <motion.div
+          variants={BAR_ITEM}
+          className="hidden lg:block lg:col-start-3 lg:col-span-2"
+        >
+          <CheckButton
+            className="font-visual w-full"
+            size="label"
+            label={dark ? "dark" : "light"}
+            active
+            color={barColor}
+            onClick={onToggleDark}
+          />
+        </motion.div>
+      )}
+
+      {/* Desktop cols 4 / 7: the page links — no drawer on desktop. */}
+      {DESKTOP_LINKS.map((item, i) => (
+        <motion.div
+          key={item.href}
+          variants={BAR_ITEM}
+          className={cn(
+            "hidden lg:block lg:col-span-2",
+            i === 0 ? "lg:col-start-4" : "lg:col-start-7",
+          )}
+        >
+          <CheckButton
+            className="font-visual w-full"
+            size="label"
+            label={item.label}
+            href={item.href}
+            active
+            color={barColor}
+            onClick={() => onNavigate(item.href)}
+          />
+        </motion.div>
+      ))}
+
+      {/* Desktop col 10: "connect" — scrolls to the connect section on home,
+          the connect page from anywhere else. */}
       <motion.div
         variants={BAR_ITEM}
         className="hidden lg:block lg:col-start-10 lg:col-span-2"
       >
+        <CheckButton
+          className="font-visual w-full"
+          size="label"
+          label="connect"
+          href={onConnect ? undefined : "/connect"}
+          active
+          color={barColor}
+          onClick={onConnect ?? (() => onNavigate("/connect"))}
+        />
+      </motion.div>
+
+      {/* Desktop col 12, pushed to the far right: the sound toggle on project
+          pages, the light/dark toggle everywhere else. */}
+      <motion.div
+        variants={BAR_ITEM}
+        className="hidden lg:flex lg:col-start-12 lg:col-span-1 lg:justify-end"
+      >
         {showSound ? (
           <CheckButton
-            className="font-visual w-full"
-            size="label"
+            className="font-visual whitespace-nowrap"
+            size="lg"
             label={muted ? "sound off" : "sound on"}
             active
             color={barColor}
@@ -333,30 +383,14 @@ function NavBar({
           />
         ) : (
           <CheckButton
-            className="font-visual w-full"
-            size="label"
-            label="connect"
-            href={onConnect ? undefined : "/connect"}
+            className="font-visual"
+            size="lg"
+            label={dark ? "dark" : "light"}
             active
             color={barColor}
-            onClick={onConnect}
+            onClick={onToggleDark}
           />
         )}
-      </motion.div>
-
-      {/* Desktop col 12: the light/dark toggle, pushed to the far right. */}
-      <motion.div
-        variants={BAR_ITEM}
-        className="hidden lg:flex lg:col-start-12 lg:col-span-1 lg:justify-end"
-      >
-        <CheckButton
-          className="font-visual"
-          size="lg"
-          label={dark ? "dark" : "light"}
-          active
-          color={barColor}
-          onClick={onToggleDark}
-        />
       </motion.div>
     </motion.div>
   );
@@ -458,8 +492,17 @@ export default function M2Nav() {
   const { theme, cycleTheme, dark, toggleDark } = useTheme();
   const currentTheme = THEMES.find((t) => t.id === theme) ?? THEMES[0];
 
-  // The column is opened from the menu button at every width.
+  // The column is opened from the menu button — mobile only; desktop links
+  // straight from the bar.
   const [open, setOpen] = useState(false);
+
+  // Desktop has no close button, so widening past `lg` shuts the drawer.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => mq.matches && setOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   // "loading…" covers two things: the page's own intro typing hasn't finished
   // yet, and a route change is in flight.
@@ -586,7 +629,6 @@ export default function M2Nav() {
   // reports the menu's.
   const menuLoading = loading && !scrolled;
 
-
   // Past the top of the page, the closed menu button alternates "menu" and the
   // wordmark rather than sitting on one.
   const cycleMenuLabel = scrolled && !open && !menuLoading;
@@ -654,6 +696,7 @@ export default function M2Nav() {
           onToggleDark={toggleDark}
           themeLabel={currentTheme.label}
           onCycleTheme={cycleTheme}
+          onNavigate={handleNavigate}
         />
 
         {/* The panel unfolds as a drawer — the wrapper animates its height so

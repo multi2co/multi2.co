@@ -37,7 +37,7 @@ export default function ShowReel({
   return (
     <section
       className={cn(
-        "relative h-screen p-6 bg-secondary w-full overflow-hidden",
+        "relative h-screen w-screen bg-secondary overflow-hidden",
         className,
       )}
       aria-label="Showreel"

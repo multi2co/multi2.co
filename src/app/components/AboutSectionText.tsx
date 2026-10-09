@@ -6,6 +6,7 @@ import { useUI } from "@/context/UIContext";
 import { useAbout } from "@/context/AboutContext";
 import { cn } from "@/lib/utils";
 import CheckButton from "./CheckButton";
+import TypeInView from "./TypeInView";
 
 const TYPING_MS_PER_CHAR = 22;
 const ERASING_MS_PER_CHAR = 14;
@@ -99,8 +100,9 @@ export default function AboutSectionText({
             extra 0.1875rem, 1/8 × 1.5rem); on mobile, a third of the
             paragraph, which has no horizontal padding there. */}
         {resolvedText?.split("\n\n").map((paragraph, i) => (
-          <p
+          <TypeInView
             key={i}
+            text={paragraph}
             className={cn(
               "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0  lg:px-3 whitespace-pre-line text-primary",
               "lg:col-start-4 lg:col-span-8",
@@ -108,9 +110,7 @@ export default function AboutSectionText({
                 ? "lg:row-start-1"
                 : "indent-[33.333%] lg:indent-[calc(12.5%+0.1875rem)]",
             )}
-          >
-            {paragraph}
-          </p>
+          />
         ))}
       </div>
     );
@@ -129,12 +129,11 @@ export default function AboutSectionText({
         // produce no matter what the wrapper's own `space-y` is set to, since
         // that gap lives inside the single <p>'s content, not between two
         // siblings the wrapper could actually close up.
-        <p
+        <TypeInView
           key={i}
+          text={paragraph}
           className="indent-[calc(33.3vw-1rem)]  lg:indent-12 pText  px-3 lg:px-3  lg:mb-0 lowercase  lg:max-w-2xl whitespace-pre-line "
-        >
-          {paragraph}
-        </p>
+        />
       ))}
     </div>
   );

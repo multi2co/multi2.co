@@ -63,33 +63,36 @@ export default function FeaturedCard({
         href={href}
         className="group sticky top-16 z-0 block w-full mb-6"
       >
-        {/* Text row: stacked on mobile; on desktop its own 12-col grid —
-          hero intro in cols 1–6, client at col 9, the call to action in
-          col 12 pushed to the right edge, all on one row (`row-start-1`, since the client comes
-          first in the markup but sits right of the intro). */}
-        <div className="flex flex-col gap-6 px-6 lg:px-0 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-end">
-          {project.client && (
-            <CheckButton
-              label={project.client}
-              size="lg"
-              color="text-primary"
-              className="px-0 hidden lg:flex lg:px-0 lg:row-start-1 lg:col-start-9 lg:col-span-2"
-              active
-            />
-          )}
-          <div className="flex flex-col gap-6 lg:row-start-1 lg:col-start-1 lg:col-span-6">
+        {/* Text row: stacked on mobile; on desktop its own 12-col grid laid
+          over M2Nav's bar — same 12px inset (`-mx-3` cancels the list's
+          extra padding) and no column gap — so the client lines up under
+          "about" (col 7) and the call to action under "connect" (col 10).
+          All on one row (`row-start-1`), sitting on the intro's last line
+          (`items-baseline-last`). The buttons are `size="label"` like the
+          bar's: `lg` adds its own `lg:px-3`, which `className` can't undo. */}
+        <div className="flex flex-col gap-6 px-6  lg:px-2 lg:gap-x-3 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-baseline-last">
+          <div className="flex flex-col gap-0 lg:pl-4 lg:row-start-1 lg:col-start-1 lg:col-span-4">
             {project.heroIntro && (
               <TypeInView
                 text={project.heroIntro}
-                className="text-3xl lg:text-5xl font-visual text-primary  font-thin leading-tight"
+                className="text-3xl lg:text-4xl font-visual text-primary  font-thin leading-tight"
               />
             )}
           </div>
+          {project.client && (
+            <CheckButton
+              label={project.client}
+              size="label"
+              color="text-primary"
+              className="hidden lg:flex lg:row-start-1 lg:col-start-7 lg:col-span-2"
+              active
+            />
+          )}
           <CheckButton
             label="go to project"
-            size="lg"
+            size="label"
             color="text-primary"
-            className="hidden lg:flex px-0 lg:px-0 lg:row-start-1 lg:col-start-12 lg:col-span-1 lg:justify-self-end lg:justify-end whitespace-nowrap"
+            className="hidden lg:flex lg:row-start-1 lg:col-start-10 lg:col-span-2 whitespace-nowrap"
             active
           />
         </div>

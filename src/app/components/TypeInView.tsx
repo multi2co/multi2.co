@@ -31,11 +31,15 @@ export default function TypeInView({
     <Tag
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ref={ref as any}
-      className={cn("relative", className)}
+      className={className}
     >
-      <span className="invisible">{text}</span>
-      <span aria-hidden className="absolute inset-0">
-        <TypedWord text={text} visible={inView} />
+      {/* Its own positioning box, inside any padding the caller gives the
+          tag, so the typed copy lands exactly on the invisible one. */}
+      <span className="relative block">
+        <span className="invisible">{text}</span>
+        <span aria-hidden className="absolute inset-0">
+          <TypedWord text={text} visible={inView} />
+        </span>
       </span>
     </Tag>
   );
