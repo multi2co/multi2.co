@@ -431,7 +431,7 @@ function NavVertical({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -24 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className={`p-0 space-y-0 lg:p-3 w-full lg:w-full bg-primary pb-3 [&_*]:!text-primary-foreground flex flex-col h-[calc(100dvh-4rem)] lg:h-[calc(100dvh-3rem)] pr-0 lg:pr-6 pixelCornersBottom lg:[mask-border:none] lg:[-webkit-mask-box-image:none]`}
+      className={`p-0 space-y-0 lg:p-3 w-full lg:w-full bg-primary pb-3 [&_*]:!text-primary-foreground flex flex-col h-[calc(100dvh-4rem)] lg:h-[calc(100dvh-3rem)] pr-0 lg:pr-6`}
     >
       <nav className="hidden lg:flex w-full flex-col items-start gap-y-0 flex-1 min-h-0 p-0  ">
         {NAV_ITEMS.map((item) => (
@@ -670,7 +670,15 @@ export default function M2Nav() {
   if (pathname?.startsWith("/studio")) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-90 h-screen w-full">
+    // z-90 normally, so the featured cards' media (z-95) can scroll up over
+    // the bar; while the (mobile-only) drawer is open the whole overlay jumps
+    // above everything — filters, bottom bars, the lightbox.
+    <div
+      className={cn(
+        "pointer-events-none fixed inset-0 h-screen w-full",
+        open ? "z-[200]" : "z-90",
+      )}
+    >
       {/* The square field: stagger-reveals on load, holds while the page is
           still loading, then fades until the reader scrolls (a quarter turn
           further along on each scroll start and stop). */}

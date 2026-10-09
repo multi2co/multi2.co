@@ -18,10 +18,10 @@ export default function AboutPage() {
           <CheckButton label="about" size="lg" color="text-primary" active />
         </div>
         {/* The full story — reads the About doc's `aboutLong` field. */}
-        <div className="relative z-10 w-full col-start-1 col-span-3 lg:col-start-4 lg:col-span-9 lowercase h-auto px-3 lg:px-0">
+        <div className="relative z-10 w-full col-start-1 col-span-3 lg:col-start-4 lg:col-span-9 lowercase h-auto px-0 lg:px-0">
           <AboutSectionText
             variant="long"
-            className="w-full justify-center lg:content-center pb-6 lg:pb-12 h-auto"
+            className="w-full justify-center lg:content-center font-thin pb-6 lg:pb-12 h-auto"
           />
         </div>
       </Reveal>

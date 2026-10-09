@@ -84,7 +84,7 @@ export default function FeaturedCard({
               label={project.client}
               size="label"
               color="text-primary"
-              className="hidden lg:flex lg:row-start-1 lg:col-start-7 lg:col-span-2"
+              className="  flex lg:row-start-1 lg:col-start-7 lg:col-span-2"
               active
             />
           )}

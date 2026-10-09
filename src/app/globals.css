@@ -581,3 +581,12 @@ html.multi2_bw.multi2_dark {
   mask-border: url("/pixel_two_step.svg") 18 fill /
     calc(var(--pixel-corner) * 2) stretch;
 }
+
+/* .pixel-corners-2 on the top two corners only — the footer, whose bottom
+   runs off the page. */
+@utility pixel-corners-2-top {
+  -webkit-mask-box-image: url("/pixel_two_step_top.svg") 18 fill stretch;
+  -webkit-mask-box-image-width: calc(var(--pixel-corner) * 2);
+  mask-border: url("/pixel_two_step_top.svg") 18 fill /
+    calc(var(--pixel-corner) * 2) stretch;
+}

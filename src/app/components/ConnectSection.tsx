@@ -14,7 +14,7 @@ export type { ContactData };
 const DEFAULT_EMAIL = "info@multi2.co";
 
 const LINK_BTN =
-  "flex items-center h-auto py-0 gap-x-1.5 font-thin justify-start whitespace-nowrap w-min text-secondary  text-3xl lg:text-5xl ";
+  "flex items-center h-auto py-0 gap-x-1.5 font-thin justify-start whitespace-nowrap w-min text-secondary  text-3xl lg:text-4xl ";
 
 /** The named contacts sit at cols 4 / 7 — only the first two people show,
  *  matching the grid's two reserved slots. */
@@ -62,7 +62,7 @@ export default function ConnectSection({
           "col-span-3 lg:col-start-1 lg:col-span-12 h-auto w-full pb-6",
           className,
         )}
-        contentClassName="col-start-1 col-span-3 lg:col-start-1 lg:col-span-12 lowercase grid grid-cols-3 lg:grid-cols-12 items-start gap-y-6 lg:pb-12 px-0 lg:px-0"
+        contentClassName="col-start-1 col-span-3 lg:col-start-1 lg:col-span-12 lowercase grid grid-cols-3 lg:grid-cols-12 items-start gap-y-6 lg:pb-12 px-0 lg:p-4"
       >
         <CheckButton
           label="connect with us"
@@ -74,7 +74,7 @@ export default function ConnectSection({
         />
 
         {/* Col 1 — the general links, one column. */}
-        <div className="col-span-3 lg:col-start-4 lg:col-span-3 flex flex-col items-start gap-y-1 pl-6 lg:pl-3 text-secondary lg:pt-12">
+        <div className="col-span-3 lg:col-start-4 lg:col-span-3 flex flex-col items-start gap-y-2 pl-6 lg:pl-3 text-secondary lg:pt-12">
           {links.map((link) => (
             <Button
               key={link.label}
@@ -116,9 +116,7 @@ export default function ConnectSection({
         ))}
       </LandningBlock>
       {children && (
-        <div className="absolute inset-x-0 bottom-0 z-10 pb-6">
-          {children}
-        </div>
+        <div className="absolute inset-x-0 bottom-0 z-10 pb-6">{children}</div>
       )}
     </Reveal>
   );

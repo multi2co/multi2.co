@@ -94,19 +94,18 @@ export default function AboutSectionText({
         {/* One <p> per paragraph, each starting at col 4 and spanning eight
             on desktop — the first on the label's row. Only the paragraphs
             after the first indent their opening line by one column: on
-            desktop that's 1 of the paragraph's 8 columns (12.5% of its border
-            box, i.e. of its content box plus lg:px-3's 1.5rem — hence the
-            extra 0.1875rem, 1/8 × 1.5rem); on mobile, a third of the
-            paragraph, which has no horizontal padding there. */}
+            desktop that's 1 of the paragraph's 8 columns (12.5%); on mobile, a
+            third of the paragraph. No horizontal padding, so the text starts
+            on col 4's line — under M2Nav's "projects". */}
         {resolvedText?.split("\n\n").map((paragraph, i) => (
           <p
             key={i}
             className={cn(
-              "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0  lg:px-3 whitespace-pre-line text-primary",
+              "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0 whitespace-pre-line text-primary",
               "lg:col-start-4 lg:col-span-8",
               i === 0
                 ? "lg:row-start-1"
-                : "indent-[33.333%] lg:indent-[calc(12.5%+0.1875rem)]",
+                : "indent-[33.333%] lg:indent-[12.5%]",
             )}
           >
             {paragraph}
@@ -131,7 +130,7 @@ export default function AboutSectionText({
         // siblings the wrapper could actually close up.
         <p
           key={i}
-          className="indent-[calc(33.3vw-1rem)]  lg:indent-12 pText  px-3 lg:px-3  lg:mb-0 lowercase  lg:max-w-2xl whitespace-pre-line "
+          className="indent-[calc(33.3vw-1rem)]  lg:indent-12 pText font-thin  px-3 lg:px-0  lg:mb-0 lowercase  lg:max-w-2xl whitespace-pre-line "
         >
           {paragraph}
         </p>

@@ -137,7 +137,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
       <div className="w-full px-3 lg:px-6">
         <Reveal
           sticky
-          className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixelCorners mb-16 lg:mb-30"
+          className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixel-corners-2 mb-16 lg:mb-30"
         >
           <span className="col-span-3">
             <CheckButton
@@ -148,7 +148,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               active
             />
           </span>
-          <div className=" flex flex-col items-start justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-2 lg:gap-y-4 pt-6 lg:pt-12">
+          <div className=" flex flex-col items-start justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-2 lg:gap-y-2 pt-6 lg:pt-12">
             {/* Each name reveals on its own as it scrolls into view, so the
                 list fills in one by one as the card rises. */}
             {clients.map((client) => (
@@ -162,7 +162,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               >
                 <Link
                   href={`/projects/${client.slug}`}
-                  className=" transition-all text-3xl lg:text-5xl font-visual font-thin  text-primary text-right lg:text-left lowercase w-full hover:text-secondary  hover:bg-transparent"
+                  className=" transition-all text-3xl lg:text-4xl font-visual font-thin  text-primary text-right lg:text-left lowercase w-full hover:text-secondary  hover:bg-transparent"
                 >
                   {client.label}
                 </Link>
@@ -181,7 +181,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
           sticky, so its own position can't be measured once it's stuck. */}
       <div id="connect" aria-hidden />
       <div className="px-3 lg:px-6 w-full">
-        <div id="connect-zone" className="sticky top-16 pixelCorners">
+        <div id="connect-zone" className="sticky top-16 pixel-corners-2">
           <ConnectSection className=" p-3">
             <BottomNav />
           </ConnectSection>

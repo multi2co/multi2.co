@@ -31,7 +31,9 @@ export default async function ConnectPage() {
   return (
     <div className="flex min-h-screen flex-col pt-28 px-3 lg:px-6 lg:pt-28">
       <h1 className="sr-only">Connect with Multi2</h1>
-      <Reveal className="flex-1 pixelCorners">
+      {/* Pushed down to sit flush on the bottom of the page — notched on top
+          only, like the footer. */}
+      <Reveal className="mt-auto pixel-corners-2-top">
         <ConnectSection contact={contact ?? undefined} />
 
         {contact?.people && contact.people.length > 0 && (
