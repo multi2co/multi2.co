@@ -99,7 +99,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
 
       {/* Selected projects: one card per row, full width, stacked
             vertically and scrolling with the rest of the page. */}
-      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0  w-full px-3 pt-12 ">
+      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0  w-full px-0 pt-12 ">
         <CheckButton
           label="selected projects"
           href="/projects"
@@ -108,7 +108,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
           active
           className="col-span-3 lg:col-span-12 whitespace-nowrap"
         />
-        <div className="col-span-3 lg:col-span-12 flex flex-col gap-y-16 lg:gap-y-30 mt-3 px-3">
+        <div className="col-span-3 lg:col-span-12 flex flex-col gap-y-16 lg:gap-y-30 mt-3 px-6">
           {/* In each card the text pins below the nav and the card's media
               scrolls up over it — see FeaturedCard. */}
           {featuredProjects.map((project) => (

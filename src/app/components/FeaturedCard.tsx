@@ -70,7 +70,7 @@ export default function FeaturedCard({
           All on one row (`row-start-1`), sitting on the intro's last line
           (`items-baseline-last`). The buttons are `size="label"` like the
           bar's: `lg` adds its own `lg:px-3`, which `className` can't undo. */}
-        <div className="flex flex-col gap-6 px-6  lg:px-2 lg:gap-x-3 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-baseline-last">
+        <div className="flex flex-col gap-6 px-0  lg:px-2 lg:gap-x-3 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-baseline-last">
           <div className="flex flex-col gap-0 lg:pl-4 lg:row-start-1 lg:col-start-1 lg:col-span-4">
             {project.heroIntro && (
               <TypeInView
