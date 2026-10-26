@@ -101,8 +101,8 @@ export default function AboutSectionText({
           <p
             key={i}
             className={cn(
-              "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0 whitespace-pre-line text-primary",
-              "lg:col-start-4 lg:col-span-6 text-justify",
+              "col-span-3 text-base lg:text-4xl  lg:font-thin font-visual tracking-wide lg:tracking-normal  leading-tight px-0 whitespace-pre-line text-primary",
+              "lg:col-start-4 lg:col-span-7 ",
               i === 0 ? "lg:row-start-1" : "indent-0 lg:indent-0",
             )}
           >
