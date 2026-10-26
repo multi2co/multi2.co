@@ -129,7 +129,7 @@ function NavField({
       initial="rest"
       animate={active ? "active" : "rest"}
       className={cn(
-        "pointer-events-none absolute inset-0 overflow-hidden font-visual text-base lg:text-base transition-colors",
+        "pointer-events-none absolute hidden inset-0 overflow-hidden font-visual text-base lg:text-base transition-colors",
         onDark ? "text-secondary" : "text-primary",
       )}
     >
@@ -139,7 +139,7 @@ function NavField({
           custom={rotate}
           variants={ROW_STAGGER}
           className={cn(
-            "absolute inset-x-0 grid grid-cols-3 px-6 lg:p-6  gap-x-12 lg:gap-x-3",
+            "absolute inset-x-0 hidden grid grid-cols-3 px-6 lg:p-6  gap-x-12 lg:gap-x-3",
             pos,
             projects ? "lg:grid-cols-6" : "lg:grid-cols-4",
           )}

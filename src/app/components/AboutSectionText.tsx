@@ -6,7 +6,6 @@ import { useUI } from "@/context/UIContext";
 import { useAbout } from "@/context/AboutContext";
 import { cn } from "@/lib/utils";
 import CheckButton from "./CheckButton";
-import TypeInView from "./TypeInView";
 
 const TYPING_MS_PER_CHAR = 22;
 const ERASING_MS_PER_CHAR = 14;
@@ -99,18 +98,16 @@ export default function AboutSectionText({
             third of the paragraph. No horizontal padding, so the text starts
             on col 4's line — under M2Nav's "projects". */}
         {resolvedText?.split("\n\n").map((paragraph, i) => (
-          // Types itself out once it scrolls into view, like the featured
-          // cards' intros (TypeInView). Not on /about, where the text is the
-          // first thing on screen (the LCP).
-          <TypeInView
+          <p
             key={i}
-            text={paragraph}
             className={cn(
               "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0 whitespace-pre-line text-primary",
               "lg:col-start-4 lg:col-span-7",
               i === 0 ? "lg:row-start-1" : "indent-[33.333%] lg:indent-0",
             )}
-          />
+          >
+            {paragraph}
+          </p>
         ))}
       </div>
     );
