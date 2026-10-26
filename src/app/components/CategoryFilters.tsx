@@ -7,11 +7,7 @@ import { useWork } from "@/context/WorkContext";
 import CheckButton from "./CheckButton";
 import SearchCheck from "./SearchCheck";
 import { zoomInCols, zoomOutCols } from "@/lib/gridZoom";
-import {
-  getFilterChipDelays,
-  getFilterChipLabel,
-  getVisibleFilterCats,
-} from "@/lib/categories";
+import { getFilterChipLabel, getVisibleFilterCats } from "@/lib/categories";
 import { useEffect, useState } from "react";
 import { Reveal } from "./Reveal";
 
@@ -73,7 +69,6 @@ export default function CategoryFilters({
   }
 
   const allCats = getVisibleFilterCats(categories);
-  const filterDelays = getFilterChipDelays(categories);
 
   function handleFilterChange(cat: string) {
     setActiveFilter(cat);
@@ -117,7 +112,7 @@ export default function CategoryFilters({
       {/* Reveal wraps the content, not this sticky root — a transform on the
           sticky element's own ancestor would break its stickiness (though a
           transform on the sticky element itself, or on its descendants like
-          this, is fine). Same top-to-bottom cascade the grid/list uses. */}
+          this, is fine). The panel reveals as a single block. */}
       <Reveal>
         <AnimatePresence initial={false}>
           {showFilters && (
@@ -156,19 +151,11 @@ export default function CategoryFilters({
                 />
                 {showCat && (
                   <div className="col-start-1 col-span-2 row-start-2 flex flex-col lg:grid  lg:grid-cols-2 px-0 gap-y-6 w-full">
-                    {allCats.map((cat, i) => (
-                      <motion.span
+                    {/* No per-chip stagger: the whole panel reveals as one
+                        (the Reveal around it). */}
+                    {allCats.map((cat) => (
+                      <span
                         key={cat}
-                        // Reveal the categories one by one; the project list waits
-                        // for this whole sequence (getFilterDoneMs shares the
-                        // filterDelays math) before it fades in.
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                          duration: 0.3,
-                          ease: DRAWER_EASE,
-                          delay: filterDelays[i] / 1000,
-                        }}
                         className="inline-flex items-baseline whitespace-nowrap col-span-1 "
                       >
                         <CheckButton
@@ -179,7 +166,7 @@ export default function CategoryFilters({
                           onClick={() => handleFilterChange(cat)}
                           active={activeFilter === cat}
                         />
-                      </motion.span>
+                      </span>
                     ))}
                   </div>
                 )}

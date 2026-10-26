@@ -9,6 +9,7 @@ import {
 import { urlFor } from "../../../../sanity/lib/image";
 import { coverUrls, type WorkCovers } from "../../../../sanity/lib/covers";
 import WorkPageClient, { type ProjectMedia } from "./ProjectPageClient";
+import { normalizeCategories } from "@/lib/categories";
 
 /** The ratios editors pick per media item (`aspectRatioType` in the Work
  *  schema). The page always renders an item in exactly this box. */
@@ -212,7 +213,7 @@ export default async function WorkPage({
         slug={slug}
         description={ptToText(work.description)}
         credits={ptToText(work.credits)}
-        categories={work.categories ?? []}
+        categories={normalizeCategories(work.categories)}
         year={work.year}
         media={media}
         coverUrl={coverUrl}

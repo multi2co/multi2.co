@@ -10,6 +10,7 @@ import HeroCarousel from "@/app/components/HeroCarousel";
 import VideoPlayer from "@/app/components/VideoPlayer";
 import BottomNav from "@/app/components/BottomNav";
 import Footer from "@/app/components/Footer";
+import { getCategoryLabel } from "@/lib/categories";
 
 /** One gallery item. `aspectRatio` is the ratio the editor picked in the CMS
  *  — every item is rendered in a box of exactly that ratio. */
@@ -21,21 +22,6 @@ export type ProjectMedia = {
   /** Alt text from the CMS, for images. */
   alt?: string;
   description?: string;
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  photo: "Photo",
-  video: "Video",
-  production: "Production",
-  "art-direction": "Art Direction",
-  concept: "Concept",
-  "sound-design": "Sound Design",
-  vax: "Vax",
-  dop: "DOP",
-  "post-processing": "Post-prod",
-  "post-production": "Post-prod",
-  music: "Music Prod",
-  "music-production": "Music Prod",
 };
 
 /** One credit line — "Creative Director: David Andersson" — split into its role
@@ -337,7 +323,7 @@ function ProjectPageInner({
                 <dt className="font-normal lg:col-span-2">categories</dt>
                 <dd className="m-0 lg:col-span-6 flex flex-col font-normal uppercase">
                   {categories.map((c) => (
-                    <span key={c}>{CATEGORY_LABELS[c] ?? c}</span>
+                    <span key={c}>{getCategoryLabel(c)}</span>
                   ))}
                 </dd>
               </>

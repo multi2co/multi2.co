@@ -14,11 +14,33 @@ export const CATEGORY_LABELS: Record<string, string> = {
   dop: "DOP",
   "post-processing": "Post-prod",
   "post-production": "Post-prod",
-  music: "Music Prod",
   "music-production": "Music Prod",
 };
 
-export const getCategoryLabel = (cat: string) => CATEGORY_LABELS[cat] ?? cat;
+/** Slugs that mean the same thing as another, folded into it. */
+const CATEGORY_ALIASES: Record<string, string> = {
+  music: "music-production",
+};
+
+/** The CMS stores categories as free text, so the same one arrives as
+ *  "Music", "music" or "Art Direction" / "art direction" / "art-direction".
+ *  Lower-cased, hyphenated and alias-folded here so filtering and labels see
+ *  one slug per category. */
+export function normalizeCategory(cat: string): string {
+  const slug = cat.trim().toLowerCase().replace(/\s+/g, "-");
+  return CATEGORY_ALIASES[slug] ?? slug;
+}
+
+/** A work's categories, normalized and deduped. */
+export const normalizeCategories = (cats: string[] = []) =>
+  Array.from(new Set(cats.map(normalizeCategory)));
+
+/** "graphic-design" → "Graphic Design", for slugs with no label of their own. */
+const humanize = (slug: string) =>
+  slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+export const getCategoryLabel = (cat: string) =>
+  CATEGORY_LABELS[cat] ?? humanize(cat);
 
 /** Deduped, comma-joined labels — two slugs can render the same label. */
 export function formatCategories(cats: string[]) {
@@ -53,16 +75,15 @@ const FILTER_CHIP_LABELS: Record<string, string> = {
   dop: "DOP",
   "post-processing": "Post-Processing",
   "post-production": "Post Production",
-  music: "Music Production",
   "music-production": "Music Production",
 };
 
 export const getFilterChipLabel = (cat: string) =>
-  cat === "all" ? "All Projects" : (FILTER_CHIP_LABELS[cat] ?? cat);
+  cat === "all" ? "All Projects" : (FILTER_CHIP_LABELS[cat] ?? humanize(cat));
 
 /** The picker's visible chips, in order — "all" first, then the CMS's
- *  categories with any that render the same label (e.g. music /
- *  music-production) collapsed to their first occurrence. */
+ *  categories with any that render the same label (e.g. post-processing /
+ *  post-production) collapsed to their first occurrence. */
 export function getVisibleFilterCats(categories: string[]): string[] {
   const seen = new Set<string>();
   return ["all", ...categories].filter((cat) => {
@@ -71,21 +92,4 @@ export function getVisibleFilterCats(categories: string[]): string[] {
     seen.add(key);
     return true;
   });
-}
-
-const FILTER_CHIP_TYPING_MS_PER_CHAR = 22;
-
-/** Cumulative reveal delay (ms), one per visible chip in order — the picker
- *  staggers them in at this cadence, each waiting for the previous label to
- *  finish "typing" at 22ms/char before it starts. */
-export function getFilterChipDelays(categories: string[]): number[] {
-  const cats = getVisibleFilterCats(categories);
-  return cats.reduce<number[]>((acc, _cat, i) => {
-    if (i === 0) return [0];
-    const prevLabel = getFilterChipLabel(cats[i - 1]);
-    return [
-      ...acc,
-      acc[i - 1] + (prevLabel.length + 2) * FILTER_CHIP_TYPING_MS_PER_CHAR,
-    ];
-  }, []);
 }

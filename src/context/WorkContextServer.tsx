@@ -4,6 +4,7 @@ import { workCardsQuery } from "../../sanity/lib/queries";
 import { urlFor } from "../../sanity/lib/image";
 import { coverUrls, type WorkCovers } from "../../sanity/lib/covers";
 import { WorkProvider, type GridItem } from "./WorkContext";
+import { normalizeCategories } from "@/lib/categories";
 
 const PLACEHOLDER_IMG = "https://placehold.co/1200x1200/111111/111111";
 
@@ -95,7 +96,8 @@ export async function WorkContextServer({
   const categorySet = new Set<string>();
 
   for (const work of works) {
-    for (const cat of work.categories ?? []) {
+    const workCategories = normalizeCategories(work.categories);
+    for (const cat of workCategories) {
       categorySet.add(cat);
     }
 
@@ -128,7 +130,7 @@ export async function WorkContextServer({
           client: work.client,
           year: work.year,
           createdAt: work._createdAt,
-          categories: work.categories ?? [],
+          categories: workCategories,
           aspectRatio: m.aspectRatio,
           ...coverFields,
           featured: work.featured ?? false,
@@ -146,7 +148,7 @@ export async function WorkContextServer({
         client: work.client,
         year: work.year,
         createdAt: work._createdAt,
-        categories: work.categories ?? [],
+        categories: workCategories,
         aspectRatio: 1,
         ...coverFields,
         featured: work.featured ?? false,
@@ -168,7 +170,7 @@ export async function WorkContextServer({
         client: work.client,
         year: work.year,
         createdAt: work._createdAt,
-        categories: work.categories ?? [],
+        categories: workCategories,
         aspectRatio: 1,
         featured: work.featured ?? false,
         heroIntro: work.heroIntro,
