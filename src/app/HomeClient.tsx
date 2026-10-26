@@ -85,8 +85,6 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               className="absolute inset-0 h-full w-full"
               src={reelUrl}
             />
-            {/* Light scrim so the thin heading stays legible over the footage. */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-xl " />
             {/* Mobile: the wordmark sits inside the box. */}
             {SHOW_HERO_WORDMARK && (
               <HeroWordmark className="lg:hidden absolute inset-0 z-10 flex items-center justify-center px-3 text-center text-6xl font-visual font-thin tracking-normal lowercase rotate-90 text-primary" />

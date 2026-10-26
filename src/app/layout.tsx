@@ -11,7 +11,6 @@ import { SoundProvider } from "@/context/SoundContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import M2Nav from "@/app/components/M2Nav";
 import SmoothScroll from "@/app/components/SmoothScroll";
-import UnderConstruction from "./components/UnderConstruction";
 import ThemeToggle from "./components/ThemeToggle";
 import {
   SITE_DESCRIPTION,
@@ -121,7 +120,6 @@ export default function RootLayout({
                 <UIProvider>
                   <SoundProvider>
                     <ThemeProvider>
-                      <UnderConstruction />
                       <ThemeToggle />
                       <M2Nav />
 

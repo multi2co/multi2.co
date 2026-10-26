@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePresence } from "motion/react";
+import { motion, usePresence, useReducedMotion } from "motion/react";
 import { useUI } from "@/context/UIContext";
 import { useAbout } from "@/context/AboutContext";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,16 @@ import CheckButton from "./CheckButton";
 const TYPING_MS_PER_CHAR = 22;
 const ERASING_MS_PER_CHAR = 14;
 const ERASE_SPEED = 0.2;
+
+/** Each home paragraph wipes in top to bottom, once, as it scrolls into view —
+ *  a clip only, so the text is laid out (and in the page) from the start.
+ *  Not on /about, where the text is the first thing on screen (the LCP). */
+const WIPE = {
+  initial: { clipPath: "inset(0 0 100% 0)" },
+  whileInView: { clipPath: "inset(0 0 0% 0)" },
+  viewport: { once: true, margin: "0px 0px -10% 0px" },
+  transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] as const },
+};
 
 /**
  * The "our concept" copy. Reads the About entry — `short` by default (the home
@@ -46,6 +56,7 @@ export default function AboutSectionText({
   const resolvedText = text ?? body ?? undefined;
 
   const [isPresent, safeToRemove] = usePresence();
+  const wipe = useReducedMotion() ? {} : WIPE;
   const [textVisible, setTextVisible] = useState(false);
 
   useEffect(() => {
@@ -76,12 +87,12 @@ export default function AboutSectionText({
     return (
       <div
         className={cn(
-          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-0 justify-start h-auto ",
+          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-6 justify-start h-auto ",
           className,
         )}
       >
         {label && (
-          <div className="relative z-10 col-span-2 lg:col-start-1 lg:col-span-3 lg:row-start-1 gap-y-0 leading-loose space-y-0 flex items-baseline justify-start">
+          <div className="relative z-10 col-span-2 lg:col-start-1 lg:col-span-2 lg:row-start-1 gap-y-0 leading-loose space-y-0 flex items-baseline justify-start">
             <CheckButton
               label={label}
               href={href}
@@ -98,18 +109,17 @@ export default function AboutSectionText({
             third of the paragraph. No horizontal padding, so the text starts
             on col 4's line — under M2Nav's "projects". */}
         {resolvedText?.split("\n\n").map((paragraph, i) => (
-          <p
+          <motion.p
             key={i}
+            {...wipe}
             className={cn(
               "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0 whitespace-pre-line text-primary",
-              "lg:col-start-4 lg:col-span-8",
-              i === 0
-                ? "lg:row-start-1"
-                : "indent-[33.333%] lg:indent-[12.5%]",
+              "lg:col-start-4 lg:col-span-7",
+              i === 0 ? "lg:row-start-1" : "indent-[33.333%] lg:indent-0",
             )}
           >
             {paragraph}
-          </p>
+          </motion.p>
         ))}
       </div>
     );
@@ -118,7 +128,7 @@ export default function AboutSectionText({
   return (
     <div
       className={cn(
-        " flex flex-col  items-start justify-start text-primary space-y-0 lg:space-y-0   pb-3 px-3 lg:px-0   gap-y-6 w-full  ",
+        " flex flex-col  items-start justify-start text-primary space-y-0 lg:space-y-6   pb-3 px-3 lg:px-0   gap-y-6 w-full  ",
         className,
       )}
     >
