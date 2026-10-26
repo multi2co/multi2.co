@@ -24,11 +24,11 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   const { notifyContentDone, notifyHeroOpen } = useUI();
   const reduceMotion = useReducedMotion();
 
-  // With reduced motion the reel doesn't slide in, so there's nothing for the
-  // nav to wait on.
+  // The reel is static and on screen from the first paint, so the nav has
+  // nothing to wait on — let it bring its links in straight away.
   useEffect(() => {
-    if (reduceMotion) notifyHeroOpen();
-  }, [reduceMotion, notifyHeroOpen]);
+    notifyHeroOpen();
+  }, [notifyHeroOpen]);
 
   // Everything on the page is server-rendered, so it's ready once mounted.
   useEffect(() => {
@@ -67,19 +67,10 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
     <div className="w-full bg-background">
       {/* The showreel fills the viewport edge to edge on every width. */}
       <div className="relative w-screen">
-        {/* Not Reveal: this is the first thing on screen, so it must be
-            visible from the server HTML rather than waiting for JS to fade it
-            in. Full screen on all widths. On load it rises a little into place — a
-            transform only, never hidden — and once it's there M2Nav reveals
-            its links (see `heroOpen`). `z-[80]` keeps it under the fixed nav
-            (z-90) so the nav stays visible on top of the reel. */}
-        <motion.div
-          initial={reduceMotion ? false : { y: 48 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          onAnimationComplete={notifyHeroOpen}
-          className="sticky top-0 z-[80] h-screen w-screen bg-secondary"
-        >
+        {/* Static — no reveal: it's the first thing on screen and plays
+            from the first paint. `z-[80]` keeps it under the fixed nav (z-90)
+            so the nav stays visible on top of the reel. */}
+        <div className="sticky top-0 z-[80] h-screen w-screen bg-secondary">
           <div className=" relative overflow-hidden w-full h-full">
             <ShowReel
               className="absolute inset-0 h-full w-full"
@@ -90,7 +81,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               <HeroWordmark className="lg:hidden absolute inset-0 z-10 flex items-center justify-center px-3 text-center text-6xl font-visual font-thin tracking-normal lowercase rotate-90 text-primary" />
             )}
           </div>
-        </motion.div>
+        </div>
         {/* Desktop: the wordmark is centred on the whole first viewport, not
             just the box. */}
         {SHOW_HERO_WORDMARK && (
