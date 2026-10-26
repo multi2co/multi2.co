@@ -76,7 +76,7 @@ export default function AboutSectionText({
     return (
       <div
         className={cn(
-          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-6 justify-start h-auto ",
+          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-6 lg:gap-y-6 justify-start h-auto ",
           className,
         )}
       >
@@ -102,8 +102,8 @@ export default function AboutSectionText({
             key={i}
             className={cn(
               "col-span-3 pText font-visual font-thin tracking-normal leading-tight px-0 whitespace-pre-line text-primary",
-              "lg:col-start-4 lg:col-span-7",
-              i === 0 ? "lg:row-start-1" : "indent-[33.333%] lg:indent-0",
+              "lg:col-start-4 lg:col-span-6 text-justify",
+              i === 0 ? "lg:row-start-1" : "indent-0 lg:indent-0",
             )}
           >
             {paragraph}
