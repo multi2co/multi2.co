@@ -8,6 +8,7 @@ import type { GridItem } from "@/context/WorkContext";
 import CheckButton from "./CheckButton";
 import VideoPlayer from "./VideoPlayer";
 
+
 /** One project in the /projects grid: its square media, captioned with the
  *  project's title. The whole card links to the project. */
 export default function ProjectCard({
@@ -31,7 +32,14 @@ export default function ProjectCard({
   const showCaption = numCols <= 4;
 
   const media = (
-    <div className="pixel-corners-2 relative flex flex-col w-full aspect-square justify-center items-center overflow-hidden bg-secondary">
+    <div
+      className={cn(
+        // Small thumbnails (more than two per row) get the single-step
+        // notch; the two-step one is for larger media.
+        numCols > 2 ? "pixelCorners" : "pixel-corners-2",
+        "relative flex flex-col w-full aspect-square justify-center items-center overflow-hidden bg-secondary",
+      )}
+    >
       <div className="relative h-full aspect-square overflow-hidden ">
         {/* group-hover, not hover: the scale should follow the whole card.
             overflow-hidden on the parent crops the growth instead of letting

@@ -37,7 +37,7 @@ export default function SearchCheck({
   onChange,
   className,
   size = "label",
-  placeholder = "search projects",
+  placeholder = "search",
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 

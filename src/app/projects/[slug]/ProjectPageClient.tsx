@@ -2,9 +2,15 @@
 
 import { useState, useEffect, useRef, Fragment } from "react";
 import Image, { getImageProps } from "next/image";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  useInView,
+  useReducedMotion,
+} from "motion/react";
 import { useScrollInset } from "@/lib/useScrollInset";
 import { cn } from "@/lib/utils";
+import { useUI } from "@/context/UIContext";
 import LandningBlock from "@/app/components/LandningBlock";
 import CheckButton from "@/app/components/CheckButton";
 import HeroCarousel from "@/app/components/HeroCarousel";
@@ -101,7 +107,7 @@ function GalleryFigure({
         // The scroll-driven side inset only suits the single column; in the
         // grid it would push into the neighbouring cells.
         style={compact ? undefined : inset.style}
-        className={compact ? "" : "-mx-3"}
+        className={compact ? "" : "-mx-3 lg:mx-0"}
       >
         <motion.div
           // Same motion as the home showreel: a slight rise into place,
@@ -110,7 +116,7 @@ function GalleryFigure({
           whileInView={{ y: 0 }}
           viewport={{ once: true, margin: "0px 0px -10% 0px" }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className={compact ? "w-full" : "w-full lg:w-3/4 lg:mx-auto"}
+          className="w-full"
         >
           <div
             style={{ aspectRatio: item.aspectRatio }}
@@ -138,7 +144,7 @@ function GalleryFigure({
                 className="object-cover"
                 sizes={
                   compact
-                    ? `${Math.ceil(100 / cols)}vw`
+                    ? `(max-width: 1024px) 100vw, ${Math.ceil(100 / cols)}vw`
                     : "(max-width: 1024px) 100vw, 75vw"
                 }
               />
@@ -146,16 +152,6 @@ function GalleryFigure({
           </div>
         </motion.div>
       </motion.div>
-      {item.description && (
-        <figcaption
-          className={cn(
-            "h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary w-full",
-            !compact && "lg:w-3/4 lg:mx-auto",
-          )}
-        >
-          <span className="col-start-2 col-span-2">{item.description}</span>
-        </figcaption>
-      )}
     </motion.figure>
   );
 }
@@ -171,6 +167,7 @@ function ProjectPageInner({
   coverUrl,
   coverUrlWide,
   showGallery,
+  galleryColumns,
 }: {
   client?: string;
   title: string;
@@ -182,6 +179,8 @@ function ProjectPageInner({
   coverUrl?: string;
   coverUrlWide?: string;
   showGallery: boolean;
+  /** The editor's "Gallery images per row" (Studio); empty → 2. */
+  galleryColumns?: number;
 }) {
   // Which carousel slide is showing — drives the caption below the hero and is
   // shared with the full-screen lightbox so the two carousels stay in step.
@@ -189,8 +188,22 @@ function ProjectPageInner({
 
   const reduceMotion = useReducedMotion();
   const [lightbox, setLightbox] = useState(false);
-  // The gallery's zoom: figures per row, stepped by the zoom button.
-  const [galleryCols, setGalleryCols] = useState(1);
+  // The zoom button only shows while the gallery is on screen — from when it
+  // reaches the lower part of the viewport until it scrolls up past the top.
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const galleryInView = useInView(galleryRef, {
+    // Ignore the top 20% too, so it goes once the gallery is scrolled up
+    // behind the nav (the page can't always scroll it fully away).
+    margin: "-20% 0px -25% 0px",
+  });
+  // The gallery's zoom: figures per row on desktop, starting from the
+  // editor's pick (2 when unset) and stepped by the zoom button. Mobile is
+  // always one per row.
+  const [galleryCols, setGalleryCols] = useState<number>(
+    (GALLERY_COL_STEPS as readonly number[]).includes(galleryColumns ?? 0)
+      ? galleryColumns!
+      : 2,
+  );
 
   // The description/credits block pins 64px down (under the nav); one taller
   // than the space below that pins by its bottom edge instead.
@@ -229,6 +242,15 @@ function ProjectPageInner({
   // The hero is the first video if there is one, else the work's cover (1:1
   // on mobile, 16:9 on desktop), falling back to the first media item.
   const heroVideo = media.find((m) => m.type === "video");
+
+  // Tell the nav whether there's anything to hear: its sound toggle only
+  // shows on project pages that have a video. Cleared on the way out.
+  const { setPageHasVideo } = useUI();
+  const hasVideo = Boolean(heroVideo);
+  useEffect(() => {
+    setPageHasVideo(hasVideo);
+    return () => setPageHasVideo(false);
+  }, [hasVideo, setPageHasVideo]);
   const heroStill = coverUrl ?? coverUrlWide ?? media[0]?.url;
 
   // The gallery carousel further down runs the whole media list; the cover is
@@ -388,20 +410,24 @@ function ProjectPageInner({
           GalleryFigure). Clicking one opens the full-screen carousel there. */}
         {showGallery && slides.length > 0 && (
           <div
-            // One per row: the stacked, centred column. Zoomed out: a grid
-            // with one-square gutters, like /projects.
+            ref={galleryRef}
+            // One per row: the stacked, centred column. More: on desktop a
+            // grid with one-square gaps both ways, like /projects — mobile
+            // stays one per row. The column count rides in as a CSS
+            // variable so the server HTML matches at every width.
             className={cn(
-              "relative z-[95] px-6",
+              // Desktop: spans the nav's cols 2–11, like the /projects grid
+              // — each side's padding is the bar's 0.75rem inset + 1/12 of
+              // its inner width.
+              "relative z-[95] px-6 lg:px-[calc(0.75rem+(100%-1.5rem)/12)]",
               galleryCols === 1
-                ? "flex flex-col gap-y-16 lg:gap-y-30"
-                : "grid gap-x-(--pixel-corner) gap-y-12",
+                ? "flex flex-col gap-y-(--pixel-corner)"
+                : "grid grid-cols-1 gap-(--pixel-corner) lg:grid-cols-[repeat(var(--gallery-cols),minmax(0,1fr))]",
             )}
             style={
               galleryCols === 1
                 ? undefined
-                : {
-                    gridTemplateColumns: `repeat(${galleryCols}, minmax(0, 1fr))`,
-                  }
+                : ({ "--gallery-cols": galleryCols } as React.CSSProperties)
             }
           >
             {slides.map((item, i) => (
@@ -427,54 +453,65 @@ function ProjectPageInner({
 
       <Footer />
 
-      {/* The gallery's zoom: next to the nav's sound toggle at the bottom —
-          mobile at col 2 of the nav's 3-col grid; desktop with its left
-          edge on the nav's col 7, so its square lines up under "about"
+      {/* The gallery's zoom (desktop only — mobile is always one per row):
+          next to the nav's sound toggle at the bottom, its left edge on the
+          nav's col 7, so its square lines up under "about"
           (col 7 starts at 0.75rem + 6/12 of the bar's inner width, less this
           button's own lg:px-3). Same z as the sound toggle; hidden while the
-          lightbox is up. */}
-      {showGallery && slides.length > 1 && !lightbox && (
-        <div className="pointer-events-auto fixed bottom-0 left-1/3 z-[250] lg:bottom-3 lg:left-[calc((100vw-1.5rem)*0.5)]">
-          <CheckButton
-            className="font-visual whitespace-nowrap"
-            size="lg"
-            label={`zoom: ${galleryCols} per row`}
-            active
-            color="text-primary"
-            onClick={() =>
-              setGalleryCols(
-                (c) =>
-                  GALLERY_COL_STEPS[
-                    (GALLERY_COL_STEPS.indexOf(
-                      c as (typeof GALLERY_COL_STEPS)[number],
-                    ) +
-                      1) %
-                      GALLERY_COL_STEPS.length
-                  ],
-              )
-            }
-          />
-        </div>
-      )}
+          lightbox is up, and only while the gallery is on screen. */}
+      <AnimatePresence>
+        {showGallery && slides.length > 1 && !lightbox && galleryInView && (
+          <motion.div
+            key="gallery-zoom"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="pointer-events-auto fixed z-[250] hidden lg:block lg:bottom-3 lg:left-[calc((100vw-1.5rem)*0.5)]"
+          >
+            <CheckButton
+              className="font-visual whitespace-nowrap"
+              size="lg"
+              label={`zoom: ${galleryCols} per row`}
+              active
+              color="text-primary"
+              onClick={() =>
+                setGalleryCols(
+                  (c) =>
+                    GALLERY_COL_STEPS[
+                      (GALLERY_COL_STEPS.indexOf(
+                        c as (typeof GALLERY_COL_STEPS)[number],
+                      ) +
+                        1) %
+                        GALLERY_COL_STEPS.length
+                    ],
+                )
+              }
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Full-screen lightbox — the media as a carousel, opened on whichever
           grid item was clicked. */}
       <AnimatePresence>
         {lightbox && slides.length > 0 && (
+          // The media gets the full height, less 24px top and bottom
+          // (py-6); the close button floats over the top-right corner
+          // instead of taking a row of its own.
           <motion.div
-            className="fixed inset-0 z-[100] flex flex-col bg-background p-3 lg:p-6"
+            className="fixed inset-0 z-[100] flex flex-col bg-background px-3 py-6 lg:px-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="flex justify-end pb-3">
+            <div className="absolute top-0 right-0 z-20">
               <CheckButton
                 onClick={() => setLightbox(false)}
                 label="close"
                 size="lg"
                 color="text-primary"
-                marks={{ active: "×", inactive: "×" }}
               />
             </div>
             <div className="relative min-h-0 w-full flex-1">
@@ -503,6 +540,7 @@ export default function ProjectPageClient(props: {
   coverUrl?: string;
   coverUrlWide?: string;
   showGallery: boolean;
+  galleryColumns?: number;
 }) {
   return <ProjectPageInner {...props} />;
 }

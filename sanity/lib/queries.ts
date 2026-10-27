@@ -12,6 +12,7 @@ export const workBySlugQuery = groq`
     description,
     imagesPerPage,
     showGallery,
+    galleryColumns,
     heroIntro,
     credits,
     coverSquare { asset, hotspot, crop },

@@ -314,7 +314,7 @@ function NavVertical({
 
 export default function M2Nav() {
   const pathname = usePathname();
-  const { contentDoneKey, heroOpen } = useUI();
+  const { contentDoneKey, heroOpen, pageHasVideo } = useUI();
   const { muted, toggleMute } = useSound();
   const { theme, cycleTheme, dark, toggleDark } = useTheme();
   const currentTheme = THEMES.find((t) => t.id === theme) ?? THEMES[0];
@@ -511,7 +511,7 @@ export default function M2Nav() {
         </div>
       </div>
 
-      {/* Project pages: the sound toggle at the bottom. Mobile: the
+      {/* Project pages with a video: the sound toggle at the bottom. Mobile: the
           bottom-right corner, pulled in by `pr-6`. Desktop: its left edge on
           the nav's col 10, so its square lines up under "connect" — col 10
           starts at 0.75rem + 9/12 of the bar's inner width, less this
@@ -519,7 +519,7 @@ export default function M2Nav() {
           nav's z-90 overlay (which would trap it below the images' z-[95]):
           z-[250] puts it over every image, video, the lightbox and the open
           menu. */}
-      {onProjectPage && (
+      {onProjectPage && pageHasVideo && (
         <div className="pointer-events-auto fixed bottom-0 right-0 z-[250] pr-6 lg:bottom-3 lg:right-auto lg:left-[calc((100vw-1.5rem)*0.75)] lg:pr-0">
           <CheckButton
             className="font-visual whitespace-nowrap"

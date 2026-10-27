@@ -117,6 +117,7 @@ type WorkData = {
   year?: number;
   slug: { current: string };
   showGallery?: boolean;
+  galleryColumns?: number;
   heroIntro?: string;
   media?: MediaItem[];
 } & WorkCovers;
@@ -220,6 +221,7 @@ export default async function WorkPage({
         coverUrlWide={coverUrlWide}
         // Unset on works saved before the toggle existed — those keep showing.
         showGallery={work.showGallery !== false}
+        galleryColumns={work.galleryColumns}
       />
     </>
   );

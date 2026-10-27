@@ -17,6 +17,10 @@ type UIContextType = {
    *  bar waits on it before revealing its links on a first load of home. */
   heroOpen: boolean;
   notifyHeroOpen: () => void;
+  /** Set by a project page while any of its media is a video — the nav only
+   *  offers its sound toggle then. */
+  pageHasVideo: boolean;
+  setPageHasVideo: (v: boolean) => void;
   showGrid: boolean;
   setShowGrid: (v: boolean) => void;
   showList: boolean;
@@ -59,6 +63,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   );
   const [heroOpen, setHeroOpen] = useState(false);
   const notifyHeroOpen = useCallback(() => setHeroOpen(true), []);
+  const [pageHasVideo, setPageHasVideo] = useState(false);
 
   // Thumbnails is the default view at every width. numCols only drives the
   // desktop grid; below lg the list is one card per row.
@@ -91,6 +96,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
         notifyContentDone,
         heroOpen,
         notifyHeroOpen,
+        pageHasVideo,
+        setPageHasVideo,
       }}
     >
       {children}

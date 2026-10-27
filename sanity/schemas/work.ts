@@ -129,6 +129,23 @@ export const work = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "galleryColumns",
+      title: "Gallery images per row",
+      description:
+        "How many gallery images sit side by side on desktop — fewer means bigger images. Leave empty for 2. Mobile always shows one per row.",
+      type: "number",
+      options: {
+        list: [
+          { title: "1 — largest", value: 1 },
+          { title: "2", value: 2 },
+          { title: "3", value: 3 },
+          { title: "4 — smallest", value: 4 },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
+    }),
+    defineField({
       name: "media",
       title: "Media",
       type: "array",

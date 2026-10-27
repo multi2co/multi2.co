@@ -10,7 +10,6 @@ import CategoryFilters from "@/app/components/CategoryFilters";
 import CheckButton from "@/app/components/CheckButton";
 import { getCategoryLabel, getFilterChipLabel } from "@/lib/categories";
 import LandningBlock from "@/app/components/LandningBlock";
-import BottomNav from "@/app/components/BottomNav";
 import Footer from "@/app/components/Footer";
 import { Reveal } from "@/app/components/Reveal";
 
@@ -113,11 +112,10 @@ export default function AllProjectsPageClient() {
   return (
     <div
       id="projects"
-      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-12 lg:pt-0"
+      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-24 lg:pt-0"
     >
-      {/* Desktop: CategoryFilters across all 12 columns, the grid (full
-          width) or the client list (from col 4, in line with the filter
-          options) below it. */}
+      {/* Desktop: CategoryFilters across all 12 columns, with the grid
+          (cols 2–11) or the client list below it. */}
       <div className=" mb-6 lg:mb-3 grid grid-cols-3 lg:grid-cols-12 ">
         {/* Desktop: the filters pin under the nav (sticky, z-0) and the
             thumbnails scroll up over them — and over the nav, z-[95] — the
@@ -153,13 +151,18 @@ export default function AllProjectsPageClient() {
           </Reveal>
         )}
 
+        {/* The grid layer is click-through (`pointer-events-none`) and only
+            the thumbnails take clicks: it sits above the sticky filters, and
+            its empty space would otherwise block them — e.g. with one
+            project left. */}
         {showGrid && (
-          <Reveal className="lg:col-start-1 lg:col-span-12 hidden w-full lg:block lg:relative lg:z-[95] lg:mb-48 ">
+          <Reveal className="lg:col-start-1 lg:col-span-12 hidden w-full lg:block lg:relative lg:z-[95] lg:mb-48 lg:pointer-events-none">
             <div
-              // Gaps = one CheckButton square (--pixel-corner, the ■ glyph's
-              // own width), both ways — and the same one square of padding
-              // on each side, so the grid has an even frame.
-              className="lg:mt-6 grid gap-(--pixel-corner) px-3 lg:px-6"
+              // One-square gaps both ways (--pixel-corner, the CheckButton
+              // square's width). Desktop: spans the nav's cols 2–11 — the
+              // bar's columns sit inside a 0.75rem inset, so each side's
+              // padding is that inset + 1/12 of the inner width.
+              className="lg:mt-12 grid gap-(--pixel-corner) px-3 lg:px-[calc(0.75rem+(100%-1.5rem)/12)]"
               style={{
                 gridTemplateColumns: `repeat(${numCols}, minmax(0, 1fr))`,
               }}
@@ -177,8 +180,7 @@ export default function AllProjectsPageClient() {
                       delay: Math.min(idx * 0.07, 0.7),
                       ease: "easeOut",
                     }}
-                    // Separators only, no outer frame: a rule above every row
-                    // after the first, and left of every column after the first.
+                    className="pointer-events-auto"
                   >
                     <ProjectCard
                       item={item}
@@ -280,10 +282,6 @@ export default function AllProjectsPageClient() {
           />
         </div>
       </div>
-
-      <Reveal className="w-full mb-12">
-        <BottomNav />
-      </Reveal>
 
       <div id="footer-section">
         <Footer />
