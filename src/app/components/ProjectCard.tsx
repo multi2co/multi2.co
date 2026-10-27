@@ -21,6 +21,8 @@ export default function ProjectCard({
 }) {
   // Notches the box's corners like the buttons and landing blocks — on the
   // media box so the image is clipped to the shape, with the caption below it.
+  // `bg-secondary` keeps the box solid before its media paints, so the
+  // pinned filters behind never show through it.
   const { setOpenedCard, numCols } = useUI();
 
   // The caption only earns its space when the thumbnails are large enough to
@@ -29,7 +31,7 @@ export default function ProjectCard({
   const showCaption = numCols <= 4;
 
   const media = (
-    <div className="pixelCorners relative flex flex-col w-full aspect-square justify-center items-center overflow-hidden">
+    <div className="pixel-corners-2 relative flex flex-col w-full aspect-square justify-center items-center overflow-hidden bg-secondary">
       <div className="relative h-full aspect-square overflow-hidden ">
         {/* group-hover, not hover: the scale should follow the whole card.
             overflow-hidden on the parent crops the growth instead of letting
@@ -49,6 +51,16 @@ export default function ProjectCard({
           />
         )}
       </div>
+      {/* Desktop: the title sits on the image, top left, shown on hover —
+          in the page's background colour. */}
+      <span className="pointer-events-none absolute top-0 left-0 z-10 hidden p-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100 lg:block">
+        <CheckButton
+          label={item.title}
+          active
+          size="label"
+          color="text-background"
+        />
+      </span>
     </div>
   );
 
@@ -59,12 +71,15 @@ export default function ProjectCard({
       className={cn("group flex flex-col gap-0 w-full mb-6 lg:mb-3", className)}
     >
       {media}
+      {/* Mobile only: the title below the image. Desktop shows it on the
+          image on hover instead (see `media`). */}
       {showCaption && (
         <CheckButton
           label={item.title}
           active
           size="lg"
           color="text-primary"
+          className="lg:hidden"
         />
       )}
     </Link>

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Fragment } from "react";
 import Image, { getImageProps } from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { useScrollInset } from "@/lib/useScrollInset";
+import { cn } from "@/lib/utils";
 import LandningBlock from "@/app/components/LandningBlock";
 import CheckButton from "@/app/components/CheckButton";
 import HeroCarousel from "@/app/components/HeroCarousel";
@@ -66,25 +67,42 @@ function HeroCover({ mobile, wide }: { mobile: string; wide?: string }) {
  * margin grows from px-3 to px-6 as it scrolls away. Every item renders at
  * its own ratio from the start.
  */
+/** The gallery's zoom stops — figures per row. The zoom button steps
+ *  through them and wraps back to 1, like the /projects grid zoom. */
+const GALLERY_COL_STEPS = [1, 2, 3, 4] as const;
+
 function GalleryFigure({
   item,
   index,
   title,
   onOpen,
+  cols,
 }: {
   item: ProjectMedia;
   index: number;
   title: string;
   onOpen: () => void;
+  /** How many figures share a row (the page's zoom). Past 1 the figure fills
+   *  its grid cell instead of the centred 75% column. */
+  cols: number;
 }) {
+  const compact = cols > 1;
   const reduce = useReducedMotion();
   // The gallery is inset 24px; pull out by 12 (`-mx-3`) and pad back 0 → 12.
   const inset = useScrollInset<HTMLDivElement>(0, 12);
   const label = `open fig.${index + 1} full screen`;
 
   return (
-    <figure className="w-full flex flex-col gap-3">
-      <motion.div ref={inset.ref} style={inset.style} className="-mx-3">
+    // `layout` animates each figure between sizes as the zoom changes, like
+    // the /projects grid.
+    <motion.figure layout className="w-full flex flex-col gap-3">
+      <motion.div
+        ref={inset.ref}
+        // The scroll-driven side inset only suits the single column; in the
+        // grid it would push into the neighbouring cells.
+        style={compact ? undefined : inset.style}
+        className={compact ? "" : "-mx-3"}
+      >
         <motion.div
           // Same motion as the home showreel: a slight rise into place,
           // once, as it comes into view.
@@ -92,7 +110,7 @@ function GalleryFigure({
           whileInView={{ y: 0 }}
           viewport={{ once: true, margin: "0px 0px -10% 0px" }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full lg:w-3/4 lg:mx-auto"
+          className={compact ? "w-full" : "w-full lg:w-3/4 lg:mx-auto"}
         >
           <div
             style={{ aspectRatio: item.aspectRatio }}
@@ -118,18 +136,27 @@ function GalleryFigure({
                 }
                 fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 75vw"
+                sizes={
+                  compact
+                    ? `${Math.ceil(100 / cols)}vw`
+                    : "(max-width: 1024px) 100vw, 75vw"
+                }
               />
             )}
           </div>
         </motion.div>
       </motion.div>
       {item.description && (
-        <figcaption className="h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary w-full lg:w-3/4 lg:mx-auto">
+        <figcaption
+          className={cn(
+            "h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary w-full",
+            !compact && "lg:w-3/4 lg:mx-auto",
+          )}
+        >
           <span className="col-start-2 col-span-2">{item.description}</span>
         </figcaption>
       )}
-    </figure>
+    </motion.figure>
   );
 }
 
@@ -162,6 +189,8 @@ function ProjectPageInner({
 
   const reduceMotion = useReducedMotion();
   const [lightbox, setLightbox] = useState(false);
+  // The gallery's zoom: figures per row, stepped by the zoom button.
+  const [galleryCols, setGalleryCols] = useState(1);
 
   // The description/credits block pins 64px down (under the nav); one taller
   // than the space below that pins by its bottom edge instead.
@@ -358,13 +387,30 @@ function ProjectPageInner({
           below — treated like the home page's featured cards (see
           GalleryFigure). Clicking one opens the full-screen carousel there. */}
         {showGallery && slides.length > 0 && (
-          <div className="relative z-[95] flex flex-col gap-y-16 lg:gap-y-30 px-6">
+          <div
+            // One per row: the stacked, centred column. Zoomed out: a grid
+            // with one-square gutters, like /projects.
+            className={cn(
+              "relative z-[95] px-6",
+              galleryCols === 1
+                ? "flex flex-col gap-y-16 lg:gap-y-30"
+                : "grid gap-x-(--pixel-corner) gap-y-12",
+            )}
+            style={
+              galleryCols === 1
+                ? undefined
+                : {
+                    gridTemplateColumns: `repeat(${galleryCols}, minmax(0, 1fr))`,
+                  }
+            }
+          >
             {slides.map((item, i) => (
               <GalleryFigure
                 key={item.key}
                 item={item}
                 index={i}
                 title={title}
+                cols={galleryCols}
                 onOpen={() => {
                   setActiveSlide(i);
                   setLightbox(true);
@@ -380,6 +426,36 @@ function ProjectPageInner({
       </div>
 
       <Footer />
+
+      {/* The gallery's zoom: next to the nav's sound toggle at the bottom —
+          mobile at col 2 of the nav's 3-col grid; desktop with its left
+          edge on the nav's col 7, so its square lines up under "about"
+          (col 7 starts at 0.75rem + 6/12 of the bar's inner width, less this
+          button's own lg:px-3). Same z as the sound toggle; hidden while the
+          lightbox is up. */}
+      {showGallery && slides.length > 1 && !lightbox && (
+        <div className="pointer-events-auto fixed bottom-0 left-1/3 z-[250] lg:bottom-3 lg:left-[calc((100vw-1.5rem)*0.5)]">
+          <CheckButton
+            className="font-visual whitespace-nowrap"
+            size="lg"
+            label={`zoom: ${galleryCols} per row`}
+            active
+            color="text-primary"
+            onClick={() =>
+              setGalleryCols(
+                (c) =>
+                  GALLERY_COL_STEPS[
+                    (GALLERY_COL_STEPS.indexOf(
+                      c as (typeof GALLERY_COL_STEPS)[number],
+                    ) +
+                      1) %
+                      GALLERY_COL_STEPS.length
+                  ],
+              )
+            }
+          />
+        </div>
+      )}
 
       {/* Full-screen lightbox — the media as a carousel, opened on whichever
           grid item was clicked. */}

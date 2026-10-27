@@ -6,7 +6,7 @@ import { useUI } from "@/context/UIContext";
 import { useWork } from "@/context/WorkContext";
 import CheckButton from "./CheckButton";
 import SearchCheck from "./SearchCheck";
-import { zoomInCols, zoomOutCols } from "@/lib/gridZoom";
+import { cycleCols } from "@/lib/gridZoom";
 import { getFilterChipLabel, getVisibleFilterCats } from "@/lib/categories";
 import { useEffect, useState } from "react";
 import { Reveal } from "./Reveal";
@@ -37,18 +37,13 @@ export default function CategoryFilters({
     searchOpen,
     setSearchOpen,
     showGrid,
-    showList,
     setShowGrid,
     setShowList,
     numCols,
     setNumCols,
-    sortMode,
-    setSortMode,
   } = useUI();
   const { categories } = useWork();
 
-  // `showCat` toggles just the category list within the panel.
-  const [showCat, setShowCat] = useState(true);
 
   // Below lg the open panel is its own scroll area; Lenis has to let go of it
   // (`data-lenis-prevent`) or wheel/touch would scroll the page behind. The
@@ -58,14 +53,10 @@ export default function CategoryFilters({
     setMobile(!window.matchMedia("(min-width: 1024px)").matches);
   }, []);
 
-  function showThumbnails() {
-    setShowGrid(true);
-    setShowList(false);
-  }
-
-  function showListView() {
-    setShowList(true);
-    setShowGrid(false);
+  /** One button flips between the thumbnail grid and the client list. */
+  function cycleView() {
+    setShowGrid(!showGrid);
+    setShowList(showGrid);
   }
 
   const allCats = getVisibleFilterCats(categories);
@@ -92,9 +83,11 @@ export default function CategoryFilters({
         // paired with the sound toggle at the opposite corner); once open it
         // fills in with bg-primary and the text flips to primary-foreground
         // to stay legible over it — same treatment the topbar gives its own
-        // drawer. Desktop drops all of that and becomes a sticky sidebar
-        // column instead — same vertical stack of controls the drawer uses,
-        // just riding alongside the grid/list rather than covering it.
+        // drawer. Desktop drops all of that and becomes a full-width panel
+        // above the grid/list, on M2Nav's 12 columns (4 / 7 / 10 sit under
+        // the nav's projects / about / connect): search at col 1, the
+        // category chips in two columns across cols 4–9, and settings at
+        // col 10.
         // left-3 always insets the tab from the screen edge; open, right-3
         // pairs with it so the panel spans between the two insets rather than
         // a full 100vw that would overflow past them.
@@ -105,7 +98,7 @@ export default function CategoryFilters({
         showFilters
           ? "right-0 left-0 top-16 bottom-0 z-[95] bg-background p-3 overflow-y-auto overscroll-contain"
           : "w-1/3 bg-transparent ",
-        "lg:static lg:inset-auto lg:z-auto lg:overscroll-auto lg:w-auto lg:bg-transparent lg:pb-0 lg:max-h-none lg:overflow-visible lg:[mask-border:none] lg:[-webkit-mask-box-image:none]",
+        "lg:static lg:inset-auto lg:z-auto lg:overscroll-auto lg:w-auto lg:bg-transparent lg:p-0 lg:max-h-none lg:overflow-visible lg:[mask-border:none] lg:[-webkit-mask-box-image:none]",
         className,
       )}
     >
@@ -129,7 +122,7 @@ export default function CategoryFilters({
                 animate={{ y: 0 }}
                 exit={{ y: 32 }}
                 transition={{ duration: 0.4, ease: DRAWER_EASE }}
-                className="grid grid-cols-3 lg:flex lg:flex-col  gap-x-0 gap-y-12 lg:gap-y-12 items-baseline w-full px-3 pt-32 pb-24 lg:p-3"
+                className="grid grid-cols-3 lg:grid-cols-12 gap-x-0 gap-y-12 lg:gap-y-6 items-baseline w-full px-3 pt-32 pb-24 lg:p-3"
               >
                 <CheckButton
                   checkbox
@@ -140,105 +133,82 @@ export default function CategoryFilters({
                   className="hidden lg:col-start-1 lg:col-span-1 lg:row-start-1"
                   onClick={() => setShowFilters(false)}
                 />
-                <CheckButton
-                  checkbox
-                  label="categories"
-                  size="label"
-                  active={showCat}
-                  color="text-primary"
-                  className="col-start-1 row-start-1 lg:row-start-1"
-                  onClick={() => setShowCat((v) => !v)}
-                />
-                {showCat && (
-                  <div className="col-start-1 col-span-2 row-start-2 flex flex-col lg:grid  lg:grid-cols-2 px-0 gap-y-6 w-full">
-                    {/* No per-chip stagger: the whole panel reveals as one
-                        (the Reveal around it). */}
-                    {allCats.map((cat) => (
-                      <span
-                        key={cat}
-                        className="inline-flex items-baseline whitespace-nowrap col-span-1 "
-                      >
-                        <CheckButton
-                          checkbox
-                          label={getFilterChipLabel(cat)}
-                          size="label"
-                          color="text-primary"
-                          onClick={() => handleFilterChange(cat)}
-                          active={activeFilter === cat}
-                        />
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="relative col-start-1 row-start-3 lg:row-start-1">
-                  <CheckButton
-                    checkbox
-                    label="settings"
-                    size="label"
-                    active={showSettings}
-                    color="text-primary"
-                    onClick={() => setShowSettings(!showSettings)}
+                {/* Desktop: search at col 1, with the wordmark's 12px inset.
+                    Mobile: its own spot in the drawer grid. */}
+                <div className="col-start-2 col-span-2 row-start-4 lg:col-start-1 lg:col-span-3 lg:row-start-1 lg:pl-3">
+                  <SearchCheck
+                    open={searchOpen}
+                    onToggle={() => setSearchOpen((v) => !v)}
+                    value={search}
+                    onChange={setSearch}
                   />
                 </div>
-                {showSettings && (
-                  <div className="col-start-1 col-span-2 row-start-4 grid grid-cols-2 lg:grid-cols-2 px-0 gap-y-6 w-full">
+                {/* The category chips. Desktop: cols 4–9 as two columns,
+                    starting under the nav's "projects" (4) and "about" (7).
+                    No per-chip stagger: the whole panel reveals as one (the
+                    Reveal around it). */}
+                <div className="col-start-1 col-span-2 row-start-1 flex flex-col lg:grid lg:grid-cols-2 lg:col-start-4 lg:col-span-6 lg:row-start-1 px-0 gap-y-6 w-full">
+                  {allCats.map((cat) => (
+                    <span
+                      key={cat}
+                      className="inline-flex items-baseline whitespace-nowrap col-span-1 "
+                    >
+                      <CheckButton
+                        checkbox
+                        label={getFilterChipLabel(cat)}
+                        size="label"
+                        color="text-primary"
+                        onClick={() => handleFilterChange(cat)}
+                        active={activeFilter === cat}
+                      />
+                    </span>
+                  ))}
+                </div>
+                {/* Desktop: settings (with its options while open) stacked
+                    at col 10, under the nav's "connect".
+                    Mobile: `contents` dissolves this
+                    wrapper, so each control keeps its own place in the 3-col
+                    drawer grid. */}
+                <div className="contents lg:flex lg:flex-col lg:gap-y-6 lg:col-start-10 lg:col-span-3 lg:row-start-1">
+                  <div className="relative col-start-1 row-start-2">
                     <CheckButton
                       checkbox
-                      label="list"
+                      label="settings"
                       size="label"
-                      active={showList}
+                      active={showSettings}
                       color="text-primary"
-                      onClick={showListView}
+                      onClick={() => setShowSettings(!showSettings)}
                     />
-                    <CheckButton
-                      checkbox
-                      label="thumbnails"
-                      size="label"
-                      active={showGrid}
-                      color="text-primary"
-                      onClick={showThumbnails}
-                    />
-
-                    {showGrid && (
-                      <div className="col-span-2 lg:col-span-2 grid grid-cols-2 lg:grid-cols-2 w-full ">
-                        <CheckButton
-                          checkbox
-                          label="Zoom In"
-                          size="label"
-                          color="text-primary"
-                          onClick={() => setNumCols(zoomInCols(numCols))}
-                        />
-                        <CheckButton
-                          checkbox
-                          label="Zoom Out"
-                          size="label"
-                          color="text-primary"
-                          onClick={() => setNumCols(zoomOutCols(numCols))}
-                        />
-                      </div>
-                    )}
                   </div>
-                )}
-                <SearchCheck
-                  className="col-start-2 col-span-2 row-start-5 lg:col-start-2 lg:col-span-2 lg:row-start-1"
-                  open={searchOpen}
-                  onToggle={() => setSearchOpen((v) => !v)}
-                  value={search}
-                  onChange={setSearch}
-                />
-
-                <CheckButton
-
-                  checkbox
-                  label={`sort by ${sortMode}`}
-                  size="label"
-                  active
-                  color="text-primary"
-                  className="col-start-1 col-span-2 row-start-5"
-                  onClick={() =>
-                    setSortMode((m) => (m === "year" ? "title" : "year"))
-                  }
-                />
+                  {showSettings && (
+                    <div className="col-start-1 col-span-2 row-start-3 flex flex-col px-0 gap-y-6 w-full">
+                      {/* Cycle buttons: each names the current setting and
+                          steps to the next on click. */}
+                      <CheckButton
+                        checkbox
+                        label={showGrid ? "view: thumbnails" : "view: list"}
+                        size="label"
+                        active
+                        color="text-primary"
+                        onClick={cycleView}
+                      />
+                      {/* Zoom only steps the desktop grid, so it hides with
+                          the list view and on mobile. */}
+                      {showGrid && (
+                        <span className="hidden lg:block">
+                          <CheckButton
+                            checkbox
+                            label={`zoom: ${numCols} per row`}
+                            size="label"
+                            active
+                            color="text-primary"
+                            onClick={() => setNumCols(cycleCols(numCols))}
+                          />
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </motion.div>
             </motion.div>
           )}

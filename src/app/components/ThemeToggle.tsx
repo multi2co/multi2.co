@@ -25,11 +25,14 @@ export default function ThemeToggle({ className }: { className?: string }) {
   if (pathname?.startsWith("/create")) return null;
 
   return (
+    // The top layer of the whole site (z-[1000]): changing colour is always
+    // an option — over images, the lightbox, the open menu, the sound button
+    // and even the under-construction gate (z-[300]).
     <div
       role="radiogroup"
       aria-label="Colour theme"
       className={cn(
-        "fixed top-1/2 right-0 lg:right-0 z-[90] flex -translate-y-1/2 flex-col gap-y-1",
+        "fixed top-1/2 right-0 lg:right-0 z-[1000] flex -translate-y-1/2 flex-col gap-y-1",
         className,
       )}
     >

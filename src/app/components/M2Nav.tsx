@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -26,10 +26,6 @@ const DESKTOP_LINKS = [
 /** Routes that never call notifyContentDone (e.g. /studio) still have to settle. */
 const READY_FALLBACK_MS = 2500;
 
-/** How long the square field takes to stagger itself in on load. The page holds
- *  its own reveal until this is up, so the field always comes in first. */
-const NAVFIELD_REVEAL_MS = 1500;
-
 /** What the wordmark button cycles through once the page is scrolled, after
  *  resting on "multi²" — the same set on mobile and desktop. */
 const WORDMARK_PHRASES = ["(multisquared)", "/ˈmʌl.ti.skweəd/", "multi2.co"];
@@ -43,52 +39,7 @@ const SCROLLED_PX = 40;
 /** The house easing, shared by the two entrances. */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/** `NavField` and `NavBar` are separate overlays stacked on the same
- *  click-through layer: the bar is the top control row, the field is a set of
- *  square rows pinned down the rest of the height. On mobile the rows sit on
- *  the quarters (starting at `top-1/4`); on `lg` only the midpoint row shows.
- *
- *  The field is tied to scrolling: at rest the squares are `opacity-0`; while
- *  the page is being scrolled they come up to full opacity, row by row / square
- *  by square, then fade back once scrolling stops. Each square also turns 90°
- *  on every edge — a scroll starting and a scroll stopping — so it always lands
- *  square. The `rotate` value rides in as `custom`; the parents only sequence,
- *  every animated value is on a child. */
-const FIELD_ROWS = [
-  "top-1/4 lg:hidden",
-  "top-1/2",
-  "top-3/4 lg:hidden",
-] as const;
-/** The projects page keeps the same mobile quarters but swaps `lg` to two rows
- *  on the thirds. Desktop rows lead so their stagger isn't held behind the
- *  hidden mobile ones. */
-const FIELD_ROWS_PROJECTS = [
-  "hidden lg:grid top-[33.3vh]",
-  "hidden lg:grid top-[66.6vh]",
-  "top-1/4 lg:hidden",
-  "top-1/2 lg:hidden",
-  "top-3/4 lg:hidden",
-] as const;
-const FIELD_STAGGER = {
-  rest: {},
-  active: { transition: { staggerChildren: 0.22 } },
-} as const;
-const ROW_STAGGER = {
-  rest: {},
-  active: { transition: { staggerChildren: 0.09 } },
-} as const;
-const FIELD_CELL = {
-  rest: (rotate: number) => ({
-    opacity: 0,
-    rotate,
-    transition: { duration: 0.45, ease: EASE },
-  }),
-  active: (rotate: number) => ({
-    opacity: 1,
-    rotate,
-    transition: { duration: 0.4, ease: EASE },
-  }),
-};
+/** The bar's controls stagger in once on mount. */
 const BAR_STAGGER = {
   hidden: {},
   show: { transition: { staggerChildren: 0.16, delayChildren: 0.12 } },
@@ -98,75 +49,8 @@ const BAR_ITEM = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
 } as const;
 
-/** The square rows — 3 cells each on mobile; 4 on `lg`, or 6 on `lg` on the
- *  projects page. Each glyph is the CheckButton mark so the field tracks the
- *  palette. `active` drives the whole field between `rest` (faded out) and
- *  `active` (full opacity), staggered row by row and square by square; `rotate`
- *  (a multiple of 90°) rides in as `custom`. `aria-hidden` and click-through. */
-function NavField({
-  active,
-  rotate,
-  onDark,
-}: {
-  active: boolean;
-  rotate: number;
-  onDark: boolean;
-}) {
-  // On the projects page the field is a 6-col grid with two `lg` rows on the
-  // thirds; everywhere else it's 4-col with one row at the midpoint.
-  const projects = usePathname() === "/projects";
-  const rows: readonly string[] = projects ? FIELD_ROWS_PROJECTS : FIELD_ROWS;
-  const mark = "■";
-
-  return (
-    <motion.div
-      aria-hidden
-      custom={rotate}
-      variants={FIELD_STAGGER}
-      initial="rest"
-      animate={active ? "active" : "rest"}
-      className={cn(
-        "pointer-events-none absolute inset-0 overflow-hidden font-visual text-base lg:text-base transition-colors",
-        onDark ? "text-secondary" : "text-primary",
-      )}
-    >
-      {rows.map((pos, r) => (
-        <motion.div
-          key={r}
-          custom={rotate}
-          variants={ROW_STAGGER}
-          className={cn(
-            "absolute inset-x-0 hidden grid grid-cols-3 px-6 lg:p-6  gap-x-12 lg:gap-x-3",
-            pos,
-            projects ? "lg:grid-cols-6" : "lg:grid-cols-4",
-          )}
-        >
-          {Array.from({ length: 6 }, (_, i) => (
-            // `inline-block` + `justify-self-start` shrink each cell to the
-            // glyph itself, so `rotate` spins the square about its own centre
-            // instead of swinging it around a stretched grid cell. Cells 0–2
-            // always show; 3 shows from `lg`; 4–5 only on the 6-col projects row.
-            <motion.span
-              key={i}
-              custom={rotate}
-              variants={FIELD_CELL}
-              className={cn(
-                "inline-block justify-self-start text-[0.7em] leading-none",
-                i >= 3 &&
-                  (projects || i === 3 ? "hidden lg:inline-block" : "hidden"),
-              )}
-            >
-              {mark}
-            </motion.span>
-          ))}
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-}
-
-/** The top control row — its own overlay, sitting above `NavField` on the
- *  click-through layer. `grid-cols-3` on mobile; always `grid-cols-12` on `lg`
+/** The top control row — its own overlay on the click-through layer.
+ *  `grid-cols-3` on mobile; always `grid-cols-12` on `lg`
  *  (wordmark · projects · about · connect · dark at cols 1–2 / 4 / 7 / 10 /
  *  12; project pages add a sound toggle in the bottom-right corner, outside
  *  this row) so the
@@ -524,45 +408,6 @@ export default function M2Nav() {
     return () => observers.forEach((o) => o.disconnect());
   }, [pathname]);
 
-  // A separate, momentary read of the same event: true while scroll events are
-  // still firing, back to false ~160ms after they stop. The floating square
-  // field rides this — turned and visible mid-scroll, faded out at rest.
-  const [scrolling, setScrolling] = useState(false);
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    const onScroll = () => {
-      setScrolling(true);
-      clearTimeout(t);
-      t = setTimeout(() => setScrolling(false), 160);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      clearTimeout(t);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, []);
-
-  // Every edge of `scrolling` — a scroll starting, a scroll stopping — turns the
-  // field another 90°, so the squares always land square, never on a diagonal.
-  // Skipped on the first run so mount doesn't count as an edge.
-  const [fieldTurn, setFieldTurn] = useState(0);
-  const fieldTurnMounted = useRef(false);
-  useEffect(() => {
-    if (!fieldTurnMounted.current) {
-      fieldTurnMounted.current = true;
-      return;
-    }
-    setFieldTurn((n) => n + 1);
-  }, [scrolling]);
-
-  // The field stagger-reveals itself once on first load. `fieldShown` is that
-  // reveal window.
-  const [fieldShown, setFieldShown] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setFieldShown(false), NAVFIELD_REVEAL_MS);
-    return () => clearTimeout(t);
-  }, []);
-
   // Home/About/Connect bump this once their content has finished typing.
   useEffect(() => {
     if (contentDoneKey > 0) setReady(true);
@@ -614,19 +459,6 @@ export default function M2Nav() {
 
   return (
     <>
-      {/* The square field: stagger-reveals on load, holds while the page is
-          still loading, then fades until the reader scrolls (a quarter turn
-          further along on each scroll start and stop). Its own fixed layer
-          *behind* the page (`-z-10` paints above the body's background but
-          under every section), so content covers it where they overlap. */}
-      <div className="pointer-events-none fixed inset-0 -z-10 h-screen w-full">
-        <NavField
-          active={scrolling || fieldShown || menuLoading}
-          rotate={fieldTurn * 90}
-          onDark={onDark}
-        />
-      </div>
-
       {/* z-90 normally, so the featured cards' media (z-95) can scroll up
           over the bar; while the (mobile-only) drawer is open the whole
           overlay jumps above everything — filters, bottom bars, the
@@ -679,14 +511,16 @@ export default function M2Nav() {
         </div>
       </div>
 
-      {/* Project pages: the sound toggle, pinned to the bottom-right corner
-          at every width — on desktop its right edge lines up under the bar's
-          light/dark switch (both 12px in). Its own fixed layer, outside the
+      {/* Project pages: the sound toggle at the bottom. Mobile: the
+          bottom-right corner, pulled in by `pr-6`. Desktop: its left edge on
+          the nav's col 10, so its square lines up under "connect" — col 10
+          starts at 0.75rem + 9/12 of the bar's inner width, less this
+          button's own lg:px-3 (0.75rem). Its own fixed layer, outside the
           nav's z-90 overlay (which would trap it below the images' z-[95]):
           z-[250] puts it over every image, video, the lightbox and the open
-          menu; only the under-construction gate (z-[300]) sits higher. */}
+          menu. */}
       {onProjectPage && (
-        <div className="pointer-events-auto fixed bottom-0 right-0 z-[250] lg:bottom-3 lg:right-3">
+        <div className="pointer-events-auto fixed bottom-0 right-0 z-[250] pr-6 lg:bottom-3 lg:right-auto lg:left-[calc((100vw-1.5rem)*0.75)] lg:pr-0">
           <CheckButton
             className="font-visual whitespace-nowrap"
             size="lg"

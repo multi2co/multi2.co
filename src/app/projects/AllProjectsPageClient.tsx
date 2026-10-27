@@ -8,8 +8,7 @@ import { useWork } from "@/context/WorkContext";
 import ProjectCard from "@/app/components/ProjectCard";
 import CategoryFilters from "@/app/components/CategoryFilters";
 import CheckButton from "@/app/components/CheckButton";
-import FilterOverlay from "@/app/components/FilterOverlay";
-import { getCategoryLabel } from "@/lib/categories";
+import { getCategoryLabel, getFilterChipLabel } from "@/lib/categories";
 import LandningBlock from "@/app/components/LandningBlock";
 import BottomNav from "@/app/components/BottomNav";
 import Footer from "@/app/components/Footer";
@@ -114,28 +113,23 @@ export default function AllProjectsPageClient() {
   return (
     <div
       id="projects"
-      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-48 lg:pt-0"
+      className="relative   w-full px-0 lg:px-0 mt-[calc(25vh-1rem)]  lg:mt-12 lg:pt-0"
     >
-      {/* Grid/list, moved above the heading. On desktop, CategoryFilters
-          rides alongside as a sticky column at col 9-12 instead of its own
-          full-width section, so the two are grid siblings here. */}
+      {/* Desktop: CategoryFilters across all 12 columns, the grid (full
+          width) or the client list (from col 4, in line with the filter
+          options) below it. */}
       <div className=" mb-6 lg:mb-3 grid grid-cols-3 lg:grid-cols-12 ">
-        {/* This wrapper is the actual grid item, left to stretch (the grid
-            default) to the row's full height — that's the tall "containing
-            block" position:sticky needs room to travel within. CategoryFilters
-            itself is what's sticky, nested one level in: if the sticky
-            element and the stretched grid cell were the same node, its own
-            box would already fill the whole row and there'd be nothing left
-            to stick within. */}
-        <div className="lg:col-start-1 lg:col-span-4">
+        {/* Desktop: the filters pin under the nav (sticky, z-0) and the
+            thumbnails scroll up over them — and over the nav, z-[95] — the
+            same as the home page's featured cards and the project pages. */}
+        <div className="lg:col-start-1 lg:col-span-12 lg:sticky lg:top-12 lg:z-0 lg:self-start">
           <CategoryFilters
-            className="lg:sticky lg:top-10"
             showFilters={showFilters}
             setShowFilters={setShowFilters}
           />
         </div>
         {showList && (
-          <Reveal className="col-start-4 col-span-8 hidden w-full lg:flex flex-col  justify-start items-start px-6  gap-3 mt-0 mb-12 ">
+          <Reveal className="lg:col-start-1 lg:col-span-9 hidden w-full lg:flex flex-col justify-start items-start lg:px-6 lg:mt-6 px-3 gap-3 mt-0 mb-12">
             <AnimatePresence mode="popLayout">
               {clients.map((client, idx) => (
                 <motion.div
@@ -149,7 +143,7 @@ export default function AllProjectsPageClient() {
                 >
                   <Link
                     href={`/projects/${client.slug}`}
-                    className=" transition-all h2Text text-primary text-center lowercase w-full hover:text-secondary  leading-[0.9] hover:bg-transparent"
+                    className=" transition-all h2Text text-primary text-center lowercase w-full hover:text-secondary  leading-[1] hover:bg-transparent"
                   >
                     {client.label}
                   </Link>
@@ -160,9 +154,12 @@ export default function AllProjectsPageClient() {
         )}
 
         {showGrid && (
-          <Reveal className="col-start-1 col-span-4 lg:col-start-5 lg:col-span-8 hidden w-full lg:block">
+          <Reveal className="lg:col-start-1 lg:col-span-12 hidden w-full lg:block lg:relative lg:z-[95] lg:mb-48 ">
             <div
-              className="mt-3 grid gap-x-3 gap-y-3 px-3 lg:px-3"
+              // Gaps = one CheckButton square (--pixel-corner, the ■ glyph's
+              // own width), both ways — and the same one square of padding
+              // on each side, so the grid has an even frame.
+              className="lg:mt-6 grid gap-(--pixel-corner) px-3 lg:px-6"
               style={{
                 gridTemplateColumns: `repeat(${numCols}, minmax(0, 1fr))`,
               }}
@@ -185,7 +182,7 @@ export default function AllProjectsPageClient() {
                   >
                     <ProjectCard
                       item={item}
-                      sizes={`${Math.round(75 / numCols)}vw`}
+                      sizes={`${Math.round(100 / numCols)}vw`}
                       className="lg:mb-0"
                     />
                   </motion.div>
@@ -194,6 +191,22 @@ export default function AllProjectsPageClient() {
             </div>
           </Reveal>
         )}
+      </div>
+
+      {/* Mobile: the active category above the grid — "all projects" until
+          one is picked, then its name (e.g. "music production"), same label
+          as its chip. Tapping it opens the filter drawer. Outside the px-6
+          wrapper below: CheckButton's own px-6 already insets it to the
+          grid's edge. */}
+      <div className="lg:hidden">
+        <CheckButton
+          label={getFilterChipLabel(activeFilter)}
+          size="lg"
+          active
+          color="text-primary"
+          className="whitespace-nowrap"
+          onClick={() => setShowFilters(true)}
+        />
       </div>
 
       {/* Mobile: the grid or the client list. */}
@@ -267,7 +280,6 @@ export default function AllProjectsPageClient() {
           />
         </div>
       </div>
-      <FilterOverlay />
 
       <Reveal className="w-full mb-12">
         <BottomNav />

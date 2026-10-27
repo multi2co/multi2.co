@@ -23,8 +23,6 @@ type UIContextType = {
   setShowList: (v: boolean) => void;
   activeFilter: string;
   setActiveFilter: (v: string) => void;
-  filtersOpen: boolean;
-  setFiltersOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
   searchOpen: boolean;
   setSearchOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
   openedCard: string | null;
@@ -47,10 +45,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [activeFilter, setActiveFilter] = useState("all");
   // mobile only: desktop always shows the category column (CategoryFilters),
   // below lg the same list is a full-screen overlay that starts closed
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [openedCard, setOpenedCard] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(true);
+  // Closed by default — the "settings" toggle opens it.
+  const [showSettings, setShowSettings] = useState(false);
   const [search, setSearch] = useState("");
   const [numCols, setNumCols] = useState(DEFAULT_COLS);
   const [sortMode, setSortMode] = useState<"year" | "title">("year");
@@ -77,8 +75,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setShowList,
         activeFilter,
         setActiveFilter,
-        filtersOpen,
-        setFiltersOpen,
         searchOpen,
         setSearchOpen,
         openedCard,
