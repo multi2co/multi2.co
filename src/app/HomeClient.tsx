@@ -74,16 +74,17 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               className="absolute inset-0 h-full w-full"
               src={reelUrl}
             />
-            {/* Mobile: the wordmark sits inside the box. */}
+            {/* The wordmark sits inside the reel box at every width, so it's
+                always above the full-screen video (which is z-[80]) and
+                rides along with it. Mobile turns it on its side. */}
             {showHeroWordmark && (
-              <HeroWordmark className="lg:hidden absolute inset-0 z-10 flex items-center justify-center px-3 text-center text-6xl font-visual font-thin tracking-normal lowercase rotate-90 text-primary" />
+              <>
+                <HeroWordmark className="lg:hidden absolute inset-0 z-10 flex items-center justify-center px-3 text-center text-6xl font-visual font-thin tracking-normal lowercase rotate-90 text-primary" />
+                <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-0 z-10 items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
+              </>
             )}
           </div>
         </div>
-
-        {showHeroWordmark && (
-          <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-x-0 top-0 z-10 h-screen items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
-        )}
       </div>
       <Reveal className="col-span-3 lg:col-span-12 bg-background px-0 lg:px-3   ">
         <AboutSectionText columns label="our concept" className="px-0 w-full" />
