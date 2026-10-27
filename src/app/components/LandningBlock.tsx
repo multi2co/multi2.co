@@ -36,7 +36,7 @@ type Props = {
  *  a block's contents can carry whatever inner grid they like without having to
  *  be aware of this one. */
 export default function LandningBlock({
-  bg = "bg-background text-primary",
+  bg = "text-primary",
   label,
   href,
   className,

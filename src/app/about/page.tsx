@@ -8,7 +8,7 @@ import Footer from "../components/Footer";
 
 export default function AboutPage() {
   return (
-    <div id="about" className="relative w-full bg-background">
+    <div id="about" className="relative w-full">
       <h1 className="sr-only">About Multi2</h1>
       {/* Insets match M2Nav: on mobile the bar has no padding of its own
           (the buttons carry it), on desktop it's inset 12px — so the label

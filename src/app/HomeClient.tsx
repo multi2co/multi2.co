@@ -66,7 +66,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   return (
     // One vertical rhythm for the whole page: every section is a direct child
     // here, spaced by this gap alone — no margins of their own.
-    <div className="w-full bg-background flex flex-col gap-y-12">
+    <div className="w-full flex flex-col gap-y-12">
       <div className="relative w-screen">
         <div className="sticky top-0 z-[80] h-screen w-screen bg-secondary">
           <div className=" relative overflow-hidden w-full h-full">
@@ -86,7 +86,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
           </div>
         </div>
       </div>
-      <Reveal className="col-span-3 lg:col-span-12 bg-background px-0 lg:px-3   ">
+      <Reveal className="col-span-3 lg:col-span-12 px-0 lg:px-3">
         <AboutSectionText columns label="our concept" className="px-0 w-full" />
       </Reveal>
 
@@ -94,7 +94,7 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
             vertically and scrolling with the rest of the page — with its
             "see all projects" link closing the same section. */}
       <div className="flex flex-col gap-y-6">
-        <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 gap-y-3 bg-background px-0 lg:px-3 w-full">
+        <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 gap-y-3 px-0 lg:px-3 w-full">
           <CheckButton
             label="selected projects"
             href="/projects"

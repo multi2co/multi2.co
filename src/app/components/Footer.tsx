@@ -10,6 +10,8 @@ const NAV_LINKS = [
   { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
   { href: "/connect", label: "Connect" },
+  // The Sanity Studio — the CMS lives at /studio.
+  { href: "/studio", label: "Admin" },
 ] as const;
 
 /** Falls back to this when the CMS's Contact doc has no email published yet —

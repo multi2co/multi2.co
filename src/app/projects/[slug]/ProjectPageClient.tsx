@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import Image, { getImageProps } from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { useScrollInset } from "@/lib/useScrollInset";
@@ -58,20 +58,13 @@ function HeroCover({ mobile, wide }: { mobile: string; wide?: string }) {
   );
 }
 
-/** Landscape items (3:2, 16:9) open out from a square as they come in. */
-function isWide(item: ProjectMedia) {
-  return item.aspectRatio > 1.05;
-}
-
 /**
  * One gallery item, treated like a home-page featured card's media: full
  * width on mobile, 75% and centred on desktop, in a notched frame; it rises
  * slightly into place as it comes into view (as the home showreel does on
  * load), and its side
- * margin grows from px-3 to px-6 as it scrolls away. Wide items also come in
- * as a square and open out to their ratio — the square starts at 1/ratio of
- * the frame's width, so with width and ratio moving together the height
- * never changes.
+ * margin grows from px-3 to px-6 as it scrolls away. Every item renders at
+ * its own ratio from the start.
  */
 function GalleryFigure({
   item,
@@ -101,18 +94,8 @@ function GalleryFigure({
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="w-full lg:w-3/4 lg:mx-auto"
         >
-          <motion.div
-            {...(isWide(item)
-              ? {
-                  initial: reduce
-                    ? false
-                    : { width: `${100 / item.aspectRatio}%`, aspectRatio: 1 },
-                  whileInView: { width: "100%", aspectRatio: item.aspectRatio },
-                  viewport: { once: true, margin: "0px 0px -15% 0px" },
-                  transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
-                  style: { aspectRatio: item.aspectRatio },
-                }
-              : { style: { aspectRatio: item.aspectRatio } })}
+          <div
+            style={{ aspectRatio: item.aspectRatio }}
             role="button"
             tabIndex={0}
             aria-label={label}
@@ -123,7 +106,7 @@ function GalleryFigure({
                 onOpen();
               }
             }}
-            className="pixelCorners relative w-full overflow-hidden cursor-zoom-in"
+            className="pixel-corners-2 relative w-full overflow-hidden cursor-zoom-in"
           >
             {item.type === "video" ? (
               <VideoPlayer src={item.url} className="object-cover" />
@@ -138,13 +121,12 @@ function GalleryFigure({
                 sizes="(max-width: 1024px) 100vw, 75vw"
               />
             )}
-          </motion.div>
+          </div>
         </motion.div>
       </motion.div>
       {item.description && (
         <figcaption className="h4BtnText grid grid-cols-3 gap-x-2 lowercase text-primary w-full lg:w-3/4 lg:mx-auto">
-          <span className="col-span-1">fig.{index + 1}</span>
-          <span className="col-span-2">{item.description}</span>
+          <span className="col-start-2 col-span-2">{item.description}</span>
         </figcaption>
       )}
     </figure>
@@ -178,14 +160,27 @@ function ProjectPageInner({
   // shared with the full-screen lightbox so the two carousels stay in step.
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Desktop only: the hero renders square, then opens out to 16:9. Read after
-  // mount, so the server HTML is the mobile version on every width.
   const reduceMotion = useReducedMotion();
-  const [isDesktop, setIsDesktop] = useState(false);
-  useEffect(() => {
-    setIsDesktop(window.matchMedia("(min-width: 1024px)").matches);
-  }, []);
   const [lightbox, setLightbox] = useState(false);
+
+  // The description/credits block pins 64px down (under the nav); one taller
+  // than the space below that pins by its bottom edge instead.
+  const textRef = useRef<HTMLDivElement>(null);
+  const [stickyTop, setStickyTop] = useState(64);
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+    const update = () =>
+      setStickyTop(Math.min(64, window.innerHeight - el.offsetHeight));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   // Lock the page and close on Escape while the lightbox is up.
   useEffect(() => {
@@ -217,160 +212,170 @@ function ProjectPageInner({
         : [];
 
   return (
-    <div className=" relative w-full px-0 mt-48 ">
-      <div className="grid grid-cols-3 lg:grid-cols-12 mb-3 lg:mb-0 items-baseline px-3">
-        {client && (
-          <div className="hidden lg:flex col-start-1 col-span-1 lg:col-start-1 lg:col-span-3  px-0">
-            <CheckButton size="lg" label={client} color="text-primary" active />
-          </div>
-        )}
-        <h1 className="h2Text col-start-2 lg:col-start-4 col-span-3 lg:col-span-8 text-primary lowercase tracking-tight lg:px-3 ">
-          {title}
-        </h1>
-      </div>
-
-      {/* Hero: slides up from below on load. 9:16, full width on mobile — an
-          `!important` class, so it wins over the ratio motion writes inline.
-          On desktop it starts as a square at 56.25% of the row, left-aligned,
-          then widens to 16:9 at full width — width and ratio move together,
-          so the height holds. */}
-      <div className="relative px-3 lg:px-6 lg:mt-3 w-full">
-        <motion.div
-          initial={{ aspectRatio: 1, y: reduceMotion ? 0 : "40vh" }}
-          animate={
-            isDesktop
-              ? { aspectRatio: 16 / 9, width: "100%", y: 0 }
-              : { aspectRatio: 1, y: 0 }
-          }
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : {
-                  // Slides up into place first, then opens out.
-                  y: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
-                  aspectRatio: {
-                    duration: 1.2,
-                    delay: 0.8,
-                    ease: [0.22, 1, 0.36, 1],
-                  },
-                  width: {
-                    duration: 1.2,
-                    delay: 0.8,
-                    ease: [0.22, 1, 0.36, 1],
-                  },
-                }
-          }
-          className="w-full max-lg:!aspect-[9/16] lg:w-[56.25%]"
-        >
-          <LandningBlock
-            className="h-full w-full pixelCorners pixel-corners-2 items-start lg:px-3"
-            labelClassName="col-start-1  col-span-3 px-3 lg:col-start-2 lg:col-span-3 "
-            background={
-              heroVideo ? (
-                <div className=" relative h-full w-full">
-                  <VideoPlayer src={heroVideo.url} className="h-full w-full" />
-                </div>
-              ) : heroStill ? (
-                <div className=" relative h-full w-full">
-                  <HeroCover mobile={heroStill} wide={coverUrlWide} />
-                </div>
-              ) : undefined
-            }
-          />
-        </motion.div>
-      </div>
-
-      {/* Description + credits — reached by scrolling past the hero. */}
-      <motion.div
-        className=" w-full relative pb-4 mt-6 px-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-12 gap-x-6 mb-12 lg:mb-6 items-start text-primary">
-          <div className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-7 flex flex-col gap-y-6 px-0 lg:px-0 lowercase">
-            {description ? (
-              <p className="pText">{description}</p>
-            ) : (
-              <p className="pText">
-                A bold visual concept rooted in craft and intention. Shot on
-                location, refined in post. Every frame built around a singular
-                idea — to make the ordinary feel inevitable. A bold visual
-                concept rooted in craft and intention. Shot on location, refined
-                in post. Every frame built around a singular idea — to make the
-                ordinary feel inevitable.
-              </p>
-            )}
-          </div>
-
-          <dl className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 flex flex-col lg:grid lg:grid-cols-8 gap-x-6 gap-y-1 lg:gap-y-2 px-0 lg:px-0 h4BtnText lowercase text-primary [&>dt:not(:first-child)]:mt-3 lg:[&>dt:not(:first-child)]:mt-0">
-            <dt className="font-normal lowercase lg:col-span-2">project</dt>
-            <dd className="m-0 lg:col-span-6 uppercase font-normal">{title}</dd>
-            {client && (
-              <>
-                <dt className="font-normal lowercase lg:col-span-2">client</dt>
-                <dd className="m-0 lg:col-span-6   uppercase">{client}</dd>
-              </>
-            )}
-            {year && (
-              <>
-                <dt className="font-normal lg:col-span-2">year</dt>
-                <dd className="m-0 lg:col-span-6 font-normal">{year}</dd>
-              </>
-            )}
-            {categories.length > 0 && (
-              <>
-                <dt className="font-normal lg:col-span-2">categories</dt>
-                <dd className="m-0 lg:col-span-6 flex flex-col font-normal uppercase">
-                  {categories.map((c) => (
-                    <span key={c}>{getCategoryLabel(c)}</span>
-                  ))}
-                </dd>
-              </>
-            )}
-            {credits &&
-              credits
-                .split("\n")
-                .filter(Boolean)
-                .map((line, i) => {
-                  const { role, name } = parseCredit(line);
-                  return (
-                    <Fragment key={i}>
-                      <dt className="font-normal lowercase lg:col-span-2">
-                        {role}
-                      </dt>
-                      <dd className="m-0 lg:col-span-6 uppercase font-normal">
-                        {name}
-                      </dd>
-                    </Fragment>
-                  );
-                })}
-          </dl>
+    // Same rhythm as the home page: every section is spaced by this one gap
+    // (gap-y-12), none by margins of its own. `mt-48` is the drop below the
+    // nav, not a section gap.
+    <div className="relative w-full px-0 mt-48 flex flex-col gap-y-12">
+      {/* Title row, then the hero — one wrapper, so the pinned title lets go
+          once the hero has passed. Like the home page's featured cards: the
+          title pins under the nav and the hero scrolls up over it (and over
+          the nav, z-[95]). */}
+      <div className="relative">
+        <div className="sticky top-16 z-0 grid grid-cols-3 lg:grid-cols-12 mb-3 lg:mb-0 items-baseline px-3">
+          {client && (
+            <div className="hidden lg:flex col-start-1 col-span-1 lg:col-start-1 lg:col-span-3  px-0">
+              <CheckButton
+                size="lg"
+                label={client}
+                color="text-primary"
+                active
+              />
+            </div>
+          )}
+          <h1 className="h2Text col-start-2 lg:col-start-4 col-span-3 lg:col-span-8 text-primary lowercase tracking-tight lg:px-3 ">
+            {title}
+          </h1>
         </div>
-      </motion.div>
 
-      {/* Gallery: the work's media stacked in the order the editor set in the
+        {/* Hero: slides up from below on load, already at its final shape —
+          9:16 full width on mobile, 16:9 full width on desktop. */}
+        <div className="relative z-[95] px-3 lg:px-6 lg:mt-3 w-full">
+          <motion.div
+            initial={reduceMotion ? false : { y: "40vh" }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full aspect-[9/16] lg:aspect-video"
+          >
+            <LandningBlock
+              // Solid until its media paints, so the title behind never shows
+              // through.
+              bg="bg-secondary text-primary"
+              className="h-full w-full pixelCorners pixel-corners-2 items-start lg:px-3"
+              labelClassName="col-start-1  col-span-3 px-3 lg:col-start-2 lg:col-span-3 "
+              background={
+                heroVideo ? (
+                  <div className=" relative h-full w-full">
+                    <VideoPlayer
+                      src={heroVideo.url}
+                      className="h-full w-full"
+                    />
+                  </div>
+                ) : heroStill ? (
+                  <div className=" relative h-full w-full">
+                    <HeroCover mobile={heroStill} wide={coverUrlWide} />
+                  </div>
+                ) : undefined
+              }
+            />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Description + credits, then the gallery — one wrapper, so the pinned
+          text lets go once the gallery has passed. Like the home page's
+          featured cards: the text pins under the nav and the gallery images
+          scroll up over it (and over the nav, z-[95]). */}
+      <div className="relative flex flex-col gap-y-12">
+        <motion.div
+          ref={textRef}
+          // Pinned below the nav; a block taller than the screen pins by its
+          // bottom edge instead, so the credits can be read before the images
+          // cover it.
+          style={{ top: stickyTop }}
+          className="sticky z-0 w-full px-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-12 gap-x-6 items-start text-primary">
+            <div className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-7 flex flex-col gap-y-6 px-0 lg:px-0 lowercase">
+              {description ? (
+                <p className="pText">{description}</p>
+              ) : (
+                <p className="pText">
+                  A bold visual concept rooted in craft and intention. Shot on
+                  location, refined in post. Every frame built around a singular
+                  idea — to make the ordinary feel inevitable. A bold visual
+                  concept rooted in craft and intention. Shot on location,
+                  refined in post. Every frame built around a singular idea — to
+                  make the ordinary feel inevitable.
+                </p>
+              )}
+            </div>
+
+            <dl className="col-start-1 col-span-3 lg:col-start-4 lg:col-span-8 flex flex-col lg:grid lg:grid-cols-8 gap-x-6 gap-y-3 lg:gap-y-2 px-0 lg:px-0 h4BtnText lowercase text-primary [&>dt:not(:first-child)]:mt-3 lg:[&>dt:not(:first-child)]:mt-0">
+              <dt className="font-normal lowercase lg:col-span-2">project</dt>
+              <dd className="m-0 lg:col-span-6 uppercase font-normal">
+                {title}
+              </dd>
+              {client && (
+                <>
+                  <dt className="font-normal lowercase lg:col-span-2">
+                    client
+                  </dt>
+                  <dd className="m-0 lg:col-span-6   uppercase">{client}</dd>
+                </>
+              )}
+              {year && (
+                <>
+                  <dt className="font-normal lg:col-span-2">year</dt>
+                  <dd className="m-0 lg:col-span-6 font-normal">{year}</dd>
+                </>
+              )}
+              {categories.length > 0 && (
+                <>
+                  <dt className="font-normal lg:col-span-2">categories</dt>
+                  <dd className="m-0 lg:col-span-6 flex flex-col font-normal uppercase">
+                    {categories.map((c) => (
+                      <span key={c}>{getCategoryLabel(c)}</span>
+                    ))}
+                  </dd>
+                </>
+              )}
+              {credits &&
+                credits
+                  .split("\n")
+                  .filter(Boolean)
+                  .map((line, i) => {
+                    const { role, name } = parseCredit(line);
+                    return (
+                      <Fragment key={i}>
+                        <dt className="font-normal lowercase lg:col-span-2">
+                          {role}
+                        </dt>
+                        <dd className="m-0 lg:col-span-6 uppercase font-normal">
+                          {name}
+                        </dd>
+                      </Fragment>
+                    );
+                  })}
+            </dl>
+          </div>
+        </motion.div>
+
+        {/* Gallery: the work's media stacked in the order the editor set in the
           Studio, each at the ratio it was uploaded at, its figure caption
           below — treated like the home page's featured cards (see
           GalleryFigure). Clicking one opens the full-screen carousel there. */}
-      {showGallery && slides.length > 0 && (
-        <div className="flex flex-col gap-y-16 lg:gap-y-30 mt-3 px-6">
-          {slides.map((item, i) => (
-            <GalleryFigure
-              key={item.key}
-              item={item}
-              index={i}
-              title={title}
-              onOpen={() => {
-                setActiveSlide(i);
-                setLightbox(true);
-              }}
-            />
-          ))}
-        </div>
-      )}
+        {showGallery && slides.length > 0 && (
+          <div className="relative z-[95] flex flex-col gap-y-16 lg:gap-y-30 px-6">
+            {slides.map((item, i) => (
+              <GalleryFigure
+                key={item.key}
+                item={item}
+                index={i}
+                title={title}
+                onOpen={() => {
+                  setActiveSlide(i);
+                  setLightbox(true);
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-      <div className="w-full mb-6 mt-24">
+      <div className="w-full">
         <BottomNav />
       </div>
 

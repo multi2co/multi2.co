@@ -40,11 +40,15 @@ export default function VideoPlayer({
   className,
   controls = false,
   muted: mutedProp,
+  autoPlayOnTouch = false,
 }: {
   src: string;
   className?: string;
   controls?: boolean;
   muted?: boolean;
+  /** On devices that can't hover (phones, tablets), play while on screen
+   *  instead of waiting for a hover that never comes. */
+  autoPlayOnTouch?: boolean;
 }) {
   const { playbackMuted: soundMuted, volume } = useSound();
   const muted = mutedProp ?? soundMuted;
@@ -53,6 +57,15 @@ export default function VideoPlayer({
 
   const hoverOnly = !(usePathname()?.startsWith("/projects/") ?? false);
   const [hovered, setHovered] = useState(false);
+  // Read after mount — the server can't know whether the device hovers.
+  const [noHover, setNoHover] = useState(false);
+  useEffect(() => {
+    setNoHover(window.matchMedia("(hover: none)").matches);
+  }, []);
+  // The player only exists while near the screen, so autoplaying it on mount
+  // plays it as it scrolls in and drops it as it scrolls out.
+  const touchAutoPlay = hoverOnly && autoPlayOnTouch && noHover;
+  const autoPlay = !hoverOnly || touchAutoPlay;
   // Driven imperatively: play() rejects when the browser blocks it, and that
   // rejection has to be caught rather than left unhandled.
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -60,9 +73,12 @@ export default function VideoPlayer({
     if (!hoverOnly) return;
     const el = videoRef.current;
     if (!el) return;
-    if (hovered) el.play()?.catch(() => {});
+    // Touch autoplay: keep playing while on screen (a player that mounted
+    // before `noHover` was read won't start from the attribute alone).
+    // Otherwise follow the pointer.
+    if (touchAutoPlay || hovered) el.play()?.catch(() => {});
     else el.pause();
-  }, [hovered, hoverOnly, inView]);
+  }, [hovered, hoverOnly, inView, touchAutoPlay]);
 
   return (
     <div
@@ -80,7 +96,7 @@ export default function VideoPlayer({
           ref={videoRef}
           src={toNoCookieSrc(src)}
           config={NO_TRACKING_CONFIG}
-          autoPlay={!hoverOnly}
+          autoPlay={autoPlay}
           loop={!controls}
           controls={controls}
           muted={muted}

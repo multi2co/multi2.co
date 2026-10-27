@@ -76,7 +76,7 @@ export default function AboutSectionText({
     return (
       <div
         className={cn(
-          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12   items-baseline gap-y-6 lg:gap-y-6 justify-start h-auto ",
+          " text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12   items-baseline gap-y-6 lg:gap-y-6 justify-start h-auto ",
           className,
         )}
       >
@@ -98,7 +98,7 @@ export default function AboutSectionText({
           <p
             key={i}
             className={cn(
-              "col-span-3 text-xl font-visual font-normal tracking-[0.25px] lg:tracking-normal leading-tight px-6 lg:px-0 whitespace-pre-line text-primary",
+              "col-span-3 text-base lg:text-xl font-visual font-normal tracking-[0.25px] lg:tracking-normal leading-tight px-6 lg:px-0 whitespace-pre-line text-primary",
               "lg:col-start-4 lg:col-span-6",
               i === 0 && "lg:row-start-1",
             )}

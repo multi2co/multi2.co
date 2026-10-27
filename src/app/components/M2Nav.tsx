@@ -15,7 +15,6 @@ const NAV_ITEMS = [
   { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
   { href: "/connect", label: "Connect" },
-  { href: "/studio", label: "Log In" },
 ] as const;
 
 /** What the desktop bar links to directly — it has no menu drawer. */
@@ -127,7 +126,7 @@ function NavField({
       initial="rest"
       animate={active ? "active" : "rest"}
       className={cn(
-        "pointer-events-none absolute hidden inset-0 overflow-hidden font-visual text-base lg:text-base transition-colors",
+        "pointer-events-none absolute inset-0 overflow-hidden font-visual text-base lg:text-base transition-colors",
         onDark ? "text-secondary" : "text-primary",
       )}
     >
@@ -168,9 +167,9 @@ function NavField({
 
 /** The top control row — its own overlay, sitting above `NavField` on the
  *  click-through layer. `grid-cols-3` on mobile; always `grid-cols-12` on `lg`
- *  (wordmark · – · projects · about · connect · dark at cols
- *  1–2 / 3 / 4 / 7 / 10 / 12; on project pages light/dark moves to col 3
- *  and sound takes col 12) so the
+ *  (wordmark · projects · about · connect · dark at cols 1–2 / 4 / 7 / 10 /
+ *  12; project pages add a sound toggle in the bottom-right corner, outside
+ *  this row) so the
  *  controls hold their positions whatever the field grid does underneath.
  *  Opening the drawer fills it with `bg-primary` so the panel below reads as
  *  one surface. */
@@ -179,9 +178,6 @@ function NavBar({
   onToggleOpen,
   menuLoading,
   cycleMenuLabel,
-  muted,
-  onToggleMute,
-  showSound,
   onConnect,
   dark,
   onToggleDark,
@@ -197,9 +193,6 @@ function NavBar({
   onToggleOpen: () => void;
   menuLoading: boolean;
   cycleMenuLabel: boolean;
-  muted: boolean;
-  onToggleMute: () => void;
-  showSound: boolean;
   onConnect?: () => void;
   dark: boolean;
   onToggleDark: () => void;
@@ -307,24 +300,6 @@ function NavBar({
         </CheckButton>
       </motion.div>
 
-      {/* Desktop col 3: the light/dark toggle on project pages, where the
-          sound toggle takes its far-right slot. */}
-      {showSound && (
-        <motion.div
-          variants={BAR_ITEM}
-          className="hidden lg:block lg:col-start-3 lg:col-span-2"
-        >
-          <CheckButton
-            className="font-visual w-full"
-            size="label"
-            label={dark ? "dark" : "light"}
-            active
-            color={barColor}
-            onClick={onToggleDark}
-          />
-        </motion.div>
-      )}
-
       {/* Desktop cols 4 / 7: the page links — no drawer on desktop. */}
       {DESKTOP_LINKS.map((item, i) => (
         <motion.div
@@ -364,31 +339,19 @@ function NavBar({
         />
       </motion.div>
 
-      {/* Desktop col 12, pushed to the far right: the sound toggle on project
-          pages, the light/dark toggle everywhere else. */}
+      {/* Desktop col 12: the light/dark toggle, pushed to the far right. */}
       <motion.div
         variants={BAR_ITEM}
         className="hidden lg:flex lg:col-start-12 lg:col-span-1 lg:justify-end"
       >
-        {showSound ? (
-          <CheckButton
-            className="font-visual whitespace-nowrap"
-            size="lg"
-            label={muted ? "sound off" : "sound on"}
-            active
-            color={barColor}
-            onClick={onToggleMute}
-          />
-        ) : (
-          <CheckButton
-            className="font-visual"
-            size="lg"
-            label={dark ? "dark" : "light"}
-            active
-            color={barColor}
-            onClick={onToggleDark}
-          />
-        )}
+        <CheckButton
+          className="font-visual"
+          size="lg"
+          label={dark ? "dark" : "light"}
+          active
+          color={barColor}
+          onClick={onToggleDark}
+        />
       </motion.div>
     </motion.div>
   );
@@ -407,13 +370,7 @@ function NavVertical({
   themeLabel,
   dark,
   onToggleDark,
-  showSound,
-  muted,
-  onToggleMute,
 }: {
-  showSound: boolean;
-  muted: boolean;
-  onToggleMute: () => void;
   onNavigate: (href: string) => void;
   onCycleTheme: () => void;
   themeLabel: string;
@@ -456,18 +413,6 @@ function NavVertical({
             onClick={() => onNavigate(item.href)}
           />
         ))}
-        {/* Mobile has no room for it in the bar, so on project pages the
-            sound toggle sits here. */}
-        {showSound && (
-          <CheckButton
-            checkbox
-            className="lowercase pb-0 mt-6"
-            size="lg"
-            label={muted ? "sound off" : "sound on"}
-            active={!muted}
-            onClick={onToggleMute}
-          />
-        )}
       </nav>
 
       {/* The palette picker — one click cycles to the next palette, the split
@@ -668,70 +613,90 @@ export default function M2Nav() {
   if (pathname?.startsWith("/studio")) return null;
 
   return (
-    // z-90 normally, so the featured cards' media (z-95) can scroll up over
-    // the bar; while the (mobile-only) drawer is open the whole overlay jumps
-    // above everything — filters, bottom bars, the lightbox.
-    <div
-      className={cn(
-        "pointer-events-none fixed inset-0 h-screen w-full",
-        open ? "z-[200]" : "z-90",
-      )}
-    >
+    <>
       {/* The square field: stagger-reveals on load, holds while the page is
           still loading, then fades until the reader scrolls (a quarter turn
-          further along on each scroll start and stop). */}
-      <NavField
-        active={scrolling || fieldShown || menuLoading}
-        rotate={fieldTurn * 90}
-        onDark={onDark}
-      />
-
-      <div className="relative">
-        <NavBar
-          revealed={revealBar}
-          open={open}
+          further along on each scroll start and stop). Its own fixed layer
+          *behind* the page (`-z-10` paints above the body's background but
+          under every section), so content covers it where they overlap. */}
+      <div className="pointer-events-none fixed inset-0 -z-10 h-screen w-full">
+        <NavField
+          active={scrolling || fieldShown || menuLoading}
+          rotate={fieldTurn * 90}
           onDark={onDark}
-          onToggleOpen={() => setOpen((o) => !o)}
-          menuLoading={menuLoading}
-          cycleMenuLabel={cycleMenuLabel}
-          muted={muted}
-          onToggleMute={toggleMute}
-          showSound={onProjectPage}
-          onConnect={scrollToConnect}
-          dark={dark}
-          onToggleDark={toggleDark}
-          themeLabel={currentTheme.label}
-          onCycleTheme={cycleTheme}
-          onNavigate={handleNavigate}
         />
+      </div>
 
-        {/* The panel unfolds as a drawer — the wrapper animates its height so
+      {/* z-90 normally, so the featured cards' media (z-95) can scroll up
+          over the bar; while the (mobile-only) drawer is open the whole
+          overlay jumps above everything — filters, bottom bars, the
+          lightbox. */}
+      <div
+        className={cn(
+          "pointer-events-none fixed inset-0 h-screen w-full",
+          open ? "z-[200]" : "z-90",
+        )}
+      >
+        <div className="relative">
+          <NavBar
+            revealed={revealBar}
+            open={open}
+            onDark={onDark}
+            onToggleOpen={() => setOpen((o) => !o)}
+            menuLoading={menuLoading}
+            cycleMenuLabel={cycleMenuLabel}
+            onConnect={scrollToConnect}
+            dark={dark}
+            onToggleDark={toggleDark}
+            themeLabel={currentTheme.label}
+            onCycleTheme={cycleTheme}
+            onNavigate={handleNavigate}
+          />
+
+          {/* The panel unfolds as a drawer — the wrapper animates its height so
             the menu slides down from under the row, and NavVertical eases in
             behind it. Mirrors the bottom drawer on /projects. */}
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              key="nav-drawer"
-              initial={{ height: 0 }}
-              animate={{ height: "auto" }}
-              exit={{ height: 0 }}
-              transition={{ duration: 0.4, ease: EASE }}
-              className="pointer-events-auto overflow-hidden"
-            >
-              <NavVertical
-                showSound={onProjectPage}
-                muted={muted}
-                onToggleMute={toggleMute}
-                onNavigate={handleNavigate}
-                onCycleTheme={cycleTheme}
-                themeLabel={currentTheme.label}
-                dark={dark}
-                onToggleDark={toggleDark}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+          <AnimatePresence initial={false}>
+            {open && (
+              <motion.div
+                key="nav-drawer"
+                initial={{ height: 0 }}
+                animate={{ height: "auto" }}
+                exit={{ height: 0 }}
+                transition={{ duration: 0.4, ease: EASE }}
+                className="pointer-events-auto overflow-hidden"
+              >
+                <NavVertical
+                  onNavigate={handleNavigate}
+                  onCycleTheme={cycleTheme}
+                  themeLabel={currentTheme.label}
+                  dark={dark}
+                  onToggleDark={toggleDark}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+
+      {/* Project pages: the sound toggle, pinned to the bottom-right corner
+          at every width — on desktop its right edge lines up under the bar's
+          light/dark switch (both 12px in). Its own fixed layer, outside the
+          nav's z-90 overlay (which would trap it below the images' z-[95]):
+          z-[250] puts it over every image, video, the lightbox and the open
+          menu; only the under-construction gate (z-[300]) sits higher. */}
+      {onProjectPage && (
+        <div className="pointer-events-auto fixed bottom-0 right-0 z-[250] lg:bottom-3 lg:right-3">
+          <CheckButton
+            className="font-visual whitespace-nowrap"
+            size="lg"
+            label={muted ? "sound off" : "sound on"}
+            active
+            color="text-primary"
+            onClick={toggleMute}
+          />
+        </div>
+      )}
+    </>
   );
 }

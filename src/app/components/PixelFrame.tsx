@@ -23,6 +23,8 @@ type Props = ImageProps & {
    *  a passive background video that isn't meant to carry audio. Only
    *  meaningful with `mediaType="video"`. */
   videoMuted?: boolean;
+  /** Passed to VideoPlayer: play on screen on touch devices. */
+  videoAutoPlayOnTouch?: boolean;
 };
 
 /**
@@ -40,6 +42,7 @@ export default function PixelFrame({
   revealDelay = 0,
   mediaType = "image",
   videoMuted,
+  videoAutoPlayOnTouch,
   ...image
 }: Props) {
   const reduce = useReducedMotion();
@@ -49,6 +52,7 @@ export default function PixelFrame({
       <VideoPlayer
         src={image.src as string}
         muted={videoMuted}
+        autoPlayOnTouch={videoAutoPlayOnTouch}
         className={cn("object-cover", imageClassName)}
       />
     ) : (
@@ -61,8 +65,14 @@ export default function PixelFrame({
     );
 
   return (
+    // `bg-secondary` keeps the frame solid before its media paints — a video
+    // with no cover is otherwise see-through until its first frame loads,
+    // and whatever sits behind (e.g. a featured card's pinned text) shows.
     <div
-      className={cn("pixelCorners relative overflow-hidden", className)}
+      className={cn(
+        "pixelCorners relative overflow-hidden bg-secondary",
+        className,
+      )}
     >
       {revealOnView && !reduce ? (
         <motion.div

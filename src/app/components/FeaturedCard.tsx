@@ -70,7 +70,7 @@ export default function FeaturedCard({
           (`items-baseline-last`). The buttons are `size="label"` like the
           bar's: `lg` adds its own `lg:px-3`, which `className` can't undo. */}
         <div className="flex flex-col gap-6 px-0  lg:px-3 lg:gap-x-3 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-baseline-last">
-          <div className="flex flex-col gap-0 lg:pl-4 lg:row-start-1 lg:col-start-1 lg:col-span-4">
+          <div className="flex flex-col gap-0 lg:pl-12 lg:pr-12 lg:row-start-1 lg:col-start-1 lg:col-span-6">
             {project.heroIntro && (
               <div className="text-3xl lg:text-4xl lg:indent-6 font-visual text-primary  font-thin leading-tight">
                 {/* Mobile: the client leads, inline, with the intro running on
@@ -144,6 +144,7 @@ export default function FeaturedCard({
             src={project.coverTallUrl ?? project.url}
             mediaType={mediaType}
             videoMuted
+            videoAutoPlayOnTouch
             alt={project.alt}
             sizes="100vw"
             className="w-full aspect-[9/16] pixel-corners-2 lg:hidden"
@@ -152,6 +153,7 @@ export default function FeaturedCard({
             src={project.coverWideUrl ?? project.url}
             mediaType={mediaType}
             videoMuted
+            videoAutoPlayOnTouch
             alt={project.alt}
             // Shown at 75% of the row on desktop — ask for that, not 100vw.
             sizes="75vw"
