@@ -20,6 +20,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
 /** Slugs that mean the same thing as another, folded into it. */
 const CATEGORY_ALIASES: Record<string, string> = {
   music: "music-production",
+  edit: "editing",
 };
 
 /** The CMS stores categories as free text, so the same one arrives as
