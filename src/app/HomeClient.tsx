@@ -13,16 +13,16 @@ import FeaturedCard from "./components/FeaturedCard";
 import { Reveal } from "./components/Reveal";
 import ShowReel from "./components/ShowReel";
 import HeroWordmark from "./components/HeroWordmark";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 
 import Footer from "./components/Footer";
-
-/** The "multisquared" wordmark over the hero reel — off for now. */
-const SHOW_HERO_WORDMARK = false;
 
 function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   const { items } = useWork();
   const { notifyContentDone, notifyHeroOpen } = useUI();
   const reduceMotion = useReducedMotion();
+  // The "multisquared" wordmark over the reel — a Site Settings switch.
+  const { showHeroWordmark } = useSiteSettings();
 
   // The reel is static and on screen from the first paint, so the nav has
   // nothing to wait on — let it bring its links in straight away.
@@ -64,12 +64,10 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
   }, [items]);
 
   return (
-    <div className="w-full bg-background">
-      {/* The showreel fills the viewport edge to edge on every width. */}
+    // One vertical rhythm for the whole page: every section is a direct child
+    // here, spaced by this gap alone — no margins of their own.
+    <div className="w-full bg-background flex flex-col gap-y-12">
       <div className="relative w-screen">
-        {/* Static — no reveal: it's the first thing on screen and plays
-            from the first paint. `z-[80]` keeps it under the fixed nav (z-90)
-            so the nav stays visible on top of the reel. */}
         <div className="sticky top-0 z-[80] h-screen w-screen bg-secondary">
           <div className=" relative overflow-hidden w-full h-full">
             <ShowReel
@@ -77,56 +75,57 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
               src={reelUrl}
             />
             {/* Mobile: the wordmark sits inside the box. */}
-            {SHOW_HERO_WORDMARK && (
+            {showHeroWordmark && (
               <HeroWordmark className="lg:hidden absolute inset-0 z-10 flex items-center justify-center px-3 text-center text-6xl font-visual font-thin tracking-normal lowercase rotate-90 text-primary" />
             )}
           </div>
         </div>
-        {/* Desktop: the wordmark is centred on the whole first viewport, not
-            just the box. */}
-        {SHOW_HERO_WORDMARK && (
+
+        {showHeroWordmark && (
           <HeroWordmark className="hidden lg:flex pointer-events-none absolute inset-x-0 top-0 z-10 h-screen items-center justify-center px-12 whitespace-nowrap text-[10rem] font-visual font-thin lowercase tracking-tight text-primary" />
         )}
       </div>
-      <Reveal className="col-span-3 lg:col-span-12 bg-background px-6 lg:px-3 pt-12  ">
-        <AboutSectionText
-          columns
-          label="our concept"
-          className="pb-6   w-full
-              "
-        />
+      <Reveal className="col-span-3 lg:col-span-12 bg-background px-0 lg:px-3   ">
+        <AboutSectionText columns label="our concept" className="px-0 w-full" />
       </Reveal>
 
       {/* Selected projects: one card per row, full width, stacked
-            vertically and scrolling with the rest of the page. */}
-      <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 bg-background p-0  w-full px-0 pt-12 ">
-        <CheckButton
-          label="selected projects"
-          href="/projects"
-          size="lg"
-          color="text-primary"
-          active
-          className="col-span-3 lg:col-span-12 whitespace-nowrap"
-        />
-        <div className="col-span-3 lg:col-span-12 flex flex-col gap-y-16 lg:gap-y-30 mt-3 px-6">
-          {/* In each card the text pins below the nav and the card's media
+            vertically and scrolling with the rest of the page — with its
+            "see all projects" link closing the same section. */}
+      <div className="flex flex-col gap-y-6">
+        <Reveal className="relative grid grid-cols-3 lg:grid-cols-12 gap-y-3 bg-background px-0 lg:px-3 w-full">
+          <CheckButton
+            label="selected projects"
+            href="/projects"
+            size="lg"
+            color="text-primary"
+            active
+            className="hidden col-span-3 lg:col-span-12 whitespace-nowrap"
+          />
+          <div className="col-span-3 lg:col-span-12 flex flex-col gap-y-12 lg:mt-24 lg:mb-12 lg:gap-y-30 px-6 lg:px-0">
+            {/* In each card the text pins below the nav and the card's media
               scrolls up over it — see FeaturedCard. */}
-          {featuredProjects.map((project) => (
-            <FeaturedCard key={project.key} project={project} />
-          ))}
+            {featuredProjects.map((project) => (
+              <FeaturedCard key={project.key} project={project} />
+            ))}
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-3 lg:grid-cols-12 lg:px-3">
+          <div className="col-span-3 lg:col-start-4 lg:col-span-4 lg:-ml-3">
+            <CheckButton
+              size="xl"
+              label="see all projects"
+              active
+              color="text-primary"
+            />
+          </div>
         </div>
-      </Reveal>
-      <CheckButton
-        size="xl"
-        label="see all projects"
-        active
-        color="text-primary"
-        className="col-start-4 col-span-4 my-12 lg:my-12 lg:ml-3"
-      />
+      </div>
       <div className="w-full px-3 lg:px-6">
         <Reveal
           sticky
-          className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixel-corners-2 mb-16 lg:mb-30"
+          className="min-h-dvh  relative w-full gap-3 p-3  grid-cols-3 lg:grid-cols-12 grid bg-secondary pixel-corners-2"
         >
           <span className="col-span-3">
             <CheckButton
@@ -138,8 +137,6 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
             />
           </span>
           <div className=" flex flex-col items-start justify-start text-secondary col-start-1 col-span-3 px-6 lg:px-0 pb-6 lg:pb-0 lg:col-start-4 lg:col-span-8 gap-y-2 lg:gap-y-2 pt-6 lg:pt-12">
-            {/* Each name reveals on its own as it scrolls into view, so the
-                list fills in one by one as the card rises. */}
             {clients.map((client) => (
               <motion.div
                 key={client.key}
@@ -166,17 +163,18 @@ function HomeClientInner({ reelUrl }: { reelUrl?: string }) {
             back to primary once Footer (bg-secondary) covers it — see the
             two-observer note in M2Nav. Sticky like everything above it, so
             it stacks in turn. */}
-      {/* Non-sticky anchor for M2Nav's "connect" button — the zone below is
-          sticky, so its own position can't be measured once it's stuck. */}
-      <div id="connect" aria-hidden />
       <div className="px-3 lg:px-6 w-full">
+        {/* Non-sticky anchor for M2Nav's "connect" button — the zone below
+            is sticky, so its own position can't be measured once it's stuck.
+            Inside this wrapper so it doesn't count as a section in the gap. */}
+        <div id="connect" aria-hidden />
         <div id="connect-zone" className="sticky top-16 pixel-corners-2">
           <ConnectSection className=" p-3">
             <BottomNav />
           </ConnectSection>
         </div>
       </div>
-      <Reveal className="mt-16 lg:mt-30 mb-0 pb-0" id="footer-section" sticky>
+      <Reveal id="footer-section" sticky>
         <Footer />
       </Reveal>
     </div>

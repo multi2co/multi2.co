@@ -104,6 +104,7 @@ export const contactQuery = groq`
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {
     _id,
-    iconStyle
+    showHeroWordmark,
+    underConstruction
   }
 `;

@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { useSound } from "@/context/SoundContext";
 import { useUI } from "@/context/UIContext";
 import { THEMES, useTheme } from "@/context/ThemeContext";
-import { useIconStyle } from "@/context/IconStyleContext";
 import CheckButton from "./CheckButton";
 import TerminalM2Button from "./TerminalM2Button";
 
@@ -118,8 +117,7 @@ function NavField({
   // thirds; everywhere else it's 4-col with one row at the midpoint.
   const projects = usePathname() === "/projects";
   const rows: readonly string[] = projects ? FIELD_ROWS_PROJECTS : FIELD_ROWS;
-  const iconStyle = useIconStyle();
-  const mark = iconStyle === "dot" ? "●" : "■";
+  const mark = "■";
 
   return (
     <motion.div

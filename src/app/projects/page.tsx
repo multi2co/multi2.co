@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AllProjectsPageClient from "./AllProjectsPageClient";
+import { WorkContextServer } from "@/context/WorkContextServer";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -12,7 +13,9 @@ export default function ProjectsPage() {
   return (
     <>
       <h1 className="sr-only">Projects</h1>
-      <AllProjectsPageClient />
+      <WorkContextServer>
+        <AllProjectsPageClient />
+      </WorkContextServer>
     </>
   );
 }

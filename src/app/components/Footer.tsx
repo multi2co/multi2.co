@@ -39,8 +39,8 @@ export default function Footer() {
           an explicit column so the groups all sit on the top row and line up
           regardless of how many links they hold. Mobile stacks them in
           column two. */}
-        <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-8 items-baseline ">
-          <nav className="col-start-1 px-6 col-span-1 lg:col-start-1 lg:col-span-2 flex flex-col items-start lg:px-3 mb-12 lg:mb-0  ">
+        <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-20 lg:gap-y-8 items-baseline ">
+          <nav className="col-start-1 px-6 col-span-1 lg:col-start-1 lg:col-span-2 flex flex-col items-start lg:px-3">
             {NAV_LINKS.map((link) => (
               <Button
                 key={link.href}
@@ -117,7 +117,7 @@ export default function Footer() {
         {/* Sits flush against the bottom edge of the footer. leading-none trims
           the wordmark's line box so its glyphs drive the row. */}
         <div className="flex flex-row lg:flex-row justify-between w-full items-baseline px-3 lg:pl-3 lg:pr-12 pb-0">
-          <p className="ml-0 lg:ml-0 font-visual text-7xl lg:text-[8rem] leading-none font-thin lowercase mb-0 text-primary">
+          <p className="ml-0 lg:ml-0 font-visual text-7xl lg:text-[8rem] leading-none font-thin lowercase text-primary">
             multi2.co
           </p>
         </div>

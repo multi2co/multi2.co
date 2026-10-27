@@ -29,9 +29,9 @@ export default function AboutSectionText({
   text?: string;
   /** Overrides the standalone-page padding/scroll when embedded in a column. */
   className?: string;
-  /** Lays the first two paragraphs out side by side — col 4 / col 7 of the
-   *  parent's 12-col grid — instead of one running block. The home page's
-   *  "our concept" block uses this; /about keeps the single flowing block. */
+  /** Lays the paragraphs out on the parent's 12-col grid — one column from
+   *  col 4, beside the label. The home page's "our concept" block uses this;
+   *  /about keeps the standalone flowing block. */
   columns?: boolean;
   /** Renders a CheckButton at col 1, alongside the columned paragraphs —
    *  the "our concept" mark, sharing their grid instead of LandningBlock's
@@ -76,7 +76,7 @@ export default function AboutSectionText({
     return (
       <div
         className={cn(
-          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12 items-baseline gap-y-6 lg:gap-y-6 justify-start h-auto ",
+          " bg-background text-secondary relative isolate w-full col-span-12 flex flex-col lg:grid grid-cols-12   items-baseline gap-y-6 lg:gap-y-6 justify-start h-auto ",
           className,
         )}
       >
@@ -91,19 +91,16 @@ export default function AboutSectionText({
             />
           </div>
         )}
-        {/* One <p> per paragraph, each starting at col 4 and spanning eight
-            on desktop — the first on the label's row. Only the paragraphs
-            after the first indent their opening line by one column: on
-            desktop that's 1 of the paragraph's 8 columns (12.5%); on mobile, a
-            third of the paragraph. No horizontal padding, so the text starts
-            on col 4's line — under M2Nav's "projects". */}
+        {/* One <p> per paragraph. Desktop: one column from col 4 (under
+            M2Nav's "projects") across seven grid columns — the first on the
+            label's row, the rest stacked below it. */}
         {resolvedText?.split("\n\n").map((paragraph, i) => (
           <p
             key={i}
             className={cn(
-              "col-span-3 text-base lg:text-4xl  lg:font-thin font-visual tracking-wide lg:tracking-normal  leading-tight px-0 whitespace-pre-line text-primary",
-              "lg:col-start-4 lg:col-span-7 ",
-              i === 0 ? "lg:row-start-1" : "indent-0 lg:indent-0",
+              "col-span-3 text-xl font-visual font-normal tracking-[0.25px] lg:tracking-normal leading-tight px-6 lg:px-0 whitespace-pre-line text-primary",
+              "lg:col-start-4 lg:col-span-6",
+              i === 0 && "lg:row-start-1",
             )}
           >
             {paragraph}
@@ -128,7 +125,7 @@ export default function AboutSectionText({
         // siblings the wrapper could actually close up.
         <p
           key={i}
-          className="indent-[calc(33.3vw-1rem)]  lg:indent-12 pText font-thin  px-3 lg:px-0  lg:mb-0 lowercase  lg:max-w-2xl whitespace-pre-line "
+          className="indent-[calc(33.3vw-1rem)]  lg:indent-12 pText font-thin  px-3 lg:px-0 lowercase  lg:max-w-2xl whitespace-pre-line "
         >
           {paragraph}
         </p>

@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import type { GridItem } from "@/context/WorkContext";
 import PixelFrame from "./PixelFrame";
 import CheckButton from "./CheckButton";
-import TypeInView from "./TypeInView";
 import { useScrollInset } from "@/lib/useScrollInset";
 
 const MotionLink = motion.create(Link);
@@ -57,34 +56,54 @@ export default function FeaturedCard({
   // The card wrapper gives the sticky text room to travel — the full height
   // of text + media — and takes it away again when the card ends.
   return (
-    <div className={cn("relative w-full", className)}>
+    <div className={cn("relative w-full flex flex-col gap-y-6", className)}>
       <MotionLink
         {...reveal}
         href={href}
-        className="group sticky top-16 z-0 block w-full mb-6"
+        className="group sticky top-16 z-0 block w-full"
       >
         {/* Text row: stacked on mobile; on desktop its own 12-col grid laid
-          over M2Nav's bar — same 12px inset (`-mx-3` cancels the list's
-          extra padding) and no column gap — so the client lines up under
-          "about" (col 7) and the call to action under "connect" (col 10).
-          All on one row (`row-start-1`), sitting on the intro's last line
+          over M2Nav's bar, so the call to action lines up under "connect"
+          (col 10). The intro sits at col 1 and the client at col 7 (mobile
+          runs the client inline before the intro instead). All on one row
+          (`row-start-1`), sitting on the intro's last line
           (`items-baseline-last`). The buttons are `size="label"` like the
           bar's: `lg` adds its own `lg:px-3`, which `className` can't undo. */}
-        <div className="flex flex-col gap-6 px-0  lg:px-2 lg:gap-x-3 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-baseline-last">
+        <div className="flex flex-col gap-6 px-0  lg:px-3 lg:gap-x-3 lg:pt-6 lg:col-span-12 lg:grid lg:grid-cols-12 lg:items-baseline-last">
           <div className="flex flex-col gap-0 lg:pl-4 lg:row-start-1 lg:col-start-1 lg:col-span-4">
             {project.heroIntro && (
-              <TypeInView
-                text={project.heroIntro}
-                className="text-3xl lg:text-4xl font-visual text-primary  font-thin leading-tight"
-              />
+              <div className="text-3xl lg:text-4xl lg:indent-6 font-visual text-primary  font-thin leading-tight">
+                {/* Mobile: the client leads, inline, with the intro running on
+                    after it. Desktop has its own client cell at col 7 below.
+                    (The spacing sits on a wrapper: CheckButton puts its
+                    className on both its outer and inner box, so `mr-3` there
+                    would apply twice.) */}
+                {project.client && (
+                  <span className="mr-3 lg:hidden">
+                    <CheckButton
+                      label={project.client}
+                      size="label"
+                      color="text-primary"
+                      className="inline-flex"
+                      active
+                    />
+                  </span>
+                )}
+                {project.heroIntro}
+              </div>
             )}
           </div>
+          {/* The client's own cell: desktop col 7, under M2Nav's "about".
+              On mobile it only shows when there's no intro to lead. */}
           {project.client && (
             <CheckButton
               label={project.client}
               size="label"
               color="text-primary"
-              className="  flex lg:row-start-1 lg:col-start-7 lg:col-span-2"
+              className={cn(
+                "lg:flex lg:row-start-1 lg:col-start-7 lg:col-span-2",
+                project.heroIntro ? "hidden" : "flex",
+              )}
               active
             />
           )}
@@ -134,7 +153,8 @@ export default function FeaturedCard({
             mediaType={mediaType}
             videoMuted
             alt={project.alt}
-            sizes="100vw"
+            // Shown at 75% of the row on desktop — ask for that, not 100vw.
+            sizes="75vw"
             className="hidden lg:block w-full lg:w-3/4 lg:mx-auto aspect-video lg:pixel-corners-2"
           />
         </motion.div>

@@ -180,7 +180,6 @@
   --font-serif: var(--font-serif);
   /* set on <html> by next/font/local in layout.tsx */
   --font-visual: var(--font-visual);
-  --font-multi-dots: var(--font-multi-dots);
   --font-diatype: var(--font-diatype);
   --font-karl: var(--font-karl);
 
@@ -403,15 +402,28 @@ html.multi2_blue {
   --ring: oklch(0.452 0.3132 264.05);
 }
 
+/* Green, light: a pure rgb(0,255,0) page with black text — green on white
+   would be unreadable. `secondary` is a pale green so the cards and footer
+   (bg-secondary behind text-primary) read apart from the page, and the
+   connect zone (bg-primary) is black with that pale green on it. */
 html.multi2_green {
-  --primary: oklch(0.285 0.097 142.5);
-  --primary-foreground: oklch(0.8664 0.2948 142.5);
-  --secondary: oklch(0.1 0.097 142.5);
-  --secondary-foreground: oklch(0.9 0.097 142.5);
-  --muted-foreground: oklch(0.5 0.14 142.5);
-  --border: oklch(0.285 0.097 142.5);
-  --input: oklch(0.8664 0.2948 142.5);
-  --ring: oklch(0.285 0.097 142.5);
+  --background: rgb(0, 255, 0);
+  --foreground: #000000;
+  --card: rgb(0, 255, 0);
+  --card-foreground: #000000;
+  --popover: rgb(0, 255, 0);
+  --popover-foreground: #000000;
+  --muted: rgb(190, 255, 190);
+  --accent: rgb(190, 255, 190);
+  --accent-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: rgb(0, 255, 0);
+  --secondary: rgb(190, 255, 190);
+  --secondary-foreground: #000000;
+  --muted-foreground: oklch(0.35 0.1 142.5);
+  --border: #000000;
+  --input: #000000;
+  --ring: #000000;
 }
 
 html.multi2_pink {
@@ -440,8 +452,11 @@ html.multi2_teal {
 html.multi2_bw {
   --primary: oklch(0 0 0);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.1 0 0);
-  --secondary-foreground: oklch(0.9 0 0);
+  /* Light, not the near-black the coloured palettes use: with a black
+     primary, a dark secondary would put black on black in the connect zone
+     (bg-primary / text-secondary) and the footer (the reverse). */
+  --secondary: oklch(0.943 0 0);
+  --secondary-foreground: oklch(0.1 0 0);
   --muted-foreground: oklch(0.7044 0 0);
   --border: oklch(0 0 0);
   --input: oklch(0.9435 0 0);
@@ -492,22 +507,22 @@ html.multi2_blue.multi2_dark {
 
 html.multi2_green.multi2_dark {
   --background: oklch(0.16 0.04 142.5);
-  --foreground: oklch(0.8664 0.2948 142.5);
+  --foreground: rgb(0, 255, 0);
   --card: oklch(0.16 0.04 142.5);
-  --card-foreground: oklch(0.8664 0.2948 142.5);
+  --card-foreground: rgb(0, 255, 0);
   --popover: oklch(0.16 0.04 142.5);
-  --popover-foreground: oklch(0.8664 0.2948 142.5);
+  --popover-foreground: rgb(0, 255, 0);
   --muted: oklch(0.24 0.08 142.5);
   --muted-foreground: oklch(0.7 0.2 142.5);
   --accent: oklch(0.24 0.08 142.5);
-  --accent-foreground: oklch(0.8664 0.2948 142.5);
-  --primary: oklch(0.8664 0.2948 142.5);
+  --accent-foreground: rgb(0, 255, 0);
+  --primary: rgb(0, 255, 0);
   --primary-foreground: oklch(0.16 0.04 142.5);
   --secondary: oklch(0.1 0.2948 142.5);
   --secondary-foreground: oklch(0.9 0.2948 142.5);
-  --border: oklch(0.8664 0.2948 142.5);
+  --border: rgb(0, 255, 0);
   --input: oklch(0.32 0.12 142.5);
-  --ring: oklch(0.8664 0.2948 142.5);
+  --ring: rgb(0, 255, 0);
 }
 
 html.multi2_pink.multi2_dark {

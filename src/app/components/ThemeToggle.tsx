@@ -3,15 +3,9 @@
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { THEMES, useTheme } from "@/context/ThemeContext";
-import { useIconStyle } from "@/context/IconStyleContext";
 
-/** The two glyph pairs a CheckButton can draw, keyed by the CMS's icon-style
- *  toggle — kept here rather than imported so this stays a plain glyph
- *  choice, not a dependency on CheckButton's internals. */
-const MARKS = {
-  square: { active: "■", inactive: "■" },
-  dot: { active: "●", inactive: "●" },
-} as const;
+/** Each swatch is a filled square in its palette's colour. */
+const MARK = "■";
 
 const SWATCH_CLASS =
   "-my-px flex h-3 w-3  shrink-0 cursor-pointer items-center justify-center border p-0 font-visual text-xl  leading-none";
@@ -24,8 +18,6 @@ const SWATCH_CLASS =
  */
 export default function ThemeToggle({ className }: { className?: string }) {
   const { theme, selectTheme } = useTheme();
-  const iconStyle = useIconStyle();
-  const marks = MARKS[iconStyle];
   const pathname = usePathname();
 
   // /create has its own scoped palette switcher for the artwork itself —
@@ -57,7 +49,7 @@ export default function ThemeToggle({ className }: { className?: string }) {
               t.swatch,
             )}
           >
-            {active ? marks.active : marks.inactive}
+            {MARK}
           </button>
         );
       })}

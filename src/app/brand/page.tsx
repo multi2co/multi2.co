@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { cn } from "@/lib/utils";
+import type { Metadata } from "next";
+
+/** An internal art board — not linked or in the sitemap, so kept out of
+ *  search results too. */
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const ART_DIR = path.join(process.cwd(), "public", "art");
 const IMAGE_EXT = new Set([

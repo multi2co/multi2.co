@@ -1,4 +1,5 @@
 import HomeClient from "./HomeClient";
+import { WorkContextServer } from "@/context/WorkContextServer";
 import { sanityFetch } from "../../sanity/lib/client";
 import { showreelQuery } from "../../sanity/lib/queries";
 
@@ -27,7 +28,12 @@ export default async function Page() {
   return (
     <>
       <h1 className="sr-only">Multi2 — creative agency in Stockholm</h1>
-      <HomeClient reelUrl={reelUrl} />
+      {/* The project list is fetched only by the pages that show it (here
+          and /projects), not in the root layout — so every other page stays
+          light as the archive grows. */}
+      <WorkContextServer>
+        <HomeClient reelUrl={reelUrl} />
+      </WorkContextServer>
     </>
   );
 }

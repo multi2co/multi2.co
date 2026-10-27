@@ -34,7 +34,7 @@ export default async function ConnectPage() {
       {/* Pushed down to sit flush on the bottom of the page — notched on top
           only, like the footer. */}
       <Reveal className="mt-auto pixel-corners-2-top">
-        <ConnectSection contact={contact ?? undefined} />
+        <ConnectSection contact={contact ?? undefined} className="p-3" />
 
         {contact?.people && contact.people.length > 0 && (
           <div className="grid grid-cols-3 lg:grid-cols-12 gap-y-8 px-6 lg:px-3 pb-24">

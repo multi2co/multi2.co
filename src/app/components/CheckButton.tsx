@@ -3,7 +3,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { useIconStyle } from "@/context/IconStyleContext";
 import TerminalM2Button from "./TerminalM2Button";
 
 type Props = {
@@ -89,10 +88,6 @@ export const SIZE_CHECK = {
 export const MARK_ACTIVE = "■";
 export const MARK_INACTIVE = "□";
 
-/** The dot alternative — swapped in site-wide by the CMS's icon-style toggle. */
-const MARK_ACTIVE_DOT = "●";
-const MARK_INACTIVE_DOT = "○";
-
 export type CheckButtonSize = "sm" | "md" | "lg" | "label" | "xl";
 
 /** The square is the checkbox: primary when active, muted when not. The whole
@@ -117,12 +112,8 @@ export default function CheckButton({
   color,
   checkbox = false,
 }: Props) {
-  const iconStyle = useIconStyle();
-  const markOn =
-    marks?.active ?? (iconStyle === "dot" ? MARK_ACTIVE_DOT : MARK_ACTIVE);
-  const markOff =
-    marks?.inactive ??
-    (iconStyle === "dot" ? MARK_INACTIVE_DOT : MARK_INACTIVE);
+  const markOn = marks?.active ?? MARK_ACTIVE;
+  const markOff = marks?.inactive ?? MARK_INACTIVE;
   const content = (
     <div
       className={cn(

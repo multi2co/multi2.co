@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import React from "react";
 import "./globals.css";
-import { WorkContextServer } from "@/context/WorkContextServer";
 import { AboutContextServer } from "@/context/AboutContextServer";
 import { ContactContextServer } from "@/context/ContactContextServer";
-import { IconStyleContextServer } from "@/context/IconStyleContextServer";
+import { SiteSettingsContextServer } from "@/context/SiteSettingsContextServer";
+import UnderConstruction from "./components/UnderConstruction";
 import { UIProvider } from "@/context/UIContext";
 import { SoundProvider } from "@/context/SoundContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -64,24 +64,8 @@ const visualFont = localFont({
       weight: "400",
       style: "normal",
     },
-    {
-      path: "../../public/fonts/visual/Visual-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/visual/Visual-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
   ],
   variable: "--font-visual",
-  display: "swap",
-});
-
-const multiDotsFont = localFont({
-  src: "../../public/fonts/multi-dots-4-Regular.woff2",
-  variable: "--font-multi-dots",
   display: "swap",
 });
 
@@ -104,33 +88,30 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${visualFont.variable} ${multiDotsFont.variable} antialiased`}
-      >
+      <body className={`${visualFont.variable} antialiased`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(ORGANIZATION_JSON_LD),
           }}
         />
-        <WorkContextServer>
-          <IconStyleContextServer>
-            <AboutContextServer>
-              <ContactContextServer>
-                <UIProvider>
-                  <SoundProvider>
-                    <ThemeProvider>
-                      <ThemeToggle />
-                      <M2Nav />
+        <SiteSettingsContextServer>
+          <AboutContextServer>
+            <ContactContextServer>
+              <UIProvider>
+                <SoundProvider>
+                  <ThemeProvider>
+                    <UnderConstruction />
+                    <ThemeToggle />
+                    <M2Nav />
 
-                      <SmoothScroll>{children}</SmoothScroll>
-                    </ThemeProvider>
-                  </SoundProvider>
-                </UIProvider>
-              </ContactContextServer>
-            </AboutContextServer>
-          </IconStyleContextServer>
-        </WorkContextServer>
+                    <SmoothScroll>{children}</SmoothScroll>
+                  </ThemeProvider>
+                </SoundProvider>
+              </UIProvider>
+            </ContactContextServer>
+          </AboutContextServer>
+        </SiteSettingsContextServer>
       </body>
     </html>
   );

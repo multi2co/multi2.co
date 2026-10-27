@@ -41,12 +41,11 @@ export const THEMES = [
     id: "green",
     label: "Green",
     className: "multi2_green",
-    // The one palette whose primary is the dark half rather than the saturated
-    // one — taking the bright green here would paint the mark in this theme's
-    // own background colour.
-    swatch: "text-[oklch(0.285_0.097_142.5)]",
-    ink: "oklch(0.285 0.097 142.5)",
-    bg: "oklch(0.8664 0.2948 142.5)",
+    // The swatch is the palette's green; in light mode the page itself is
+    // that green and the ink is black.
+    swatch: "text-[rgb(0,255,0)]",
+    ink: "rgb(0, 0, 0)",
+    bg: "rgb(0, 255, 0)",
   },
   {
     id: "pink",

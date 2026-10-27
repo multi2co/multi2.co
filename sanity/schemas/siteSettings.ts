@@ -12,25 +12,25 @@ export const siteSettings = defineType({
       initialValue: "Site Settings",
     }),
     defineField({
-      name: "iconStyle",
-      title: "Icon style",
+      name: "showHeroWordmark",
+      title: "Hero wordmark",
       description:
-        "Swaps the filled-square marks used by every CheckButton and the nav field for filled dots, site-wide.",
-      type: "string",
-      options: {
-        list: [
-          { title: "Filled square (■ / □)", value: "square" },
-          { title: "Filled dot (● / ○)", value: "dot" },
-        ],
-        layout: "radio",
-      },
-      initialValue: "square",
+        'Shows the typed "multisquared" wordmark over the showreel on the home page.',
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
+      name: "underConstruction",
+      title: "Under construction",
+      description:
+        'Covers the whole site with the "under construction" screen. Visitors can still close it.',
+      type: "boolean",
+      initialValue: false,
     }),
   ],
   preview: {
-    select: { iconStyle: "iconStyle" },
-    prepare({ iconStyle }: { iconStyle?: string }) {
-      return { title: "Site Settings", subtitle: iconStyle };
+    prepare() {
+      return { title: "Site Settings" };
     },
   },
 });

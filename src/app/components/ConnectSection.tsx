@@ -62,7 +62,7 @@ export default function ConnectSection({
           "col-span-3 lg:col-start-1 lg:col-span-12 h-auto w-full pb-6",
           className,
         )}
-        contentClassName="col-start-1 col-span-3 lg:col-start-1 lg:col-span-12 lowercase grid grid-cols-3 lg:grid-cols-12 items-start gap-y-6 lg:pb-12 px-0 lg:p-4"
+        contentClassName="col-start-1 col-span-3 lg:col-start-1 lg:col-span-12 lowercase grid grid-cols-3 lg:grid-cols-12 items-start gap-3 gap-y-6 lg:pb-12 px-0"
       >
         <CheckButton
           label="connect with us"
@@ -74,7 +74,7 @@ export default function ConnectSection({
         />
 
         {/* Col 1 — the general links, one column. */}
-        <div className="col-span-3 lg:col-start-4 lg:col-span-3 flex flex-col items-start gap-y-2 pl-6 lg:pl-3 text-secondary lg:pt-12">
+        <div className="col-span-3 lg:col-start-4 lg:col-span-3 flex flex-col items-start gap-y-2 px-6 lg:px-0 text-secondary pt-6 lg:pt-12">
           {links.map((link) => (
             <Button
               key={link.label}
@@ -100,7 +100,7 @@ export default function ConnectSection({
           <div
             key={person.name}
             className={cn(
-              "hidden lg:flex flex-col items-start gap-y-1 pl-3",
+              "hidden lg:flex flex-col items-start gap-y-1 pt-12",
               PERSON_COLS[i],
             )}
           >
